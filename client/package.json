@@ -1,64 +1,42 @@
 {
   "name": "client",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "description": "Docs",
+  "productName": "EasyDoc",
+  "cordovaId": "org.cordova.quasar.app",
+  "capacitorId": "",
+  "author": "stoky",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "eslint --ext .js,.vue src",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "core-js": "^3.6.4",
-    "node-sass": "^4.13.1",
-    "sl-vue-tree": "^1.8.4",
-    "vue": "^2.6.11",
-    "vue-router": "^3.1.5",
-    "vue-runtime-helpers": "^1.1.2",
-    "vuedraggable": "^2.23.2",
-    "vuetify": "^2.2.11",
-    "vuetify-draggable-treeview": "0.0.3"
+    "@quasar/extras": "^1.0.0",
+    "quasar": "^1.0.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.2.0",
-    "@vue/cli-plugin-router": "~4.2.0",
-    "@vue/cli-service": "~4.2.0",
-    "@vue/eslint-config-airbnb": "^5.0.2",
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.7.2",
-    "eslint-plugin-import": "^2.20.1",
+    "@quasar/app": "^1.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^6.1.2",
-    "lint-staged": "^9.5.0",
-    "sass": "^1.19.0",
-    "sass-loader": "^8.0.0",
-    "vue-cli-plugin-vuetify": "~2.0.5",
-    "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.3.0"
+    "quasar-app-extension-draggable": "^0.2.2"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "@vue/airbnb"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
+  "engines": {
+    "node": ">= 10.18.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
   },
   "browserslist": [
-    "> 1%",
-    "last 2 versions"
+    "last 1 version, not dead, ie >= 11"
   ],
-  "gitHooks": {
-    "pre-commit": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,jsx,vue}": [
-      "vue-cli-service lint",
-      "git add"
-    ]
+  "resolutions": {
+    "@babel/parser": "7.7.5"
   }
 }

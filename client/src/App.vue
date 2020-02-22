@@ -1,21 +1,11 @@
 <template>
-  <v-app>
-    <basic-layout/>
-  </v-app>
+  <div id="q-app">
+    <router-view />
+  </div>
 </template>
 
 <script>
-import BasicLayout from './components/BasicLayout';
-
 export default {
-  name: 'App',
-
-  components: {
-    BasicLayout,
-  },
-
-  data: () => ({
-    //
-  }),
-};
+  name: 'App'
+}
 </script>
