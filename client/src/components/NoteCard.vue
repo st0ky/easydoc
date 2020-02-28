@@ -8,7 +8,17 @@
       <q-card-section>
         <div class="row items-center no-wrap">
           <div class="col-start-1">
-            <div class="text-h6"> {{ edit_mode ? edited_note.title : note.title }} </div>
+            <div
+              v-if="!edit_mode"
+              class="text-h6"
+            > {{ note.title }} </div>
+            <q-input
+              v-model="edited_note.title"
+              v-if="edit_mode"
+              filled
+              clearable
+              dense
+            />
           </div>
 
           <div class="col-auto">
@@ -18,6 +28,8 @@
               text-color="white"
               v-for="(tag, idx) in edit_mode ? edited_note.tags : note.tags"
               :key="idx"
+              :removable="edit_mode"
+              @remove="remove_chip(idx)"
             > {{tag}} </q-chip>
           </div>
 
@@ -47,7 +59,16 @@
         </div>
       </q-card-section>
       <q-separator inset />
-      <q-card-section> {{ edit_mode ? edited_note.content : note.content }} </q-card-section>
+      <q-card-section>
+        <q-input
+          v-model="edited_note.content"
+          v-if="edit_mode"
+          filled
+          autogrow
+          type="textarea"
+        />
+        <vue-markdown :source="content" />
+      </q-card-section>
 
       <q-separator v-if="note.links" />
       <q-card-actions vertical>
@@ -62,15 +83,18 @@
 </template>
 
 <script>
+import VueMarkdown from 'vue-markdown'
+
 export default {
   name: 'NoteCard',
   props: ['note'],
+  components: { VueMarkdown },
   data () {
     return {
       edit_mode: false,
       edited_note: {
         title: 'note.title.copy()asd',
-        content: 'note.content.copy()ad',
+        content: 'i am a ~~tast~~ **test**.',
         tags: [],
         links: []
       },
@@ -78,16 +102,21 @@ export default {
     }
   },
   computed: {
+    content () { return this.edit_mode ? this.edited_note.content : this.note.content }
   },
   methods: {
     enter_edit () {
       this.edit_mode = true
       this.edited_note = {
         title: 'this.note.title',
-        content: 'this.note.content',
+        content: 'i אני במבחן am a ~~tast~~ **test**. וכל מה שאומרים here is lie',
         tags: this.note.tags.slice(),
         links: this.note.links.slice()
       }
+    },
+    remove_chip (chip) {
+      console.log(chip)
+      this.edited_note.tags.splice(chip, 1)
     }
   }
 }
