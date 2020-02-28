@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-// import example from './module-example'
+import notes from './notes'
 
 Vue.use(Vuex)
 
@@ -17,13 +17,20 @@ Vue.use(Vuex)
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
-      // example
+      notes
     },
 
     // enable strict mode (adds overhead!)
     // for dev mode only
     strict: process.env.DEV
   })
+
+  if (process.env.DEV && module.hot) {
+    module.hot.accept(['./notes'], () => {
+      const newNotes = require('./notes').default
+      Store.hotUpdate({ modules: { notes: newNotes } })
+    })
+  }
 
   return Store
 }

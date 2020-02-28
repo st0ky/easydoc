@@ -1,6 +1,10 @@
 <template>
   <q-page class="flex flex-center">
-    <note-card :note="note" />
+    <note-card
+      v-for="note in notes"
+      :key="note.id"
+      :note="note"
+    />
   </q-page>
 </template>
 
@@ -10,6 +14,13 @@ import NoteCard from 'components/NoteCard.vue'
 export default {
   name: 'PageIndex',
   components: { NoteCard },
+  computed: {
+    notes: {
+      get () {
+        return this.$store.state.notes.notes
+      }
+    }
+  },
   data () {
     return {
       note: {
