@@ -24,21 +24,39 @@
       bordered
       content-class="bg-grey-1"
     >
-      <div class="q-pa-md bg-grey-10 text-white">
-        <q-tree
-          :nodes="simple"
-          node-key="label"
-          :expanded.sync="expanded"
-          dark
+      <q-tabs
+        v-model="tab"
+        inline-label
+        class="bg-primary text-white shadow-2"
+      >
+        <q-tab
+          v-for="tree of myTrees"
+          :key="tree.name"
+          :name="tree.name"
+          :label="tree.name"
         />
-      </div>
-      <div class="q-pa-md q-gutter-sm">
-        <q-tree
-          :nodes="simple"
-          node-key="label"
-          :expanded.sync="expanded"
-        />
-      </div>
+
+      </q-tabs>
+      <q-separator />
+      <q-tab-panels v-model="tab">
+        <template v-for="tree of myTrees">
+          <q-tab-panel
+            :key="tree.name"
+            :name="tree.name"
+            keep-alive="true"
+          >
+            <div class="q-pa-md q-gutter-sm">
+              <q-tree
+                :nodes="tree.tree"
+                node-key="label"
+                :expanded.sync="expanded"
+              />
+            </div>
+          </q-tab-panel>
+        </template>
+
+      </q-tab-panels>
+
     </q-drawer>
 
     <q-page-container>
@@ -55,8 +73,18 @@ export default {
   components: {
   },
 
+  computed: {
+    myTrees: {
+      get () {
+        return this.$store.getters['notes/GetTrees']
+      }
+    }
+  }
+  ,
+
   data () {
     return {
+      tab: null,
       expanded: ['Satisfied customers (with avatar)', 'Good food (with icon)'],
       simple: [
         {
@@ -95,46 +123,10 @@ export default {
           ]
         }
       ],
+      simple1: this.$store.getters['notes/GetTrees'][0],
 
       leftDrawerOpen: false,
-      essentialLinks: [
-        {
-          title: 'Docs',
-          caption: 'quasar.dev',
-          icon: 'school',
-          link: 'https://quasar.dev'
-        },
-        {
-          title: 'Github',
-          caption: 'github.com/quasarframework',
-          icon: 'code',
-          link: 'https://github.com/quasarframework'
-        },
-        {
-          title: 'Discord Chat Channel',
-          caption: 'chat.quasar.dev',
-          icon: 'chat',
-          link: 'https://chat.quasar.dev'
-        },
-        {
-          title: 'Forum',
-          caption: 'forum.quasar.dev',
-          icon: 'record_voice_over',
-          link: 'https://forum.quasar.dev'
-        },
-        {
-          title: 'Twitter',
-          caption: '@quasarframework',
-          icon: 'rss_feed',
-          link: 'https://twitter.quasar.dev'
-        },
-        {
-          title: 'Facebook',
-          caption: '@QuasarFramework',
-          icon: 'public',
-          link: 'https://facebook.quasar.dev'
-        }
-      ]
+
     }
   }
 }
