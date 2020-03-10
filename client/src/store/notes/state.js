@@ -1,7 +1,35 @@
 export default function () {
-  var trees = new Map()
-  trees.set("ideas", [{note:0, children: []}, {note:1, children: [{note:2, children:[]}, {note:3, children:[]}, {note:4, children:[]}]}])
-  trees.set("mechanisms", [{note:0, children: [{note:4, children:[{note:5, children:[{note:3, children:[]}]}]}]}, {note:1, children: [{note:2, children:[]}]}])
+  var trees = []
+  trees.push({
+    note: 7,
+    children: [
+      { note: 0, children: [] },
+      {
+        note: 1,
+        children: [
+          { note: 0, children: [] },
+          { note: 2, children: [] },
+          { note: 3, children: [] },
+          { note: 4, children: [] }
+        ]
+      }
+    ]
+  })
+  trees.push({
+    note: 8,
+    children: [
+      {
+        note: 0,
+        children: [
+          {
+            note: 4,
+            children: [{ note: 5, children: [{ note: 3, children: [] }] }]
+          }
+        ]
+      },
+      { note: 1, children: [{ note: 2, children: [] }] }
+    ]
+  })
   return {
     notes: {
       0: {
@@ -10,7 +38,7 @@ export default function () {
         content: '## 0\nhere is my תוכן. i like לכתוב בעברית...',
         tags: ['hey', 'vuln', 'interesting'],
         links: ['note-id://1']
-      }, 
+      },
       1: {
         id: 1,
         title: 'hello - 1',
@@ -52,8 +80,22 @@ export default function () {
         content: '## 6\nhere is my תוכן. i like לכתוב בעברית...',
         tags: ['hey', 'interesting'],
         links: ['note-id://0']
-      }, 
+      },
+      7: {
+        id: 7,
+        title: 'ideas',
+        content: '',
+        tags: [],
+        links: []
+      },
+      8: {
+        id: 8,
+        title: 'mechanisms',
+        content: '',
+        tags: [],
+        links: []
+      }
     },
-    trees:trees
+    trees: trees
   }
 }

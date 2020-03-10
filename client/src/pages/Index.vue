@@ -1,9 +1,8 @@
 <template>
   <q-page class="flex flex-center">
     <note-card
-      v-for="note in notes"
-      :key="note.id"
-      :note="note"
+      v-if="focusedNote"
+      :note="focusedNote"
     />
   </q-page>
 </template>
@@ -15,6 +14,14 @@ export default {
   name: 'PageIndex',
   components: { NoteCard },
   computed: {
+    focusedNote: {
+      get () {
+        if (!this.$store.state.notes.focus) {
+          return false
+        }
+        return this.$store.state.notes.notes[this.$store.state.notes.focus]
+      }
+    },
     notes: {
       get () {
         return this.$store.state.notes.notes
