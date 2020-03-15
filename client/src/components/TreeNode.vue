@@ -1,10 +1,30 @@
 <template>
-  <q-input
-    v-model="title"
-    @click.stop
-    @keypress.13.32.stop
-    keep-alive
-  />
+  <div :class="{ 'drag-enter': inDrag }">
+    <div
+      draggable="true"
+      @dragstart="onDragStart"
+      @dragenter="onDragEnter"
+      @dragleave="onDragLeave"
+      @dragover="onDragOver"
+      @drop="onDrop"
+      @dragend="onDragEnd"
+      v-if="!edit"
+      @dblclick.stop="enterEdit"
+      class="q-pa-xs"
+    > {{ title }} </div>
+    <q-input
+      v-if="edit"
+      v-model="title"
+      @click.stop
+      @keypress.32.stop
+      @keypress.13.stop="exitEdit"
+      @blur="exitEdit"
+      square
+      outlined
+      dense
+      autofocus
+    />
+  </div>
 </template>
 
 <script>
@@ -12,10 +32,14 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'TreeNode',
-  props: ['note'],
+  props: ['note', 'tree'],
   components: {},
   data () {
-    return {}
+    return {
+      edit: false,
+      inDrag: 0,
+      isDragged: false
+    }
   },
   computed: {
     ...mapState('notes', [
@@ -27,11 +51,63 @@ export default {
         return this.notes[this.note].title
       },
       set (v) {
-        console.log(v)
         this.$store.commit('notes/updateNote', { note: this.note, title: v });
       }
     }
   },
+  methods: {
+    // store the id of the draggable element
+    enterEdit (e) {
+      this.edit = true
+    },
+    exitEdit (e) {
+      this.edit = false
+    },
+
+    onDragStart (e) {
+      e.dataTransfer.setData('note', this.note)
+      e.dataTransfer.dropEffect = 'move'
+      this.isDragged = true
+    },
+
+    onDragEnd (e) {
+      this.isDragged = false
+    },
+
+    onDragEnter (e) {
+      if (!this.isDragged) {
+        this.inDrag += 1
+        this.$emit('dragEntered')
+      }
+    },
+
+    onDragLeave (e) {
+      if (this.isDragged) return
+      this.inDrag -= 1
+      if (this.inDrag < 0) this.inDrag = 0
+    },
+
+    onDragOver (e) {
+      if (!this.isDragged) {
+        e.preventDefault()
+      }
+    },
+
+    onDrop (e) {
+      if (!this.inDrag) return
+      this.inDrag = 0
+      e.preventDefault()
+      this.$store.commit('notes/moveNote', { tree: this.tree.nodes[0].note, note: parseInt(e.dataTransfer.getData('note')), newParent: this.note });
+
+    }
+  }
 
 }
 </script>
+
+<style>
+.drag-enter {
+  outline: 1px solid #000000;
+  outline-style: dashed;
+}
+</style>

@@ -42,8 +42,8 @@
           >
             <q-tab
               v-for="tree of trees"
-              :key="notes[tree.note].title"
-              :name="notes[tree.note].title"
+              :key="tree.note"
+              :name="tree.note"
               :label="notes[tree.note].title"
             />
 
@@ -52,8 +52,8 @@
           <q-tab-panels v-model="tab">
             <template v-for="tree of trees">
               <q-tab-panel
-                :key="notes[tree.note].title"
-                :name="notes[tree.note].title"
+                :key="tree.note"
+                :name="tree.note"
                 keep-alive="true"
               >
                 <q-tree
@@ -62,7 +62,10 @@
                   label-key="note"
                 >
                   <template v-slot:default-header="prop">
-                    <tree-node :note="prop.node.note" />
+                    <tree-node
+                      :note="prop.node.note"
+                      :tree="prop.tree"
+                    />
 
                   </template>
                 </q-tree>

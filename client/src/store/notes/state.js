@@ -7,7 +7,6 @@ export default function () {
       {
         note: 1,
         children: [
-          { note: 0, children: [] },
           { note: 2, children: [] },
           { note: 3, children: [] },
           { note: 4, children: [] }
