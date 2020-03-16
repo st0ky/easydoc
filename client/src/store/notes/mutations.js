@@ -34,7 +34,9 @@ export const setFocuse = function (state, noteid) {
   state.notes.focus = _.has(state.notes, noteid) ? noteid : false
 }
 
-function createFlattenTrees (state) {
+export const createFlattenTrees = function (state) {
+  if (state.flattenTrees) return
+
   state.flattenTrees = {}
   const tmp = []
   let tmp_obj = null

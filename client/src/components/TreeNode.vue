@@ -11,7 +11,15 @@
       v-if="!edit"
       @dblclick.stop="enterEdit"
       class="q-pa-xs"
-    > {{ title }} </div>
+    >
+      <router-link
+        tag="div"
+        class="cursor-pointer"
+        :to="{name: 'noteView', params: { tree: tree.nodes[0].note, note: note}}"
+      >
+        {{ title }}
+      </router-link>
+    </div>
     <q-input
       v-if="edit"
       v-model="title"

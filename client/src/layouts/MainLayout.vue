@@ -60,6 +60,7 @@
                   :nodes="[tree]"
                   node-key="note"
                   label-key="note"
+                  default-expand-all
                 >
                   <template v-slot:default-header="prop">
                     <tree-node
@@ -131,65 +132,17 @@ export default {
 
   data () {
     return {
-      tab: null,
+      tab: parseInt(this.$route.params.tree),
       booleanTest: false,
       drawerLeft: true,
       drawerRight: false,
       splitterModel: 200,
-      expanded: ['Satisfied customers (with avatar)', 'Good food (with icon)'],
-      simple: [
-        {
-          label: 'Satisfied customers (with avatar)',
-          avatar: 'https://cdn.quasar.dev/img/boy-avatar.png',
-          children: [
-            {
-              label: 'אני כותב בעיברית and in english ביחד',
-              icon: 'restaurant_menu',
-              children: [
-                { label: 'Quality ingredients' },
-                { label: 'Good recipe' }
-              ]
-            },
-            {
-              label: 'Good service (disabled node with icon)',
-              icon: 'room_service',
-              disabled: true,
-              children: [
-                { label: 'Prompt attention' },
-                { label: 'Professional waiter' }
-              ]
-            },
-            {
-              label: 'Pleasant surroundings (with icon)',
-              icon: 'photo',
-              children: [
-                {
-                  label: 'Happy atmosphere (with image)',
-                  img: 'https://cdn.quasar.dev/img/logo_calendar_128px.png'
-                },
-                { label: 'Good table presentation' },
-                { label: 'Pleasing decor' }
-              ]
-            }
-          ]
-        }
-      ],
-
       leftDrawerOpen: false,
 
     }
   }
 }
 </script>
-
-<!-- <style scoped>
-.splitt
-  .q-splitter__before {
-    transition: width 0.2s ease-out,
-    width: 0px !important
-  }
-
-</style> -->
 
 <style lang="sass">
 .splitt

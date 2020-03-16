@@ -1,5 +1,6 @@
 <template>
   <q-page class="flex flex-center">
+    <div> AAAAAAAAAAAAa </div>
     <note-card
       v-if="focusedNote"
       :note="focusedNote"
