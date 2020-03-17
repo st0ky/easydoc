@@ -6,14 +6,14 @@
       class="my-card bg-grey-1"
     >
       <q-card-section>
-        <div class="row items-center no-wrap">
-          <div class="col-start-1">
+        <div class="row items-center no-wrap fit">
+          <div class="col-5">
             <div
               v-if="!edit_mode"
-              class="text-h6"
-            > {{ note.title }} </div>
+              :class="{'text-h6' : title.length < 10}"
+            > {{ title }} </div>
             <q-input
-              v-model="edited_note.title"
+              v-model="title"
               v-if="edit_mode"
               filled
               clearable
@@ -21,32 +21,54 @@
             />
           </div>
 
-          <div class="col-auto">
-            <q-chip
-              size="sm"
-              color="primary"
-              text-color="white"
-              v-for="(tag, idx) in edit_mode ? edited_note.tags : note.tags"
-              :key="idx"
-              :removable="edit_mode"
-              @remove="remove_chip(idx)"
-            > {{tag}} </q-chip>
+          <div class="col-4">
+            <q-select
+              v-if="edit_mode"
+              label="tags"
+              filled
+              v-model="tags"
+              use-input
+              use-chips
+              multiple
+              :options="$store.state.notes.tags"
+              input-debounce="0"
+              dense
+              new-value-mode="add-unique"
+            />
+            <template v-if="!edit_mode">
+              <q-chip
+                size="sm"
+                color="primary"
+                text-color="white"
+                v-for="(tag, idx) in tags"
+                :key="idx"
+                :removable="edit_mode"
+                @remove="remove_chip(tag)"
+              > {{tag}} </q-chip>
+            </template>
           </div>
 
-          <div class="col-end">
+          <div class="col-3 row justify-end">
             <q-btn
               color="grey-7"
               round
               flat
               icon="edit"
-              v-if="!edit_mode"
+              v-if="!edit_mode && editable"
               @click="enter_edit"
             />
             <q-btn
-              color="grey-7"
+              color="green"
               round
               flat
-              icon="save"
+              icon="done"
+              v-if="edit_mode"
+            />
+            <q-btn
+              color="red"
+              round
+              flat
+              icon="cancel"
               v-if="edit_mode"
             />
             <q-btn
@@ -54,14 +76,18 @@
               round
               flat
               icon="delete"
+              v-if="!edit_mode"
             />
           </div>
         </div>
       </q-card-section>
-      <q-separator inset />
-      <q-card-section>
+      <q-separator
+        inset
+        v-if="content"
+      />
+      <q-card-section v-if="content || edit_mode">
         <q-input
-          v-model="edited_note.content"
+          v-model="content"
           v-if="edit_mode"
           filled
           autogrow
@@ -70,11 +96,14 @@
         <vue-markdown :source="content" />
       </q-card-section>
 
-      <q-separator v-if="note.links" />
-      <q-card-actions vertical>
+      <q-separator v-if="links.length" />
+      <q-card-actions
+        vertical
+        v-if="links.length"
+      >
         <q-btn
           flat
-          v-for="(link, idx) in edit_mode ? edited_note.links : note.links"
+          v-for="(link, idx) in links"
           :key="idx"
         > {{link}} </q-btn>
       </q-card-actions>
@@ -87,7 +116,10 @@ import VueMarkdown from 'vue-markdown'
 
 export default {
   name: 'NoteCard',
-  props: ['note'],
+  props: {
+    note: Number,
+    editable: Boolean,
+  },
   components: { VueMarkdown },
   data () {
     return {
@@ -102,22 +134,42 @@ export default {
     }
   },
   computed: {
-    content () { return this.edit_mode ? this.edited_note.content : this.note.content }
+    title: {
+      get () { return this.$store.state.notes.notes[this.note].title },
+      set (v) { this.$store.commit('notes/updateNote', { note: this.note, title: v ? v : "" }) }
+    },
+    content: {
+      get () { return this.$store.state.notes.notes[this.note].content },
+      set (v) { this.$store.commit('notes/updateNote', { note: this.note, content: v }) }
+    },
+    tags: {
+      get () { return this.$store.state.notes.notes[this.note].tags },
+      set (v) { this.$store.commit('notes/updateNote', { note: this.note, tags: v }) }
+    },
+    links () { return this.$store.state.notes.notes[this.note].links },
   },
   methods: {
     enter_edit () {
       this.edit_mode = true
       this.edited_note = {
-        title: 'this.note.title',
-        content: 'i אני במבחן am a ~~tast~~ **test**. וכל מה שאומרים here is lie',
-        tags: this.note.tags.slice(),
-        links: this.note.links.slice()
+        title: this.title,
+        content: this.content,
+        tags: this.tags.slice(),
+        links: this.links.slice()
       }
     },
     remove_chip (chip) {
-      console.log(chip)
-      this.edited_note.tags.splice(chip, 1)
+      this.$store.commit('notes/removeTag', { note: this.note, tag: chip })
     }
+  },
+  watch: {
+    $route (to, from) {
+      this.edit_mode = false
+    }
+  },
+  mounted () {
+    console.log("dispatch('notes/prepareTags')")
+    this.$store.dispatch('notes/prepareTags')
   }
 }
 </script>

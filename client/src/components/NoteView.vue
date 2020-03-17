@@ -1,7 +1,8 @@
 <template>
   <note-card
     v-if="note !== null"
-    :note="$store.state.notes.notes[note]"
+    editable
+    :note="note"
   />
 </template>
 
