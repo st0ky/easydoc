@@ -42,8 +42,6 @@
                 text-color="white"
                 v-for="(tag, idx) in tags"
                 :key="idx"
-                :removable="edit_mode"
-                @remove="remove_chip(tag)"
               > {{tag}} </q-chip>
             </template>
           </div>
@@ -62,6 +60,7 @@
               round
               flat
               icon="done"
+              @click="edit_mode=false"
               v-if="edit_mode"
             />
             <q-btn
@@ -69,6 +68,7 @@
               round
               flat
               icon="cancel"
+              @click="cancel"
               v-if="edit_mode"
             />
             <q-btn
@@ -124,13 +124,12 @@ export default {
   data () {
     return {
       edit_mode: false,
-      edited_note: {
-        title: 'note.title.copy()asd',
-        content: 'i am a ~~tast~~ **test**.',
+      originalNote: {
+        title: '',
+        content: '',
         tags: [],
         links: []
       },
-      lorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
     }
   },
   computed: {
@@ -151,15 +150,22 @@ export default {
   methods: {
     enter_edit () {
       this.edit_mode = true
-      this.edited_note = {
+      this.originalNote = {
         title: this.title,
         content: this.content,
         tags: this.tags.slice(),
         links: this.links.slice()
       }
     },
-    remove_chip (chip) {
-      this.$store.commit('notes/removeTag', { note: this.note, tag: chip })
+    cancel () {
+      this.edit_mode = false
+      this.$store.commit('notes/updateNote', {
+        note: this.note,
+        title: this.originalNote.title,
+        content: this.originalNote.content,
+        tags: this.originalNote.tags,
+        links: this.originalNote.links
+      })
     }
   },
   watch: {
