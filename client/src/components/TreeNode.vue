@@ -12,13 +12,13 @@
       @dblclick.stop="enterEdit"
       class="q-pa-xs"
     >
-      <router-link
-        tag="div"
-        class="cursor-pointer"
+      <q-item
+        dense
+        class="q-py-none q-my-none"
         :to="{name: 'noteView', params: { tree: tree.nodes[0].note, note: note}}"
       >
         {{ title }}
-      </router-link>
+      </q-item>
     </div>
     <q-input
       v-if="edit"
