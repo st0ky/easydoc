@@ -1,6 +1,12 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout
+    view="lHh Lpr lFf"
+    :class="$q.dark.isActive ? 'bg-grey-9 text-white' : ''"
+  >
+    <q-header
+      elevated
+      :class="$q.dark.isActive ? 'bg-grey-6' : ''"
+    >
       <q-toolbar>
         <q-btn
           flat
@@ -14,6 +20,39 @@
         <q-toolbar-title>
           EasyDoc
         </q-toolbar-title>
+
+        <q-btn
+          flat
+          dense
+          round
+          icon="more_vert"
+          aria-label="Menu"
+        >
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item
+                clickable
+                v-close-popup
+              >
+                <q-item-section>New tree</q-item-section>
+              </q-item>
+              <q-item
+                clickable
+                v-close-popup
+              >
+                <q-item-section>New note</q-item-section>
+              </q-item>
+              <q-item>
+                <q-toggle
+                  v-model="$q.dark.isActive"
+                  label="Dark mode"
+                  left-label
+                />
+              </q-item>
+
+            </q-list>
+          </q-menu>
+        </q-btn>
 
       </q-toolbar>
     </q-header>
@@ -30,7 +69,7 @@
           v-model="leftDrawerOpen"
           show-if-above
           bordered
-          content-class="bg-grey-1"
+          :content-class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
           :width="drawerWidth"
           :breakpoint="0"
         >
@@ -38,7 +77,7 @@
             v-model="tab"
             inline-label
             elevated
-            class="bg-primary text-white"
+            :class="$q.dark.isActive ? '' : 'bg-primary text-white'"
           >
             <q-tab
               v-for="tree of trees"

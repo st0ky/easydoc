@@ -3,7 +3,8 @@
     <q-card
       flat
       bordered
-      class="my-card bg-grey-1"
+      class="my-card"
+      :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
     >
       <q-card-section>
         <div class="row items-center no-wrap fit">
@@ -48,7 +49,7 @@
 
           <div class="col-3 row justify-end">
             <q-btn
-              color="grey-7"
+              :color="$q.dark.isActive ? '' : 'grey-7'"
               round
               flat
               icon="edit"
@@ -72,7 +73,7 @@
               v-if="edit_mode"
             />
             <q-btn
-              color="grey-7"
+              :color="$q.dark.isActive ? '' : 'grey-7'"
               round
               flat
               icon="delete"

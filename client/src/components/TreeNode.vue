@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'drag-enter': inDrag }">
+  <div :class="{ 'drag-enter-light': inDrag && !$q.dark.isActive,  'drag-enter-dark': inDrag && $q.dark.isActive}">
     <div
       draggable="true"
       @dragstart="onDragStart"
@@ -114,8 +114,12 @@ export default {
 </script>
 
 <style>
-.drag-enter {
+.drag-enter-light {
   outline: 1px solid #000000;
+  outline-style: dashed;
+}
+.drag-enter-dark {
+  outline: 1px solid #ffffff;
   outline-style: dashed;
 }
 </style>
