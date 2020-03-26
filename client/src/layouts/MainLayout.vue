@@ -29,7 +29,7 @@
           aria-label="Menu"
         >
           <q-menu>
-            <q-list style="min-width: 100px">
+            <q-list style="min-width: 160px">
               <q-item
                 clickable
                 v-close-popup
@@ -38,6 +38,7 @@
               </q-item>
               <q-item
                 clickable
+                @click="newNote"
                 v-close-popup
               >
                 <q-item-section>New note</q-item-section>
@@ -56,12 +57,12 @@
 
       </q-toolbar>
     </q-header>
-
     <q-splitter
       v-model="splitterModel"
       unit="px"
       emit-immediately
       :class="splitterClass"
+      class="row"
       @input="onChange"
     >
       <template v-slot:before>
@@ -88,18 +89,25 @@
 
           </q-tabs>
           <q-separator />
-          <q-tab-panels v-model="tab">
+          <q-tab-panels
+            v-model="tab"
+            @transition="selectedTreeNode=null"
+          >
             <template v-for="tree of trees">
               <q-tab-panel
                 :key="tree.note"
                 :name="tree.note"
                 keep-alive="true"
+                @keyup.n="newNote"
+                @keyup.insert="newNote"
+                @keyup.46="deleteNote(tree.note, selectedTreeNode)"
               >
                 <q-tree
                   :nodes="[tree]"
                   node-key="note"
                   label-key="note"
                   default-expand-all
+                  @update:selected="selectedTreeNode=target"
                 >
                   <template v-slot:default-header="prop">
                     <tree-node
@@ -140,11 +148,11 @@ export default {
   },
 
   computed: {
-    myTrees: {
-      get () {
-        return this.$store.getters['notes/GetTrees']
-      }
-    },
+    // myTrees: {
+    //   get () {
+    //     return this.$store.getters['notes/GetTrees']
+    //   }
+    // },
     ...mapState('notes', [
       'notes',
       'trees'
@@ -166,12 +174,37 @@ export default {
     onTreeClicked (v) {
 
       this.$store.commit('notes/setFocuse', val);
+    },
+    newNote () {
+      console.log(this.selectedTreeNode)
+      let parent = this.selectedTreeNode != null ? this.selectedTreeNode : -1;
+      this.$store.commit("notes/newNote", { title: "new note", tree: this.tab, parent: parent })
+      this.$router.push({ name: 'noteView', params: { tree: this.tab, note: this.$store.state.notes.lastCreatedNote } })
+    },
+    deleteNote (tree = null, note = null) {
+      let parent = this.$store.state.notes.flattenTrees[tree][note].parent
+      this.$store.commit('notes/deleteNote', note)
+      this.$router.push({ name: 'noteView', params: { tree: tree, note: parent } })
+    },
+    keypress (e) {
+      console.log(e)
     }
+  },
+  watch: {
+    $route (to, from) {
+      this.tab = parseInt(this.$route.params.tree)
+      this.selectedTreeNode = parseInt(this.$route.params.note)
+    }
+  },
+  mounted () {
+    this.tab = parseInt(this.$route.params.tree)
+    this.selectedTreeNode = parseInt(this.$route.params.note)
   },
 
   data () {
     return {
       tab: parseInt(this.$route.params.tree),
+      selectedTreeNode: parseInt(this.$route.params.note),
       booleanTest: false,
       drawerLeft: true,
       drawerRight: false,

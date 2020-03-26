@@ -30,6 +30,7 @@ export default function () {
     ]
   })
   return {
+    lastCreatedNote: null,
     notes: {
       0: {
         id: 0,
@@ -90,6 +91,20 @@ export default function () {
       8: {
         id: 8,
         title: 'mechanisms',
+        content: '',
+        tags: [],
+        links: []
+      },
+      9: {
+        id: 9,
+        title: '999999',
+        content: '',
+        tags: [],
+        links: []
+      },
+      10: {
+        id: 10,
+        title: '100000000000000',
         content: '',
         tags: [],
         links: []

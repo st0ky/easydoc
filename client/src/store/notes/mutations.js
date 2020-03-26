@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 export const updateNote = function (
   state,
   { note, title = null, content = null, tags = null, links = null } = {}
@@ -50,19 +52,60 @@ export const removeLink = function (state, { note, link } = {}) {
 
 export const newNote = function (
   state,
-  title = '',
-  content = '',
-  tags = [],
-  links = []
+  {
+    title = '',
+    content = '',
+    tags = [],
+    links = [],
+    tree = null,
+    parent = null
+  } = {},
+  id = null
 ) {
   var newNote = {
-    id: Object.keys(state.notes).length,
+    id: id == null ? Math.max(...Object.keys(state.notes)) + 1 : id,
     title,
     content,
     tags,
     links
   }
-  state.notes.push(newNote)
+  Vue.set(state.notes, newNote.id, newNote)
+  if (id != null) return
+  createFlattenTrees(state)
+  for (const tree of Object.keys(state.flattenTrees)) {
+    const new_node = { note: newNote.id, children: [], parent: -1 }
+    Vue.set(state.flattenTrees[tree], newNote.id, new_node)
+    const unrelated = state.flattenTrees[tree][-1]
+    unrelated.children.push(new_node)
+  }
+  if (id == null && tree != null && parent != null) {
+    moveNote(state, { tree: tree, note: newNote.id, newParent: parent })
+  }
+  state.lastCreatedNote = newNote.id
+}
+
+export const deleteNote = function (state, note) {
+  if (!state.notes[note]) {
+    console.log("note '%s' not found", note)
+    return
+  }
+  if (note == -1) {
+    console.log('unrelated can not be deleted')
+    return
+  }
+  createFlattenTrees(state)
+  if (state.flattenTrees[note]) {
+    console.log("note '%s' is a tree", note)
+    return
+  }
+  for (const tree of Object.values(state.flattenTrees)) {
+    parent = tree[tree[note].parent]
+    parent.children.splice(parent.children.indexOf(tree[note]), 1)
+    for (const child of tree[note].children) {
+      moveNote(state, { tree: null, note: child.note, newParent: -1 }, tree)
+    }
+  }
+  Vue.delete(state.notes, note)
 }
 
 export const setFocuse = function (state, noteid) {
@@ -76,13 +119,13 @@ export const createFlattenTrees = function (state) {
   const tmp = []
   let tmp_obj = null
   for (var tree of state.trees) {
-    const obj = {}
-    state.flattenTrees[tree.note] = obj
+    const flattedTree = {}
+    state.flattenTrees[tree.note] = flattedTree
     tree.parent = null
     tmp.push(tree)
     while (tmp.length) {
       tmp_obj = tmp.pop()
-      obj[tmp_obj.note] = tmp_obj
+      flattedTree[tmp_obj.note] = tmp_obj
       if (tmp_obj.children) {
         for (var child of tmp_obj.children) {
           child.parent = tmp_obj.note
@@ -90,17 +133,49 @@ export const createFlattenTrees = function (state) {
         }
       }
     }
+    if (!state.notes[-1]) {
+      newNote(
+        state,
+        { title: 'unrelated', content: '', tags: [], links: [] },
+        -1
+      )
+    }
+    const unrelated = { note: -1, children: [], parent: tree.note }
+    flattedTree[unrelated.note] = unrelated
+    console.log(tree.note)
+    flattedTree[tree.note].children.push(unrelated)
+    for (var note of Object.keys(state.notes)) {
+      note = parseInt(note)
+      if (flattedTree[note]) continue
+      tmp_obj = {
+        note: note,
+        children: [],
+        parent: unrelated.note
+      }
+      flattedTree[tmp_obj.note] = tmp_obj
+      unrelated.children.push(tmp_obj)
+    }
   }
+  console.log(state.flattenTrees)
 }
 
 export const moveNote = function (
   state,
-  { tree, note, newParent, newIndex = 0 } = {}
+  { tree, note, newParent, newIndex = 0 } = {},
+  flattedTree = null
 ) {
   if (!state.flattenTrees) {
     createFlattenTrees(state)
   }
-  tree = state.flattenTrees[tree]
+  if (flattedTree) {
+    tree = flattedTree
+  } else {
+    if (!state.flattenTrees[tree]) {
+      console.log("tree '%s' not found", tree)
+      return
+    }
+    tree = state.flattenTrees[tree]
+  }
   if (!tree[note]) {
     console.log("note '%s' not found", note)
     return
@@ -125,7 +200,6 @@ export const moveNote = function (
 export const prepareTags = function (state) {
   if (state.tags) return
   const tmp = new Set()
-  console.log(state.notes)
   for (const note of Object.values(state.notes)) {
     for (const tag of note.tags) {
       tmp.add(tag)

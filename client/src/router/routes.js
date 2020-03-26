@@ -10,8 +10,8 @@ const routes = [
         component: () => import('components/NoteView.vue'),
         props (route) {
           const props = { ...route.params }
-          props.note = +props.note
-          props.tree = +props.tree
+          props.note = parseInt(props.note)
+          props.tree = parseInt(props.tree)
           return props
         }
       }

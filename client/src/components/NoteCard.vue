@@ -5,6 +5,7 @@
       bordered
       class="my-card"
       :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
+      v-if="$store.state.notes.notes[note]"
     >
       <q-card-section>
         <div class="row items-center no-wrap fit">
@@ -53,7 +54,7 @@
               round
               flat
               icon="edit"
-              v-if="!edit_mode && editable"
+              v-if="note!= -1 && !edit_mode && editable"
               @click="enter_edit"
             />
             <q-btn
@@ -76,8 +77,9 @@
               :color="$q.dark.isActive ? '' : 'grey-7'"
               round
               flat
+              @click="$store.commit('notes/deleteNote', note)"
               icon="delete"
-              v-if="!edit_mode"
+              v-if="note != -1 && !edit_mode && $store.state.notes.flattenTrees && !$store.state.notes.flattenTrees[note]"
             />
           </div>
         </div>
@@ -175,7 +177,6 @@ export default {
     }
   },
   mounted () {
-    console.log("dispatch('notes/prepareTags')")
     this.$store.dispatch('notes/prepareTags')
   }
 }

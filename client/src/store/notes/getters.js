@@ -13,15 +13,15 @@ function recurse_tree (state, tree) {
   return res
 }
 
-export function GetTrees (state) {
-  var l = []
-  for (var [name, children] of state.trees) {
-    var ll = []
-    for (var child of children) {
-      ll.push(recurse_tree(state, child))
-    }
-    l.push({ name: name, tree: ll })
-  }
-  console.log(l)
-  return l
-}
+// export function GetTrees (state) {
+//   var l = []
+//   for (var [name, children] of state.trees) {
+//     var ll = []
+//     for (var child of children) {
+//       ll.push(recurse_tree(state, child))
+//     }
+//     l.push({ name: name, tree: ll })
+//   }
+//   console.log(l)
+//   return l
+// }

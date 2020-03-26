@@ -1,6 +1,9 @@
 <template>
   <div :class="{ 'drag-enter-light': inDrag && !$q.dark.isActive,  'drag-enter-dark': inDrag && $q.dark.isActive}">
-    <div
+    <q-item
+      dense
+      :to="{name: 'noteView', params: { tree: tree.nodes[0].note, note: note}}"
+      :active="active"
       draggable="true"
       @dragstart="onDragStart"
       @dragenter="onDragEnter"
@@ -10,21 +13,17 @@
       @dragend="onDragEnd"
       v-if="!edit"
       @dblclick.stop="enterEdit"
+      @keyup="newNote"
       class="q-pa-xs"
     >
-      <q-item
-        dense
-        class="q-py-none q-my-none"
-        :to="{name: 'noteView', params: { tree: tree.nodes[0].note, note: note}}"
-      >
-        {{ title }}
-      </q-item>
-    </div>
+      {{ title }}
+    </q-item>
     <q-input
       v-if="edit"
       v-model="title"
       @click.stop
-      @keypress.32.stop
+      @keypress.stop
+      @keyup.stop
       @keypress.13.stop="exitEdit"
       @blur="exitEdit"
       square
@@ -45,6 +44,7 @@ export default {
   data () {
     return {
       edit: false,
+      active: false,
       inDrag: 0,
       isDragged: false
     }
@@ -61,7 +61,22 @@ export default {
       set (v) {
         this.$store.commit('notes/updateNote', { note: this.note, title: v });
       }
-    }
+    },
+    // active: {
+    //   get () {
+    //     return this._active
+    //   },
+    //   set (v) {
+    //     console.log('active')
+    //     this._active = v
+    //     let note = this.note
+    //     while (note != null) {
+    //       console.log(note)
+    //       this.tree.setExpanded(note, true)
+    //       note = this.$store.state.notes.flattenTrees[this.tree.nodes[0].note][note].parent
+    //     }
+    //   }
+    // }
   },
   methods: {
     // store the id of the draggable element
@@ -106,7 +121,39 @@ export default {
       this.inDrag = 0
       e.preventDefault()
       this.$store.commit('notes/moveNote', { tree: this.tree.nodes[0].note, note: parseInt(e.dataTransfer.getData('note')), newParent: this.note });
+      this.expandPath(this.note)
+    },
 
+    newNote (e) {
+      console.log(e)
+      this.$store.commit("notes/newNote", { title: "new note", tree: this.tree, parent: this.note })
+      this.$router.push({ name: 'noteView', params: { tree: this.tree, note: this.$store.state.notes.lastCreatedNote } })
+    },
+
+    expandPath (note) {
+      while (note != null) {
+        this.tree.setExpanded(note, true)
+        if (this.$store.state.notes.flattenTrees === undefined) break
+        note = this.$store.state.notes.flattenTrees[this.tree.nodes[0].note][note].parent
+      }
+    }
+  },
+  watch: {
+    $route (to, from) {
+      if (parseInt(this.$route.params.note) == this.note) {
+        this.expandPath(this.note)
+      }
+    }
+  },
+  mounted: function () {
+    // this.note = parseInt(this.note)
+    if (parseInt(this.$route.params.note) == this.note) {
+      this.expandPath(this.note)
+    }
+  },
+  updated: function () {
+    if (parseInt(this.$route.params.note) == this.note) {
+      this.expandPath(this.note)
     }
   }
 
