@@ -133,7 +133,7 @@ export default {
     expandPath (note) {
       while (note != null) {
         this.tree.setExpanded(note, true)
-        if (this.$store.state.notes.flattenTrees === undefined) break
+        if (!this.$store.state.notes.flattenTrees || !this.$store.state.notes.flattenTrees[this.tree.nodes[0].note]) break
         note = this.$store.state.notes.flattenTrees[this.tree.nodes[0].note][note].parent
       }
     }

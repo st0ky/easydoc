@@ -6,6 +6,9 @@
       class="my-card"
       :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
       v-if="$store.state.notes.notes[note]"
+      @dblclick="enter_edit"
+      @keyup.esc="cancel"
+      @keyup.ctrl.enter="edit_mode=false"
     >
       <q-card-section>
         <div class="row items-center no-wrap fit">
@@ -20,6 +23,7 @@
               filled
               clearable
               dense
+              autofocus
             />
           </div>
 
@@ -122,6 +126,7 @@ export default {
   props: {
     note: Number,
     editable: Boolean,
+    clickable: Boolean,
   },
   components: { VueMarkdown },
   data () {
@@ -152,6 +157,7 @@ export default {
   },
   methods: {
     enter_edit () {
+      if (!this.editable && !this.clickable || this.note == -1) return
       this.edit_mode = true
       this.originalNote = {
         title: this.title,
@@ -185,5 +191,4 @@ export default {
 <style lang="sass" scoped>
 .my-card
   width: 100%
-  max-width: 500px
 </style>

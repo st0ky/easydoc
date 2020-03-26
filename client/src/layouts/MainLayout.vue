@@ -1,6 +1,6 @@
 <template>
   <q-layout
-    view="lHh Lpr lFf"
+    view="Lhh Lpr lff"
     :class="$q.dark.isActive ? 'bg-grey-9 text-white' : ''"
   >
     <q-header
@@ -62,7 +62,6 @@
       unit="px"
       emit-immediately
       :class="splitterClass"
-      class="row"
       @input="onChange"
     >
       <template v-slot:before>
@@ -127,7 +126,7 @@
 
       <template v-slot:after>
 
-        <q-page-container>
+        <q-page-container style="padding-right: 0">
           <router-view />
         </q-page-container>
       </template>
@@ -148,11 +147,6 @@ export default {
   },
 
   computed: {
-    // myTrees: {
-    //   get () {
-    //     return this.$store.getters['notes/GetTrees']
-    //   }
-    // },
     ...mapState('notes', [
       'notes',
       'trees'

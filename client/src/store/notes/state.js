@@ -110,6 +110,7 @@ export default function () {
         links: []
       }
     },
-    trees: trees
+    trees: trees,
+    flattenTrees: {}
   }
 }

@@ -113,14 +113,12 @@ export const setFocuse = function (state, noteid) {
 }
 
 export const createFlattenTrees = function (state) {
-  if (state.flattenTrees) return
+  if (Object.keys(state.flattenTrees).length) return
 
-  state.flattenTrees = {}
   const tmp = []
   let tmp_obj = null
   for (var tree of state.trees) {
     const flattedTree = {}
-    state.flattenTrees[tree.note] = flattedTree
     tree.parent = null
     tmp.push(tree)
     while (tmp.length) {
@@ -155,6 +153,7 @@ export const createFlattenTrees = function (state) {
       flattedTree[tmp_obj.note] = tmp_obj
       unrelated.children.push(tmp_obj)
     }
+    Vue.set(state.flattenTrees, tree.note, flattedTree)
   }
   console.log(state.flattenTrees)
 }
