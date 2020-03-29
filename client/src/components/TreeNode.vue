@@ -17,6 +17,13 @@
       class="q-pa-xs"
     >
       {{ title }}
+      <div class="q-pl-sm q-gutter-xs">
+        <q-badge
+          v-for="(tag, i) in notes[note].tags"
+          :key="i"
+          color="primary"
+        > {{ tag }} </q-badge>
+      </div>
     </q-item>
     <q-input
       v-if="edit"
