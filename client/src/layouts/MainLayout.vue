@@ -195,8 +195,7 @@ export default {
       this.$q.dialog({
         component: Confirm,
         parent: this,
-        message: `Do you want to delete "${this.notes[note].title}"
-        `
+        message: `Are you sure you want to permanently delete '${this.notes[note].title}'?`
       }).onOk(() => {
         this.deleteNote(tree, note)
       })

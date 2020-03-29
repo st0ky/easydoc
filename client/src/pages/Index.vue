@@ -1,10 +1,23 @@
 <template>
-  <q-page class="flex flex-center">
-    <div> AAAAAAAAAAAAa </div>
+  <q-page>
     <note-card
-      v-if="focusedNote"
-      :note="focusedNote"
+      primary
+      :note="-2"
+      class="q-pa-md"
     />
+    <q-separator />
+    <q-list class="q-pa-md q-gutter-md column items-start">
+      <div class="text-h6">Trees:</div>
+      <template v-for="(value, tree, index) in $store.state.notes.flattenTrees">
+        <q-item
+          :to="{name: 'noteView', params: { tree: parseInt(tree), note: parseInt(tree)}}"
+          :key="index"
+          class="q-pa-none"
+        >
+          <note-card :note="parseInt(tree)" />
+        </q-item>
+      </template>
+    </q-list>
   </q-page>
 </template>
 
@@ -40,6 +53,9 @@ export default {
         links: ['https://he.wikipedia.org/wiki', 'https://he.wikipedia.org/wiki', 'https://he.wikipedia.org/wiki']
       }
     }
+  },
+  mounted () {
+    this.$store.commit("notes/createFlattenTrees")
   }
 }
 </script>

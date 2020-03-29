@@ -90,8 +90,8 @@ export const deleteNote = function (state, note) {
     console.log("note '%s' not found", note)
     return
   }
-  if (note == -1) {
-    console.log('unrelated can not be deleted')
+  if (note <= -1) {
+    console.log('special can not be deleted')
     return
   }
   createFlattenTrees(state)
@@ -115,7 +115,7 @@ export const newTree = function (state, title = '') {
   const newTree = {}
   let tmp_obj = {}
   for (const note of Object.values(state.notes)) {
-    if (note.id == -1) continue
+    if (note.id <= -1) continue
     tmp_obj = { note: note.id, parent: -1, children: [] }
     children.push(tmp_obj)
     newTree[note.id] = tmp_obj
@@ -174,6 +174,14 @@ export const createFlattenTrees = function (state) {
       unrelated.children.push(tmp_obj)
     }
     Vue.set(state.flattenTrees, tree.note, flattedTree)
+    Vue.set(state.notes, -2, {
+      id: -2,
+      title: 'This is example project',
+      content:
+        '#### Description\n Here you will write your description of the project',
+      tags: [],
+      links: []
+    })
   }
 }
 

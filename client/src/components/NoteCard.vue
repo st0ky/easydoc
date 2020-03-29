@@ -4,7 +4,7 @@
       flat
       bordered
       class="my-card"
-      :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1', primary && note != -1 ? 'cursor-pointer' : ''] "
+      :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1', primary && note > -1 ? 'cursor-pointer' : ''] "
       v-if="$store.state.notes.notes[note]"
       @keyup.esc="cancel"
       @keyup.ctrl.enter="edit_mode=false"
@@ -67,7 +67,7 @@
               round
               flat
               icon="edit"
-              v-if="note!= -1 && !edit_mode"
+              v-if="note != -1 && !edit_mode"
               @click="enter_edit('title')"
             />
             <q-btn
@@ -92,7 +92,7 @@
               flat
               @click="$store.commit('notes/deleteNote', note)"
               icon="delete"
-              v-if="note != -1 && !edit_mode && !$store.state.notes.flattenTrees[note]"
+              v-if="note > -1 && !edit_mode && !$store.state.notes.flattenTrees[note]"
             />
           </div>
         </div>
