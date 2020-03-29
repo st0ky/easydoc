@@ -7,12 +7,12 @@
       :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1', primary && note > -1 ? 'cursor-pointer' : ''] "
       v-if="$store.state.notes.notes[note]"
       @keyup.esc="cancel"
-      @keyup.ctrl.enter="edit_mode=false"
+      @keyup.ctrl.enter="exit_edit"
     >
       <q-card-section>
         <div class="row items-center no-wrap fit">
           <div
-            class="col-5"
+            :class="primary? 'col-5' : 'col-6'"
             @dblclick="primary && !edit_mode ? enter_edit('title') : '' "
           >
             <div
@@ -30,7 +30,7 @@
           </div>
 
           <div
-            class="col-4"
+            :class="primary? 'col-4' : 'col-6'"
             @dblclick="primary && !edit_mode ? enter_edit('tags') : '' "
           >
             <q-select
@@ -75,7 +75,7 @@
               round
               flat
               icon="done"
-              @click="edit_mode=false"
+              @click="exit_edit"
               v-if="edit_mode"
             />
             <q-btn
@@ -181,8 +181,16 @@ export default {
       }
       this.focus = target
     },
-    cancel () {
+    exit_edit () {
       this.edit_mode = false
+      if (this.$route.query.edit) {
+        let newQuery = { ...this.$route.query }
+        delete newQuery.edit
+        this.$router.replace({ query: newQuery })
+      }
+    },
+    cancel () {
+      this.exit_edit()
       this.$store.commit('notes/updateNote', {
         note: this.note,
         title: this.originalNote.title,
@@ -194,7 +202,12 @@ export default {
   },
   watch: {
     $route (to, from) {
-      this.edit_mode = false
+      if (this.$route.query.edit && !this.edit_mode) {
+        this.enter_edit('title')
+        return
+      }
+      this.exit_edit()
+
     }
   },
   mounted () {

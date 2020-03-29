@@ -179,11 +179,11 @@ export default {
       console.log(this.selectedTreeNode)
       let parent = this.selectedTreeNode != null ? this.selectedTreeNode : -1;
       this.$store.commit("notes/newNote", { title: "new note", tree: this.tab, parent: parent })
-      this.$router.push({ name: 'noteView', params: { tree: this.tab, note: this.$store.state.notes.lastCreatedNote } })
+      this.$router.push({ name: 'noteView', params: { tree: this.tab, note: this.$store.state.notes.lastCreatedNote }, query: { edit: true } })
     },
     newTree () {
       this.$store.commit("notes/newTree", "new tree")
-      this.$router.push({ name: 'noteView', params: { tree: this.$store.state.notes.lastCreatedNote, note: this.$store.state.notes.lastCreatedNote } })
+      this.$router.push({ name: 'noteView', params: { tree: this.$store.state.notes.lastCreatedNote, note: this.$store.state.notes.lastCreatedNote }, query: { edit: true } })
       this.tab = this.$store.state.notes.lastCreatedNote
     },
     deleteNote (tree = null, note = null) {
