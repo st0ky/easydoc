@@ -33,6 +33,7 @@
               <q-item
                 clickable
                 v-close-popup
+                @click="newTree"
               >
                 <q-item-section>New tree</q-item-section>
               </q-item>
@@ -80,10 +81,11 @@
             :class="$q.dark.isActive ? '' : 'bg-primary text-white'"
           >
             <q-tab
-              v-for="tree of trees"
-              :key="tree.note"
-              :name="tree.note"
-              :label="notes[tree.note].title"
+              class="q-px-xs"
+              v-for="(v, tree) in flattenTrees"
+              :key="parseInt(tree)"
+              :name="parseInt(tree)"
+              :label="notes[parseInt(tree)].title"
             />
 
           </q-tabs>
@@ -92,17 +94,17 @@
             v-model="tab"
             @transition="selectedTreeNode=null"
           >
-            <template v-for="tree of trees">
+            <template v-for="(v, tree) in flattenTrees">
               <q-tab-panel
-                :key="tree.note"
-                :name="tree.note"
+                :key="parseInt(tree)"
+                :name="parseInt(tree)"
                 keep-alive="true"
                 @keyup.n="newNote"
                 @keyup.insert="newNote"
-                @keyup.46="deleteNote(tree.note, selectedTreeNode)"
+                @keyup.46="deleteNote(tree, selectedTreeNode)"
               >
                 <q-tree
-                  :nodes="[tree]"
+                  :nodes="[v[tree]]"
                   node-key="note"
                   label-key="note"
                   default-expand-all
@@ -149,7 +151,8 @@ export default {
   computed: {
     ...mapState('notes', [
       'notes',
-      'trees'
+      'trees',
+      'flattenTrees'
     ]),
     drawerWidth () {
       return this.splitterModel + 1
@@ -174,6 +177,11 @@ export default {
       let parent = this.selectedTreeNode != null ? this.selectedTreeNode : -1;
       this.$store.commit("notes/newNote", { title: "new note", tree: this.tab, parent: parent })
       this.$router.push({ name: 'noteView', params: { tree: this.tab, note: this.$store.state.notes.lastCreatedNote } })
+    },
+    newTree () {
+      this.$store.commit("notes/newTree", "new tree")
+      this.$router.push({ name: 'noteView', params: { tree: this.$store.state.notes.lastCreatedNote, note: this.$store.state.notes.lastCreatedNote } })
+      this.tab = this.$store.state.notes.lastCreatedNote
     },
     deleteNote (tree = null, note = null) {
       let parent = this.$store.state.notes.flattenTrees[tree][note].parent

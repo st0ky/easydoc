@@ -52,7 +52,8 @@ export default {
   computed: {
     ...mapState('notes', [
       'notes',
-      'trees'
+      'trees',
+      'flattenTrees'
     ]),
     title: {
       get () {
@@ -73,7 +74,7 @@ export default {
     //     while (note != null) {
     //       console.log(note)
     //       this.tree.setExpanded(note, true)
-    //       note = this.$store.state.notes.flattenTrees[this.tree.nodes[0].note][note].parent
+    //       note = this.flattenTrees[this.tree.nodes[0].note][note].parent
     //     }
     //   }
     // }
@@ -133,8 +134,8 @@ export default {
     expandPath (note) {
       while (note != null) {
         this.tree.setExpanded(note, true)
-        if (!this.$store.state.notes.flattenTrees || !this.$store.state.notes.flattenTrees[this.tree.nodes[0].note]) break
-        note = this.$store.state.notes.flattenTrees[this.tree.nodes[0].note][note].parent
+        if (!this.flattenTrees || !this.flattenTrees[this.tree.nodes[0].note]) break
+        note = this.flattenTrees[this.tree.nodes[0].note][note].parent
       }
     }
   },

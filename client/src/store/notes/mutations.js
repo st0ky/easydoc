@@ -82,6 +82,7 @@ export const newNote = function (
     moveNote(state, { tree: tree, note: newNote.id, newParent: parent })
   }
   state.lastCreatedNote = newNote.id
+  return newNote.id
 }
 
 export const deleteNote = function (state, note) {
@@ -106,6 +107,26 @@ export const deleteNote = function (state, note) {
     }
   }
   Vue.delete(state.notes, note)
+}
+
+export const newTree = function (state, title = '') {
+  console.log(title)
+  const children = []
+  const newTree = {}
+  let tmp_obj = {}
+  for (const note of Object.values(state.notes)) {
+    if (note.id == -1) continue
+    tmp_obj = { note: note.id, parent: -1, children: [] }
+    children.push(tmp_obj)
+    newTree[note.id] = tmp_obj
+  }
+  const id = newNote(state, { title: title })
+  tmp_obj = { note: -1, parent: id, children: children }
+  newTree[-1] = tmp_obj
+  tmp_obj = { note: id, parent: null, children: [tmp_obj] }
+  newTree[id] = tmp_obj
+  Vue.set(state.flattenTrees, id, newTree)
+  console.log(state.flattenTrees)
 }
 
 export const setFocuse = function (state, noteid) {
@@ -140,7 +161,6 @@ export const createFlattenTrees = function (state) {
     }
     const unrelated = { note: -1, children: [], parent: tree.note }
     flattedTree[unrelated.note] = unrelated
-    console.log(tree.note)
     flattedTree[tree.note].children.push(unrelated)
     for (var note of Object.keys(state.notes)) {
       note = parseInt(note)
@@ -155,7 +175,6 @@ export const createFlattenTrees = function (state) {
     }
     Vue.set(state.flattenTrees, tree.note, flattedTree)
   }
-  console.log(state.flattenTrees)
 }
 
 export const moveNote = function (
