@@ -15,7 +15,7 @@
         </div>
       </template>
       <template v-slot:after>
-        <div class="q-pa-md q-gutter-xs row">
+        <div class="q-pa-md q-gutter-xs row items-start">
           <template v-for="child in $store.state.notes.flattenTrees[tree][_note].children">
             <q-item
               :to="{name: 'noteView', params: { tree: tree, note: child.note}}"

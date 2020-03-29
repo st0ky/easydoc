@@ -49,6 +49,7 @@
                   v-model="$q.dark.isActive"
                   label="Dark mode"
                   left-label
+                  v-close-popup
                 />
               </q-item>
 
@@ -101,7 +102,8 @@
                 keep-alive="true"
                 @keyup.n="newNote"
                 @keyup.insert="newNote"
-                @keyup.46="deleteNote(tree, selectedTreeNode)"
+                @keyup.46="confirmDeleteNote(tree, selectedTreeNode)"
+                @keyup.shift.46="deleteNote(tree, selectedTreeNode)"
               >
                 <q-tree
                   :nodes="[v[tree]]"
@@ -140,6 +142,7 @@
 
 import { mapState } from 'vuex'
 import TreeNode from 'components/TreeNode.vue'
+import Confirm from 'components/dialogs/Confirm.vue'
 
 export default {
   name: 'MainLayout',
@@ -187,6 +190,17 @@ export default {
       let parent = this.$store.state.notes.flattenTrees[tree][note].parent
       this.$store.commit('notes/deleteNote', note)
       this.$router.push({ name: 'noteView', params: { tree: tree, note: parent } })
+    },
+    confirmDeleteNote (tree = null, note = null) {
+      this.$q.dialog({
+        component: Confirm,
+        parent: this,
+        message: `Do you want to delete "${this.notes[note].title}"
+        `
+      }).onOk(() => {
+        this.deleteNote(tree, note)
+      })
+
     },
     keypress (e) {
       console.log(e)
