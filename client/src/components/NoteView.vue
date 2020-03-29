@@ -1,23 +1,35 @@
 <template>
-  <q-page class="q-pa-md q-gutter-md column">
-    <note-card
+  <q-page>
+    <q-splitter
+      v-model="splitterModel"
+      horizontal
       v-if="_note !== null"
-      primary
-      :note="_note"
-    />
-    <q-separator v-if="_note !== null" />
-    <div
-      class="q-gutter-xs row"
-      v-if="_note !== null"
+      style="height: 100%"
     >
-      <note-card
-        v-for="child in $store.state.notes.flattenTrees[tree][_note].children"
-        :key="child.note"
-        :note="child.note"
-        clickable
-        style="max-width: 50%"
-      />
-    </div>
+      <template v-slot:before>
+        <div class="q-pa-md">
+          <note-card
+            primary
+            :note="_note"
+          />
+        </div>
+      </template>
+      <template v-slot:after>
+        <div class="q-pa-md q-gutter-xs row">
+          <template v-for="child in $store.state.notes.flattenTrees[tree][_note].children">
+            <q-item
+              :to="{name: 'noteView', params: { tree: tree, note: child.note}}"
+              :key="child.note"
+              style="max-width: 50%"
+              class="q-pa-none"
+            >
+              <note-card :note="child.note" />
+            </q-item>
+          </template>
+        </div>
+      </template>
+    </q-splitter>
+
   </q-page>
 
 </template>
@@ -33,6 +45,7 @@ export default {
   components: { NoteCard },
   data () {
     return {
+      splitterModel: 50
     }
   },
   computed: {
