@@ -1,20 +1,21 @@
 <template>
-  <q-page class="q-pa-md q-gutter-md col">
+  <q-page class="q-pa-md q-gutter-md column">
     <note-card
       v-if="_note !== null"
-      editable
+      primary
       :note="_note"
     />
-    <q-separator v-if="_note" />
+    <q-separator v-if="_note !== null" />
     <div
       class="q-gutter-xs row"
-      v-if="_note"
+      v-if="_note !== null"
     >
       <note-card
         v-for="child in $store.state.notes.flattenTrees[tree][_note].children"
         :key="child.note"
         :note="child.note"
         clickable
+        style="max-width: 50%"
       />
     </div>
   </q-page>
@@ -36,8 +37,7 @@ export default {
   },
   computed: {
     _note () {
-      console.log("AAAAAAA")
-      if (!this.$store.state.notes.flattenTrees || this.$store.state.notes.flattenTrees[this.tree] === undefined) {
+      if (this.$store.state.notes.flattenTrees[this.tree] === undefined) {
         return null
       }
       return this.note

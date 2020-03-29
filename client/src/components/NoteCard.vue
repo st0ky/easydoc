@@ -4,15 +4,17 @@
       flat
       bordered
       class="my-card"
-      :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
+      :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1', primary && note != -1 ? 'cursor-pointer' : ''] "
       v-if="$store.state.notes.notes[note]"
-      @dblclick="enter_edit"
       @keyup.esc="cancel"
       @keyup.ctrl.enter="edit_mode=false"
     >
       <q-card-section>
         <div class="row items-center no-wrap fit">
-          <div class="col-5">
+          <div
+            class="col-5"
+            @dblclick="primary && !edit_mode ? enter_edit('title') : '' "
+          >
             <div
               v-if="!edit_mode"
               :class="{'text-h6' : title.length < 10}"
@@ -23,12 +25,16 @@
               filled
               clearable
               dense
-              autofocus
+              :autofocus="focus == 'title'"
             />
           </div>
 
-          <div class="col-4">
+          <div
+            class="col-4"
+            @dblclick="primary && !edit_mode ? enter_edit('tags') : '' "
+          >
             <q-select
+              :autofocus="focus == 'tags'"
               v-if="edit_mode"
               label="tags"
               filled
@@ -52,14 +58,17 @@
             </template>
           </div>
 
-          <div class="col-3 row justify-end">
+          <div
+            class="col-3 row justify-end"
+            v-if="primary"
+          >
             <q-btn
               :color="$q.dark.isActive ? '' : 'grey-7'"
               round
               flat
               icon="edit"
-              v-if="note!= -1 && !edit_mode && editable"
-              @click="enter_edit"
+              v-if="note!= -1 && !edit_mode"
+              @click="enter_edit('title')"
             />
             <q-btn
               color="green"
@@ -83,7 +92,7 @@
               flat
               @click="$store.commit('notes/deleteNote', note)"
               icon="delete"
-              v-if="note != -1 && !edit_mode && $store.state.notes.flattenTrees && !$store.state.notes.flattenTrees[note]"
+              v-if="note != -1 && !edit_mode && !$store.state.notes.flattenTrees[note]"
             />
           </div>
         </div>
@@ -92,13 +101,17 @@
         inset
         v-if="content"
       />
-      <q-card-section v-if="content || edit_mode">
+      <q-card-section
+        v-if="content || edit_mode"
+        @dblclick="primary && !edit_mode ? enter_edit('content') : '' "
+      >
         <q-input
           v-model="content"
           v-if="edit_mode"
           filled
           autogrow
           type="textarea"
+          :autofocus="focus == 'content'"
         />
         <vue-markdown :source="content" />
       </q-card-section>
@@ -107,6 +120,7 @@
       <q-card-actions
         vertical
         v-if="links.length"
+        @dblclick="primary && !edit_mode ? enter_edit('links') : '' "
       >
         <q-btn
           flat
@@ -125,13 +139,13 @@ export default {
   name: 'NoteCard',
   props: {
     note: Number,
-    editable: Boolean,
-    clickable: Boolean,
+    primary: Boolean,
   },
   components: { VueMarkdown },
   data () {
     return {
       edit_mode: false,
+      focus: null,
       originalNote: {
         title: '',
         content: '',
@@ -156,8 +170,8 @@ export default {
     links () { return this.$store.state.notes.notes[this.note].links },
   },
   methods: {
-    enter_edit () {
-      if (!this.editable && !this.clickable || this.note == -1) return
+    enter_edit (target = null) {
+      if (this.note == -1) return
       this.edit_mode = true
       this.originalNote = {
         title: this.title,
@@ -165,6 +179,7 @@ export default {
         tags: this.tags.slice(),
         links: this.links.slice()
       }
+      this.focus = target
     },
     cancel () {
       this.edit_mode = false
