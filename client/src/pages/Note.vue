@@ -3,30 +3,19 @@
     <q-splitter
       v-model="splitterModel"
       horizontal
-      v-if="_note !== null"
+      v-if="valid"
       style="height: 100%"
     >
       <template v-slot:before>
         <div class="q-pa-md">
           <note-card
             primary
-            :note="_note"
+            :note="note"
           />
         </div>
       </template>
       <template v-slot:after>
-        <div class="q-pa-md q-gutter-xs row items-start">
-          <template v-for="child in $store.state.notes.flattenTrees[tree][_note].children">
-            <q-item
-              :to="{name: 'noteView', params: { tree: tree, note: child.note}}"
-              :key="child.note"
-              style="max-width: 50%"
-              class="q-pa-none"
-            >
-              <note-card :note="child.note" />
-            </q-item>
-          </template>
-        </div>
+        <router-view />
       </template>
     </q-splitter>
 
@@ -40,7 +29,7 @@ import NoteCard from 'components/NoteCard.vue'
 
 
 export default {
-  name: 'NoteView',
+  name: 'Note',
   props: ['tree', 'note'],
   components: { NoteCard },
   data () {
@@ -49,11 +38,11 @@ export default {
     }
   },
   computed: {
-    _note () {
+    valid () {
       if (this.$store.state.notes.flattenTrees[this.tree] === undefined) {
-        return null
+        return false
       }
-      return this.note
+      return true
     }
   },
   methods: {
