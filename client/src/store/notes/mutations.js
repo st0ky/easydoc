@@ -116,6 +116,7 @@ export const newTree = function (state, title = '') {
   let tmp_obj = {}
   for (const note of Object.values(state.notes)) {
     if (note.id <= -1) continue
+    if (state.flattenTrees[note.id]) continue
     tmp_obj = { note: note.id, parent: -1, children: [] }
     children.push(tmp_obj)
     newTree[note.id] = tmp_obj
@@ -165,6 +166,7 @@ export const createFlattenTrees = function (state) {
     for (var note of Object.keys(state.notes)) {
       note = parseInt(note)
       if (flattedTree[note]) continue
+      if (note < 0) continue
       tmp_obj = {
         note: note,
         children: [],
