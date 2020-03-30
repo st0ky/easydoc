@@ -13,6 +13,7 @@
       <!-- buttons example -->
       <q-card-actions align="right">
         <q-btn
+          ref="ok"
           color="primary"
           label="OK"
           flat
@@ -41,6 +42,10 @@ export default {
     // (don't change its name --> "show")
     show () {
       this.$refs.dialog.show()
+      this.$nextTick(() => {
+        this.$refs.ok.$el.focus()
+
+      })
     },
 
     // following method is REQUIRED
