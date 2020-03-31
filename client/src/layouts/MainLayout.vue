@@ -17,10 +17,16 @@
           aria-label="Menu"
         />
 
-        <q-toolbar-title>
-          EasyDoc
-        </q-toolbar-title>
-
+        <router-link
+          :to="{path: '/'}"
+          tag="div"
+          class="cursor-pointer"
+        >
+          <q-toolbar-title shrink>
+            EasyDoc
+          </q-toolbar-title>
+        </router-link>
+        <q-toolbar-title />
         <q-btn
           flat
           dense

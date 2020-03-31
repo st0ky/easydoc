@@ -17,7 +17,7 @@
           >
             <div
               v-if="!edit_mode"
-              :class="{'text-h6' : title.length < 10}"
+              :class="{'text-h6' : title.length < 10 || this.primary}"
             > {{ title }} </div>
             <q-input
               v-model="title"
