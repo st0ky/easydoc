@@ -92,7 +92,7 @@
               flat
               @click="$store.commit('notes/deleteNote', note)"
               icon="delete"
-              v-if="note > -1 && !edit_mode && !$store.state.notes.flattenTrees[note]"
+              v-if="note > -1 && !edit_mode && !$store.state.notes.trees[note]"
             />
           </div>
         </div>

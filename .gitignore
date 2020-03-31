@@ -1,2 +1,4 @@
 
 client/src/store/notes/store-flag.d.ts
+
+server/db.json

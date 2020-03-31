@@ -3,7 +3,7 @@
     class="q-pa-md q-gutter-xs row items-start"
     v-if="valid"
   >
-    <template v-for="child in $store.state.notes.flattenTrees[tree][note].children">
+    <template v-for="child in $store.state.notes.trees[tree][note].children">
       <q-item
         :to="{name: 'noteView', params: { tree: tree, note: child.note}}"
         :key="child.note"
@@ -32,7 +32,7 @@ export default {
   },
   computed: {
     valid () {
-      if (this.$store.state.notes.flattenTrees[this.tree] === undefined) return null
+      if (this.$store.state.notes.trees[this.tree] === undefined) return null
       if (this.$store.state.notes.notes[this.note] === undefined) return null
       return true
     }

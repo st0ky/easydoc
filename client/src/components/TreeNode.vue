@@ -59,8 +59,7 @@ export default {
   computed: {
     ...mapState('notes', [
       'notes',
-      'trees',
-      'flattenTrees'
+      'trees'
     ]),
     title: {
       get () {
@@ -141,8 +140,8 @@ export default {
     expandPath (note) {
       while (note != null) {
         this.tree.setExpanded(note, true)
-        if (!this.flattenTrees || !this.flattenTrees[this.tree.nodes[0].note]) break
-        note = this.flattenTrees[this.tree.nodes[0].note][note].parent
+        if (!this.trees[this.tree.nodes[0].note]) break
+        note = this.trees[this.tree.nodes[0].note][note].parent
       }
     }
   },

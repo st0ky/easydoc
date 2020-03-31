@@ -53,7 +53,7 @@ output = output(output_formats=['png'],
   },
   computed: {
     _note () {
-      if (this.$store.state.notes.flattenTrees[this.tree] === undefined) {
+      if (this.$store.state.notes.trees[this.tree] === undefined) {
         return null
       }
       return this.note

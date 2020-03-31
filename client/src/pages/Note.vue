@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     valid () {
-      if (this.$store.state.notes.flattenTrees[this.tree] === undefined) {
+      if (this.$store.state.notes.trees[this.tree] === undefined) {
         return false
       }
       return true
@@ -53,9 +53,6 @@ export default {
       this.tree = this.tree
       this.note = this.note
     }
-  },
-  mounted () {
-    this.$store.commit("notes/createFlattenTrees")
   }
 }
 </script>

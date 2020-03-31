@@ -89,7 +89,7 @@
           >
             <q-tab
               class="q-px-xs"
-              v-for="(v, tree) in flattenTrees"
+              v-for="(v, tree) in trees"
               :key="parseInt(tree)"
               :name="parseInt(tree)"
               :label="notes[parseInt(tree)].title"
@@ -101,7 +101,7 @@
             v-model="tab"
             @transition="selectedTreeNode=null"
           >
-            <template v-for="(v, tree) in flattenTrees">
+            <template v-for="(v, tree) in trees">
               <q-tab-panel
                 :key="parseInt(tree)"
                 :name="parseInt(tree)"
@@ -160,8 +160,7 @@ export default {
   computed: {
     ...mapState('notes', [
       'notes',
-      'trees',
-      'flattenTrees'
+      'trees'
     ]),
     drawerWidth () {
       return this.splitterModel + 1
@@ -193,7 +192,7 @@ export default {
       this.tab = this.$store.state.notes.lastCreatedNote
     },
     deleteNote (tree = null, note = null) {
-      let parent = this.$store.state.notes.flattenTrees[tree][note].parent
+      let parent = this.$store.state.notes.trees[tree][note].parent
       this.$store.commit('notes/deleteNote', note)
       this.$router.push({ name: 'noteView', params: { tree: tree, note: parent } })
     },
