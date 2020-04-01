@@ -37,6 +37,7 @@
       outlined
       dense
       autofocus
+      debounce="200"
     />
   </div>
 </template>
@@ -66,7 +67,7 @@ export default {
         return this.notes[this.note].title
       },
       set (v) {
-        this.$store.commit('notes/updateNote', { note: this.note, title: v });
+        this.$socket.emit('update note', { id: this.note, title: v });
       }
     },
     // active: {
@@ -127,14 +128,18 @@ export default {
       if (!this.inDrag) return
       this.inDrag = 0
       e.preventDefault()
-      this.$store.commit('notes/moveNote', { tree: this.tree.nodes[0].note, note: parseInt(e.dataTransfer.getData('note')), newParent: this.note });
+      this.$socket.emit("move note", { noteId: parseInt(e.dataTransfer.getData('note')), treeId: this.tree.nodes[0].note, parentId: this.note })
       this.expandPath(this.note)
     },
 
     newNote (e) {
-      console.log(e)
-      this.$store.commit("notes/newNote", { title: "new note", tree: this.tree, parent: this.note })
-      this.$router.push({ name: 'noteView', params: { tree: this.tree, note: this.$store.state.notes.lastCreatedNote } })
+      this.$socket.subscribe("new note ack", (noteId) => {
+        this.$socket.emit("move note", { noteId: noteId, treeId: this.tree, parentId: this.note })
+        this.$router.push({ name: 'noteView', params: { tree: this.tree, note: noteId } })
+        this.$socket.unsubscribe("new note ack")
+
+      })
+      this.$socket.emit("new note", { title: "new note" })
     },
 
     expandPath (note) {
@@ -144,6 +149,14 @@ export default {
         note = this.trees[this.tree.nodes[0].note][note].parent
       }
     }
+  },
+  sockets: {
+    UPDATE_TREE_NODE: function ({ tree, node }) {
+      console.log(tree, node)
+      if (node.note == this.note) {
+        this.tree.setExpanded(this.note, true)
+      }
+    },
   },
   watch: {
     $route (to, from) {

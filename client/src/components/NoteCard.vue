@@ -25,6 +25,7 @@
               filled
               clearable
               dense
+              debounce="200"
               :autofocus="focus == 'title'"
             />
           </div>
@@ -42,8 +43,8 @@
               use-input
               use-chips
               multiple
-              :options="$store.state.notes.tags"
-              input-debounce="0"
+              :options="$store.state.socket.tags"
+              input-debounce="500"
               dense
               new-value-mode="add-unique"
             />
@@ -90,7 +91,7 @@
               :color="$q.dark.isActive ? '' : 'grey-7'"
               round
               flat
-              @click="$store.commit('notes/deleteNote', note)"
+              @click="$socket.emit('delete note', note)"
               icon="delete"
               v-if="note > -1 && !edit_mode && !$store.state.notes.trees[note]"
             />
@@ -110,6 +111,7 @@
           v-if="edit_mode"
           filled
           autogrow
+          debounce="200"
           type="textarea"
           :autofocus="focus == 'content'"
         />
@@ -157,15 +159,15 @@ export default {
   computed: {
     title: {
       get () { return this.$store.state.notes.notes[this.note].title },
-      set (v) { this.$store.commit('notes/updateNote', { note: this.note, title: v ? v : "" }) }
+      set (v) { this.$socket.emit('update note', { id: this.note, title: v ? v : "" }) }
     },
     content: {
       get () { return this.$store.state.notes.notes[this.note].content },
-      set (v) { this.$store.commit('notes/updateNote', { note: this.note, content: v }) }
+      set (v) { this.$socket.emit('update note', { id: this.note, content: v }) }
     },
     tags: {
       get () { return this.$store.state.notes.notes[this.note].tags },
-      set (v) { this.$store.commit('notes/updateNote', { note: this.note, tags: v }) }
+      set (v) { this.$socket.emit('update note', { id: this.note, tags: v }) }
     },
     links () { return this.$store.state.notes.notes[this.note].links },
   },
@@ -191,8 +193,8 @@ export default {
     },
     cancel () {
       this.exit_edit()
-      this.$store.commit('notes/updateNote', {
-        note: this.note,
+      this.$socket.emit('update note', {
+        id: this.note,
         title: this.originalNote.title,
         content: this.originalNote.content,
         tags: this.originalNote.tags,

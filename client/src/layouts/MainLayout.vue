@@ -176,24 +176,29 @@ export default {
     onChange (v) {
       this.leftDrawerOpen = v > 0
     },
-    onTreeClicked (v) {
-
-      this.$store.commit('notes/setFocuse', val);
-    },
     newNote () {
-      console.log(this.selectedTreeNode)
-      let parent = this.selectedTreeNode != null ? this.selectedTreeNode : -1;
-      this.$store.commit("notes/newNote", { title: "new note", tree: this.tab, parent: parent })
-      this.$router.push({ name: 'noteView', params: { tree: this.tab, note: this.$store.state.notes.lastCreatedNote }, query: { edit: true } })
+      this.sockets.subscribe("new note ack", (noteId) => {
+        if (this.selectedTreeNode != null) {
+          this.$socket.emit("move note", { noteId: noteId, treeId: this.tab, parentId: this.selectedTreeNode })
+        }
+        this.$router.push({ name: 'noteView', params: { tree: this.tab, note: noteId }, query: { edit: true } })
+        this.sockets.unsubscribe("new note ack")
+
+      })
+      this.$socket.emit("new note", { title: "new note" })
     },
     newTree () {
-      this.$store.commit("notes/newTree", "new tree")
-      this.$router.push({ name: 'noteView', params: { tree: this.$store.state.notes.lastCreatedNote, note: this.$store.state.notes.lastCreatedNote }, query: { edit: true } })
-      this.tab = this.$store.state.notes.lastCreatedNote
+      this.sockets.subscribe("new tree ack", (noteId) => {
+        this.tab = noteId
+        this.$router.push({ name: 'noteView', params: { tree: noteId, note: noteId }, query: { edit: true } })
+        this.sockets.unsubscribe("new tree ack")
+
+      })
+      this.$socket.emit("new tree", "new tree")
     },
     deleteNote (tree = null, note = null) {
       let parent = this.$store.state.notes.trees[tree][note].parent
-      this.$store.commit('notes/deleteNote', note)
+      this.$socket.emit('delete note', note)
       this.$router.push({ name: 'noteView', params: { tree: tree, note: parent } })
     },
     confirmDeleteNote (tree = null, note = null) {
@@ -205,9 +210,6 @@ export default {
         this.deleteNote(tree, note)
       })
 
-    },
-    keypress (e) {
-      console.log(e)
     }
   },
   watch: {

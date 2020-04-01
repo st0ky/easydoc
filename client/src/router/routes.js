@@ -8,10 +8,7 @@ const routes = [
         path: 'tree/:tree/note/:note',
         component: () => import('pages/Note.vue'),
         props (route) {
-          const props = { ...route.params }
-          props.note = parseInt(props.note)
-          props.tree = parseInt(props.tree)
-          return props
+          return { note: parseInt(route.params.note) }
         },
         children: [
           {

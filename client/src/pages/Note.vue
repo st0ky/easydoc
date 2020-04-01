@@ -30,7 +30,7 @@ import NoteCard from 'components/NoteCard.vue'
 
 export default {
   name: 'Note',
-  props: ['tree', 'note'],
+  props: ['note'],
   components: { NoteCard },
   data () {
     return {
@@ -39,9 +39,7 @@ export default {
   },
   computed: {
     valid () {
-      if (this.$store.state.notes.trees[this.tree] === undefined) {
-        return false
-      }
+      if (this.$store.state.notes.notes[this.note] === undefined) return null
       return true
     }
   },
@@ -50,7 +48,6 @@ export default {
   },
   watch: {
     $route (to, from) {
-      this.tree = this.tree
       this.note = this.note
     }
   }

@@ -33,6 +33,7 @@ export default {
   computed: {
     valid () {
       if (this.$store.state.notes.trees[this.tree] === undefined) return null
+      if (this.$store.state.notes.trees[this.tree][this.note] === undefined) return null
       if (this.$store.state.notes.notes[this.note] === undefined) return null
       return true
     }
