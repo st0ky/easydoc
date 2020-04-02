@@ -97,42 +97,20 @@
             <q-tab
               class="q-px-xs"
               v-for="(v, tree) in trees"
-              :key="parseInt(tree)"
+              :key="tree"
               :name="parseInt(tree)"
               :label="notes[parseInt(tree)].title"
             />
 
           </q-tabs>
           <q-separator />
-          <q-tab-panels
-            v-model="tab"
-            @transition="selectedTreeNode=null"
-          >
+          <q-tab-panels v-model="tab">
             <template v-for="(v, tree) in trees">
               <q-tab-panel
-                :key="parseInt(tree)"
+                :key="tree"
                 :name="parseInt(tree)"
-                keep-alive="true"
-                @keyup.n="newNote"
-                @keyup.insert="newNote"
-                @keyup.46="confirmDeleteNote(tree, selectedTreeNode)"
-                @keyup.shift.46="deleteNote(tree, selectedTreeNode)"
               >
-                <q-tree
-                  :nodes="[v[tree]]"
-                  node-key="note"
-                  label-key="note"
-                  default-expand-all
-                  @update:selected="selectedTreeNode=target"
-                >
-                  <template v-slot:default-header="prop">
-                    <tree-node
-                      :note="prop.node.note"
-                      :tree="prop.tree"
-                    />
-
-                  </template>
-                </q-tree>
+                <note-tree :tree="parseInt(tree)" />
               </q-tab-panel>
             </template>
 
@@ -154,15 +132,14 @@
 <script>
 
 import { mapState } from 'vuex'
-import TreeNode from 'components/TreeNode.vue'
-import Confirm from 'components/dialogs/Confirm.vue'
 import FileExplorer from 'components/dialogs/FileExplorer.vue'
+import NoteTree from 'components/NoteTree.vue'
 
 export default {
   name: 'MainLayout',
 
   components: {
-    TreeNode
+    NoteTree
   },
 
   computed: {
@@ -186,9 +163,6 @@ export default {
     },
     newNote () {
       this.sockets.subscribe("new note ack", (noteId) => {
-        if (this.selectedTreeNode != null) {
-          this.$socket.emit("move note", { noteId: noteId, treeId: this.tab, parentId: this.selectedTreeNode })
-        }
         this.$router.push({ name: 'noteView', params: { tree: this.tab, note: noteId }, query: { edit: true } })
         this.sockets.unsubscribe("new note ack")
 
@@ -213,38 +187,20 @@ export default {
         this.$socket.emit('new file tree', path)
       })
 
-    },
-    deleteNote (tree = null, note = null) {
-      let parent = this.$store.state.notes.trees[tree][note].parent
-      this.$socket.emit('delete note', note)
-      this.$router.push({ name: 'noteView', params: { tree: tree, note: parent } })
-    },
-    confirmDeleteNote (tree = null, note = null) {
-      this.$q.dialog({
-        component: Confirm,
-        parent: this,
-        message: `Are you sure you want to permanently delete '${this.notes[note].title}'?`
-      }).onOk(() => {
-        this.deleteNote(tree, note)
-      })
-
     }
   },
   watch: {
     $route (to, from) {
       this.tab = parseInt(this.$route.params.tree)
-      this.selectedTreeNode = parseInt(this.$route.params.note)
     }
   },
   mounted () {
     this.tab = parseInt(this.$route.params.tree)
-    this.selectedTreeNode = parseInt(this.$route.params.note)
   },
 
   data () {
     return {
       tab: parseInt(this.$route.params.tree),
-      selectedTreeNode: parseInt(this.$route.params.note),
       booleanTest: false,
       drawerLeft: true,
       drawerRight: false,
