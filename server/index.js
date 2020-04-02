@@ -4,6 +4,9 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+const fs = require('fs');
+var path = require('path');
+
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -259,7 +262,6 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('new tree', function (title = '') {
-
         let treeId = createNewNote({ title: title })
         let tree = { note: treeId, children: [], parent: null }
         let obj = {}
@@ -271,7 +273,56 @@ nsp.on('connection', function (socket) {
 
     });
 
+    socket.on('new file tree', function (dir) {
+        dir = path.resolve("./" + dir)
+        if (!fs.statSync(dir).isDirectory()) return
+        for (let tree of db.get('fileTrees').values()) {
+            if (tree.path == dir) return
+        }
+        let treeName = dir.split(path.sep).pop()
+        let treeId = createNewNote({ title: treeName })
+
+        let tree = { name: treeName, path: dir, dir: true, children: [] }
+        let queue = [tree]
+        while (queue.length) {
+            let node = queue.pop()
+            let files = fs.readdirSync(node.path)
+            for (let file of files) {
+                let obj = { name: file, path: path.resolve(node.path + "/" + file), dir: fs.statSync(node.path + "/" + file).isDirectory(), children: [] }
+                node.children.push(obj)
+                if (obj.dir) {
+                    queue.push(obj)
+                }
+            }
+        }
+        db.get('fileTrees').set(treeId, tree).write()
+        emitTreeNotes(nsp)
+        nsp.emit('NEW_FILETREE', { noteId: treeId, tree: tree })
+        socket.emit('new file tree ack', treeId)
+    });
+
     socket.on('delete tree', function (tree) {
+    });
+
+    socket.on('fs get children', function (path) {
+        if (path.indexOf('..') != -1) return
+        // if (!path.startsWith('./')) return
+        path = "./" + path
+        let files = fs.readdirSync(path)
+        if (!files) return
+        let res = []
+        for (let file of files) {
+            let tmpp = path + '/' + file
+            while (tmpp.indexOf('//') != -1) tmpp = tmpp.replace('//', '/')
+            if (!fs.statSync(tmpp).isDirectory()) continue
+            let tmp = false
+            for (let tmpf of fs.readdirSync(tmpp)) {
+                if (fs.statSync(tmpp + '/' + tmpf).isDirectory()) tmp = true
+            }
+            res.push({ path: (tmpp).slice(1), label: file, lazy: tmp, children: [] })
+        }
+
+        socket.emit('FS_CHILDREN', { path: path.slice(2), children: res })
     });
 
     socket.on('disconnect', function () {

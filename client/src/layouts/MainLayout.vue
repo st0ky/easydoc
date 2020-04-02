@@ -39,6 +39,13 @@
               <q-item
                 clickable
                 v-close-popup
+                @click="newFileTree"
+              >
+                <q-item-section>New File Tree</q-item-section>
+              </q-item>
+              <q-item
+                clickable
+                v-close-popup
                 @click="newTree"
               >
                 <q-item-section>New tree</q-item-section>
@@ -149,6 +156,7 @@
 import { mapState } from 'vuex'
 import TreeNode from 'components/TreeNode.vue'
 import Confirm from 'components/dialogs/Confirm.vue'
+import FileExplorer from 'components/dialogs/FileExplorer.vue'
 
 export default {
   name: 'MainLayout',
@@ -195,6 +203,16 @@ export default {
 
       })
       this.$socket.emit("new tree", "new tree")
+    },
+    newFileTree () {
+      this.$q.dialog({
+        component: FileExplorer,
+        parent: this,
+      }).onOk((path) => {
+        console.log(path)
+        this.$socket.emit('new file tree', path)
+      })
+
     },
     deleteNote (tree = null, note = null) {
       let parent = this.$store.state.notes.trees[tree][note].parent
