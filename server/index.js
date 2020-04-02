@@ -103,7 +103,7 @@ db.defaults({
             '3': { note: 3, children: [], parent: 1 }
         }
 
-    }, tags: [], fileTrees: {}
+    }, tags: [], fileTrees: {}, fileIds: { '0': '' }
 }).write()
 
 function deleteTreeNode (treeId, tree, noteId) {
@@ -116,7 +116,7 @@ function deleteTreeNode (treeId, tree, noteId) {
     nsp.emit('DELETE_TREE_NODE', { tree: treeId, noteId: noteId })
 }
 
-function createNewNote (fields) {
+function createNewNote (fields, trees = false) {
     let note = { title: '', content: '', tags: [], links: [] }
     for (let field of Object.keys(fields)) {
         if (noteEditableFields.indexOf(field) == -1) continue
@@ -127,6 +127,10 @@ function createNewNote (fields) {
     note.created = Date.now()
     note.edited = Date.now()
     notes.set(note.id, note).write()
+    if (trees) {
+        db.get(trees).set(note.id, null).write()
+        emitTreeNotes(nsp)
+    }
     nsp.emit('NEW_NOTE', note)
     return note.id
 }
@@ -262,10 +266,11 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('new tree', function (title = '') {
-        let treeId = createNewNote({ title: title })
+        let treeId = createNewNote({ title: title }, 'trees')
         let tree = { note: treeId, children: [], parent: null }
         let obj = {}
         obj[treeId] = tree
+        console.log('aaaaaaaaaaaaaaaaaaaaa')
         db.get('trees').set(treeId, obj).write()
         emitTreeNotes(nsp)
         nsp.emit('NEW_TREE', { noteId: treeId, tree: obj })
@@ -274,28 +279,37 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('new file tree', function (dir) {
-        dir = path.resolve("./" + dir)
+        dir = path.resolve("../" + dir)
         if (!fs.statSync(dir).isDirectory()) return
-        for (let tree of db.get('fileTrees').values()) {
-            if (tree.path == dir) return
-        }
-        let treeName = dir.split(path.sep).pop()
-        let treeId = createNewNote({ title: treeName })
+        if (db.get('fileIds').values().indexOf(dir) != -1) return
 
-        let tree = { name: treeName, path: dir, dir: true, children: [] }
+        let treeName = dir.split(path.sep).pop()
+        let treeId = createNewNote({ title: treeName }, 'fileTrees')
+        let nextFileId = parseInt(db.get('fileIds').keys().max()) + 1
+
+        db.get('fileIds').set(nextFileId, dir).value()
+        let tree = { name: treeName, fileId: nextFileId, dir: true, children: [] }
+        nextFileId += 1
+
         let queue = [tree]
         while (queue.length) {
+            db.write()
             let node = queue.pop()
-            let files = fs.readdirSync(node.path)
+            let nodePath = db.get('fileIds').get(node.fileId).value()
+            let files = fs.readdirSync(nodePath)
             for (let file of files) {
-                let obj = { name: file, path: path.resolve(node.path + "/" + file), dir: fs.statSync(node.path + "/" + file).isDirectory(), children: [] }
+                let tmpp = path.resolve(nodePath + "/" + file)
+                db.get('fileIds').set(nextFileId, tmpp).value()
+                let obj = { name: file, fileId: nextFileId, dir: fs.statSync(tmpp).isDirectory(), children: [] }
+                nextFileId += 1
                 node.children.push(obj)
                 if (obj.dir) {
                     queue.push(obj)
                 }
             }
         }
-        db.get('fileTrees').set(treeId, tree).write()
+        db.get('fileTrees').set(treeId, tree).value()
+        db.write()
         emitTreeNotes(nsp)
         nsp.emit('NEW_FILETREE', { noteId: treeId, tree: tree })
         socket.emit('new file tree ack', treeId)
@@ -307,7 +321,7 @@ nsp.on('connection', function (socket) {
     socket.on('fs get children', function (path) {
         if (path.indexOf('..') != -1) return
         // if (!path.startsWith('./')) return
-        path = "./" + path
+        path = "../" + path
         let files = fs.readdirSync(path)
         if (!files) return
         let res = []
@@ -319,10 +333,10 @@ nsp.on('connection', function (socket) {
             for (let tmpf of fs.readdirSync(tmpp)) {
                 if (fs.statSync(tmpp + '/' + tmpf).isDirectory()) tmp = true
             }
-            res.push({ path: (tmpp).slice(1), label: file, lazy: tmp, children: [] })
+            res.push({ path: (tmpp).slice(2), label: file, lazy: tmp, children: [] })
         }
 
-        socket.emit('FS_CHILDREN', { path: path.slice(2), children: res })
+        socket.emit('FS_CHILDREN', { path: path.slice(3), children: res })
     });
 
     socket.on('disconnect', function () {

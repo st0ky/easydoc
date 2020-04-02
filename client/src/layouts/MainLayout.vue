@@ -102,15 +102,35 @@
               :label="notes[parseInt(tree)].title"
             />
 
+            <q-tab
+              class="q-px-xs"
+              v-for="(v, tree) in fileTrees"
+              :key="tree"
+              :name="parseInt(tree)"
+              :label="'Files: ' + notes[parseInt(tree)].title"
+            />
+
           </q-tabs>
           <q-separator />
-          <q-tab-panels v-model="tab">
+          <q-tab-panels
+            v-model="tab"
+            keep-alive
+          >
             <template v-for="(v, tree) in trees">
               <q-tab-panel
                 :key="tree"
                 :name="parseInt(tree)"
               >
                 <note-tree :tree="parseInt(tree)" />
+              </q-tab-panel>
+            </template>
+
+            <template v-for="(v, tree) in fileTrees">
+              <q-tab-panel
+                :key="tree"
+                :name="parseInt(tree)"
+              >
+                <file-tree :tree="parseInt(tree)" />
               </q-tab-panel>
             </template>
 
@@ -134,18 +154,23 @@
 import { mapState } from 'vuex'
 import FileExplorer from 'components/dialogs/FileExplorer.vue'
 import NoteTree from 'components/NoteTree.vue'
+import FileTree from 'components/FileTree.vue'
 
 export default {
   name: 'MainLayout',
 
   components: {
-    NoteTree
+    NoteTree,
+    FileTree
   },
 
   computed: {
     ...mapState('notes', [
       'notes',
       'trees'
+    ]),
+    ...mapState('socket', [
+      'fileTrees'
     ]),
     drawerWidth () {
       return this.splitterModel + 1

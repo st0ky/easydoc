@@ -66,9 +66,12 @@ export function SOCKET_NEW_TREE (state, params) {
 
 export function SOCKET_NEW_FILETREES (state, fileTrees) {
     console.log('SOCKET_NEW_FILETREES', fileTrees)
-    for (let fileTree of Object.values(fileTrees)) {
-        this.commit("notes/newFileTree", fileTree)
-    }
+    Vue.set(state, 'fileTrees', fileTrees)
+}
+
+export function SOCKET_NEW_FILETREE (state, { noteId, tree }) {
+    console.log('SOCKET_NEW_FILETREE', noteId, tree)
+    Vue.set(state.fileTrees, noteId, tree)
 }
 
 export function SOCKET_UPDATE_USERS (state, users) {
