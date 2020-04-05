@@ -219,16 +219,21 @@ export default {
   },
   watch: {
     treeFromParams (to, from) {
-      this.tab = to
+      if (to !== undefined && !isNaN(to)) {
+        this.tab = to
+      }
     }
   },
   mounted () {
-    this.tab = parseInt(this.$route.params.tree)
+    let to = parseInt(this.$route.params.tree)
+    if (to !== undefined && !isNaN(to)) {
+      this.tab = to
+    }
   },
 
   data () {
     return {
-      tab: parseInt(this.$route.params.tree),
+      tab: undefined,
       booleanTest: false,
       drawerLeft: true,
       drawerRight: false,
