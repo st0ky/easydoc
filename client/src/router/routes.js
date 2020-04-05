@@ -5,6 +5,24 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/Index.vue') },
       {
+        path: 'code', component: () => import('pages/Code.vue'), children: [
+          {
+            path: ':fileId/range/:line/:endLine?',
+            name: 'code',
+            component: () => import('components/NoteView/Code.vue'),
+            props (route) {
+              const props = { ...route.params, ...route.query }
+              props.fileId = parseInt(props.fileId)
+              props.line = parseInt(props.line)
+              props.endLine = props.endLine === undefined || parseInt(props.endLine) === NaN ? -1 : parseInt(props.endLine)
+              props.startCol = props.startCol === undefined || parseInt(props.startCol) === NaN ? -1 : parseInt(props.startCol)
+              props.endCol = props.endCol === undefined || parseInt(props.endCol) === NaN ? -1 : parseInt(props.endCol)
+              props.height = props.height === undefined ? "1000px" : props.height
+              return props
+            }
+          }]
+      },
+      {
         path: 'tree/:tree/note/:note',
         component: () => import('pages/Note.vue'),
         props (route) {
@@ -24,7 +42,7 @@ const routes = [
           },
           {
             path: 'code/:fileId/range/:line/:endLine?',
-            name: 'code',
+            name: 'noteCode',
             component: () => import('components/NoteView/Code.vue'),
             props (route) {
               const props = { ...route.params, ...route.query }

@@ -9,7 +9,7 @@
         ref="editor"
         :content="content"
         :fontSize="14"
-        height="300px"
+        :height="height"
         :readonly="true"
         lang="python"
         theme="monokai"
@@ -42,6 +42,7 @@ export default {
     lineEnd: { type: Number, default: -1 },
     startCol: { type: Number, default: -1 },
     endCol: { type: Number, default: -1 },
+    height: { type: String, default: '300px' }
   },
   components: { VueAceEditor },
   data () {
