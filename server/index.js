@@ -14,6 +14,7 @@ const morgan = require('morgan');
 
 app.set('port', (process.env.PORT || 3000));
 app.use('/npm', express.static('node_modules'));
+app.use('/', express.static('spa'));
 
 // app.use(morgan('tiny'));
 // app.use(cors());
