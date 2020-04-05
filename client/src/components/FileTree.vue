@@ -5,7 +5,9 @@
     label-key="name"
   >
     <template v-slot:default-header="{node}">
-      <q-item> {{ node.name }} </q-item>
+      <q-item :to="!node.dir ? {name: 'code', params: recalcParams($route.params, node), query: $route.query} : ''">
+        {{ node.name }}
+      </q-item>
 
     </template>
   </q-tree>
@@ -31,6 +33,12 @@ export default {
     ]),
   },
   methods: {
+    recalcParams (oldParams, node) {
+      let params = { ...oldParams }
+      params.fileId = node.fileId
+      params.line = node.line !== undefined ? node.line : 0
+      return params
+    }
   }
 }
 </script>

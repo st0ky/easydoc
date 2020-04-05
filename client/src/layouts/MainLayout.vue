@@ -180,6 +180,9 @@ export default {
     },
     compPadding () {
       return this.leftDrawerOpen ? { paddingLeft: '0px' } : ''
+    },
+    treeFromParams () {
+      return parseInt(this.$route.params.tree)
     }
   },
   methods: {
@@ -215,8 +218,8 @@ export default {
     }
   },
   watch: {
-    $route (to, from) {
-      this.tab = parseInt(this.$route.params.tree)
+    treeFromParams (to, from) {
+      this.tab = to
     }
   },
   mounted () {

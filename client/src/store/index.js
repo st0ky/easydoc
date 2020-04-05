@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import notes from './notes'
 import socket from './socket'
+import session from './session'
 
 Vue.use(Vuex)
 
@@ -19,7 +20,8 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       notes,
-      socket
+      socket,
+      session
     },
 
     // enable strict mode (adds overhead!)
@@ -35,6 +37,10 @@ export default function (/* { ssrContext } */) {
     module.hot.accept(['./socket'], () => {
       const newsocket = require('./socket').default
       Store.hotUpdate({ modules: { socket: newsocket } })
+    })
+    module.hot.accept(['./session'], () => {
+      const newsocket = require('./session').default
+      Store.hotUpdate({ modules: { session: newsession } })
     })
   }
 

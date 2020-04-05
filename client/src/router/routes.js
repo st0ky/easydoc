@@ -23,14 +23,16 @@ const routes = [
             }
           },
           {
-            path: 'code/:fileId/range/:rangeStart/:rangeEnd',
+            path: 'code/:fileId/range/:line/:endLine?',
             name: 'code',
             component: () => import('components/NoteView/Code.vue'),
             props (route) {
-              const props = { ...route.params }
+              const props = { ...route.params, ...route.query }
               props.fileId = parseInt(props.fileId)
-              props.rangeStart = parseInt(props.rangeStart)
-              props.rangeEnd = parseInt(props.rangeEnd)
+              props.line = parseInt(props.line)
+              props.endLine = props.endLine === undefined || parseInt(props.endLine) === NaN ? -1 : parseInt(props.endLine)
+              props.startCol = props.startCol === undefined || parseInt(props.startCol) === NaN ? -1 : parseInt(props.startCol)
+              props.endCol = props.endCol === undefined || parseInt(props.endCol) === NaN ? -1 : parseInt(props.endCol)
               return props
             }
           }

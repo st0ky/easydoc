@@ -270,7 +270,6 @@ nsp.on('connection', function (socket) {
         let tree = { note: treeId, children: [], parent: null }
         let obj = {}
         obj[treeId] = tree
-        console.log('aaaaaaaaaaaaaaaaaaaaa')
         db.get('trees').set(treeId, obj).write()
         emitTreeNotes(nsp)
         nsp.emit('NEW_TREE', { noteId: treeId, tree: obj })
@@ -338,6 +337,20 @@ nsp.on('connection', function (socket) {
 
         socket.emit('FS_CHILDREN', { path: path.slice(3), children: res })
     });
+
+    socket.on('fs get file content', function (fileId) {
+        let filePath = db.get('fileIds').get(fileId).value()
+        if (!filePath) return
+        if (fs.statSync(filePath).isDirectory()) return
+        fs.readFile(filePath, (err, data) => {
+            data = data.toString()
+            if (err) return
+            socket.emit('FS_FILE_CONTENT', { fileId: fileId, content: data, path: filePath })
+
+        });
+
+    });
+
 
     socket.on('disconnect', function () {
         console.log('disconnect', socket.id)
