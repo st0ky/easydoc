@@ -41,11 +41,11 @@ const routes = [
             }
           },
           {
-            path: 'code/:fileId/range/:line/:endLine?',
+            path: 'code/:fileId/range/:line/:endLine?/:startCol?/:endCol?',
             name: 'noteCode',
             component: () => import('components/NoteView/Code.vue'),
             props (route) {
-              const props = { ...route.params, ...route.query }
+              const props = { ...route.params }
               props.fileId = parseInt(props.fileId)
               props.line = parseInt(props.line)
               props.endLine = props.endLine === undefined || parseInt(props.endLine) === NaN ? -1 : parseInt(props.endLine)

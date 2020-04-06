@@ -65,7 +65,7 @@ db.defaults({
             title: 'hello - 0',
             content: '## 0\nhere is my תוכן. i like לכתוב בעברית...',
             tags: ['hey', 'vuln', 'interesting'],
-            links: ['note-id://1'],
+            links: [{ type: 'note', noteId: 1 }],
             created: Date.now(),
             edited: Date.now()
         },
@@ -74,7 +74,7 @@ db.defaults({
             title: 'hello - 1',
             content: '## 1\nhere is my תוכן. i like לכתוב בעברית...',
             tags: ['hey', 'interesting'],
-            links: ['note-id://0'],
+            links: [{ type: 'note', noteId: 0 }],
             created: Date.now(),
             edited: Date.now()
         },
@@ -83,7 +83,7 @@ db.defaults({
             title: 'hello - 2',
             content: '## 2\nhere is my תוכן. i like לכתוב בעברית...',
             tags: ['hey', 'interesting'],
-            links: ['note-id://0'],
+            links: [{ type: 'note', noteId: 0 }],
             created: Date.now(),
             edited: Date.now()
         },
@@ -92,7 +92,7 @@ db.defaults({
             title: 'hello - 3',
             content: '## 3\nhere is my תוכן. i like לכתוב בעברית...',
             tags: ['hey', 'interesting'],
-            links: ['note-id://0'],
+            links: [{ type: 'note', noteId: 0 }],
             created: Date.now(),
             edited: Date.now()
         }
@@ -356,11 +356,22 @@ nsp.on('connection', function (socket) {
         fs.readFile(filePath, (err, data) => {
             data = data.toString()
             if (err) return
-            socket.emit('FS_FILE_CONTENT', { fileId: fileId, content: data, path: filePath })
+            socket.emit('FS_FILE_CONTENT', { fileId: fileId, content: data, path: filePath.split(path.sep).join('/') })
 
         });
-
     });
+
+    socket.on('fs get file name', function (fileId) {
+        console.log('fs get file name', fileId)
+        let filePath = db.get('fileIds').get(fileId).value()
+        console.log('fs get file name', filePath)
+        if (!filePath) return
+        name = filePath.split(path.sep).pop()
+        console.log('fs get file name', name)
+        socket.emit('FS_FILE_NAME', { fileId: fileId, name: name })
+    });
+
+
 
 
     socket.on('disconnect', function () {

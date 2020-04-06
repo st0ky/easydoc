@@ -124,18 +124,21 @@
         v-if="links.length"
         @dblclick="primary && !edit_mode ? enter_edit('links') : '' "
       >
-        <q-btn
+        <note-link
           flat
           v-for="(link, idx) in links"
           :key="idx"
-        > {{link}} </q-btn>
+          v-bind="link"
+        />
       </q-card-actions>
     </q-card>
   </div>
 </template>
 
 <script>
+
 import VueMarkdown from 'vue-markdown'
+import NoteLink from 'components/NoteLink.vue'
 
 export default {
   name: 'NoteCard',
@@ -143,7 +146,7 @@ export default {
     note: Number,
     primary: Boolean,
   },
-  components: { VueMarkdown },
+  components: { VueMarkdown, NoteLink },
   data () {
     return {
       edit_mode: false,
