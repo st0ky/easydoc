@@ -13,7 +13,6 @@
       @dragend="onDragEnd"
       v-if="!edit"
       @dblclick.stop="enterEdit"
-      @keyup="newNote"
       class="q-pa-xs"
     >
       {{ title }}
@@ -130,16 +129,6 @@ export default {
       e.preventDefault()
       this.$socket.emit("move note", { noteId: parseInt(e.dataTransfer.getData('note')), treeId: this.tree.nodes[0].note, parentId: this.note })
       this.expandPath(this.note)
-    },
-
-    newNote (e) {
-      this.$socket.subscribe("new note ack", (noteId) => {
-        this.$socket.emit("move note", { noteId: noteId, treeId: this.tree, parentId: this.note })
-        this.$router.push({ name: 'noteView', params: { tree: this.tree, note: noteId } })
-        this.$socket.unsubscribe("new note ack")
-
-      })
-      this.$socket.emit("new note", { title: "new note" })
     },
 
     expandPath (note) {

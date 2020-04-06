@@ -11,15 +11,15 @@
       </q-card-section>
       <q-card-section>
         <!-- <bdo dir="ltr"> {{ selected ? selected.replace('.//', './') : undefined }} </bdo> -->
-        <bdo dir="ltr">
-          <q-input
-            filled
-            v-model="_selected"
-            label="Filled"
-            :rules="[val => !!tree.getNodeByKey(val) || 'No such folder']"
-            @keyup.enter="onOKClick"
-            autofocus
-          /></bdo>
+        <q-input
+          dir="ltr"
+          filled
+          v-model="_selected"
+          label="Filled"
+          :rules="[val => !!tree.getNodeByKey(val) || 'No such folder']"
+          @keyup.enter="onOKClick"
+          autofocus
+        />
       </q-card-section>
       <q-card-section>
         <q-tree
@@ -88,6 +88,9 @@ export default {
       },
       set (v) {
         this.valid_select = false
+        if (!v) {
+          v = ''
+        }
         this.selected = v
         let splitted = v.split('/')
         for (let i in { ...[...Array(splitted.length)] }) {

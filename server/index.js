@@ -295,7 +295,7 @@ nsp.on('connection', function (socket) {
 
         let treeName = dir.split(path.sep).pop()
         let treeId = createNewNote({ title: treeName }, 'fileTrees')
-        let nextFileId = parseInt(db.get('fileIds').keys().max()) + 1
+        let nextFileId = parseInt(db.get('fileIds').keys().maxBy(_.toInteger)) + 1
 
         db.get('fileIds').set(nextFileId, dir).value()
         let tree = { name: treeName, fileId: nextFileId, dir: true, children: [] }
