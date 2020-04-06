@@ -167,22 +167,35 @@ export const updateTreeNode = function (state, { tree, node }) {
   Vue.set(treeNode, 'parent', node.parent)
 }
 
-export const deleteTreeNode = function (state, { tree, noteId }) {
-  tree = state.trees[tree]
-  console.log(tree)
-  console.log(tree[noteId])
-  let unrelated = tree[-1]
-  let queue = [tree[noteId]]
-  while (queue.length) {
-    let tmp = queue.pop()
-    for (let child of tmp.children) {
-      queue.push(child)
-    }
-    Vue.set(tmp, 'parent', -1)
-    Vue.set(tmp, 'children', [])
-    unrelated.children.splice(0, 0, tmp)
-  }
+// export const deleteTreeNode = function (state, { tree, noteId }) {
+//   tree = state.trees[tree]
+//   console.log(tree)
+//   console.log(tree[noteId])
+//   let note = tree[noteId]
+//   tree[note.parent].children.splice(tree[note.parent].children.indexOf(note), 1)
+//   let unrelated = tree[-1]
+//   let queue = [tree[noteId]]
+//   while (queue.length) {
+//     let tmp = queue.pop()
+//     for (let child of tmp.children) {
+//       queue.push(child)
+//     }
+//     Vue.set(tmp, 'parent', -1)
+//     Vue.set(tmp, 'children', [])
+//     unrelated.children.splice(0, 0, tmp)
+//   }
+//   console.log(tree)
+// }
+export const removeNodeFromTree = function (state, { treeId, noteId }) {
+  let tree = state.trees[treeId]
+  if (tree[noteId] === undefined) return
+  let node = tree[noteId]
+  Vue.set(node, "parent", -1)
+  Vue.set(node, 'children', [])
+  tree[-1].children.splice(0, 0, node)
 }
+
+
 
 export const moveNote = function (
   state,

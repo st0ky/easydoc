@@ -36,10 +36,11 @@ export function SOCKET_UPDATE_TREE_NODE (state, params) {
     this.commit("notes/updateTreeNode", params)
 }
 
-export function SOCKET_DELETE_TREE_NODE (state, params) {
-    console.log('SOCKET_UPDATE_TREE_NODE', params)
-    this.commit("notes/deleteTreeNode", params)
-
+export function SOCKET_REMOVE_NODES_FROM_TREE (state, { tree, omit }) {
+    console.log('SOCKET_REMOVE_NODES_FROM_TREE', tree, omit)
+    for (let node of omit) {
+        this.commit('notes/removeNodeFromTree', { treeId: tree, noteId: node })
+    }
 }
 
 export function SOCKET_UPDATE_TREE_NOTES (state, notes) {

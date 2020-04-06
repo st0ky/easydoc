@@ -107,14 +107,24 @@ db.defaults({
     }, tags: [], fileTrees: {}, fileIds: { '0': '' }
 }).write()
 
-function deleteTreeNode (treeId, tree, noteId) {
+function removeNodeFromTree (treeId, noteId) {
+    let tree = db.get('trees').get(treeId)
+    let tmp = tree.get(noteId).value()
+    tree.get(tmp.parent).get('children').pull(noteId).write()
+    nsp.emit('UPDATE_TREE_NODE', { tree: treeId, node: tree.get(tmp.parent).value() })
     let queue = [noteId]
+    let toRemove = []
+
     while (queue.length) {
-        let tmp = queue.pop()
-        queue = _.extend(queue, tree.get(tmp).value().children)
-        tree.unset(tmp).write()
+        tmp = queue.pop()
+        queue = _.concat(queue, tree.get(tmp).value().children)
+        toRemove.push(tmp.toString())
     }
-    nsp.emit('DELETE_TREE_NODE', { tree: treeId, noteId: noteId })
+    for (let i of toRemove) {
+        tree.unset(i).value()
+    }
+    db.write()
+    nsp.emit('REMOVE_NODES_FROM_TREE', { tree: treeId, omit: toRemove })
 }
 
 function createNewNote (fields, trees = false) {
@@ -232,7 +242,7 @@ nsp.on('connection', function (socket) {
             nsp.emit('UPDATE_TREE_NODE', { tree: treeId, node: oldParent.value() })
         }
         if (parentId == -1) {
-            deleteTreeNode(treeId, tree, noteId)
+            removeNodeFromTree(treeId, noteId)
 
         } else {
             note.set('parent', parentId).write()
@@ -257,7 +267,7 @@ nsp.on('connection', function (socket) {
         }
         for (let [treeId, tree] of db.get('trees').entries()) {
             if (tree[note] !== undefined) {
-                deleteTreeNode(treeId, tree, note)
+                removeNodeFromTree(treeId, note)
             }
         }
         db.get('notes').unset(note).write()
