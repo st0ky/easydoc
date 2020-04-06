@@ -134,7 +134,7 @@ function createNewNote (fields, trees = false) {
         note[field] = fields[field]
     }
     notes = db.get('notes')
-    note.id = parseInt(notes.keys().max()) + 1
+    note.id = parseInt(notes.keys().maxBy(_.toInteger)) + 1
     note.created = Date.now()
     note.edited = Date.now()
     notes.set(note.id, note).write()
