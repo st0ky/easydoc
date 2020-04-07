@@ -362,12 +362,9 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('fs get file name', function (fileId) {
-        console.log('fs get file name', fileId)
         let filePath = db.get('fileIds').get(fileId).value()
-        console.log('fs get file name', filePath)
         if (!filePath) return
         name = filePath.split(path.sep).pop()
-        console.log('fs get file name', name)
         socket.emit('FS_FILE_NAME', { fileId: fileId, name: name })
     });
 

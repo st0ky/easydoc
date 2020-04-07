@@ -157,7 +157,9 @@
             flat
             icon='add'
             @click="addLink"
-          />
+          >
+            <q-tooltip>Add note link<br />To add code link choose first file from file tree</q-tooltip>
+          </q-btn>
           <q-select
             hint="select note"
             class="col-grow"
@@ -175,7 +177,6 @@
             v-model="treeModel"
             use-input
             input-debounce="0"
-            :autofocus="focus == 'links'"
           />
 
         </q-list>
