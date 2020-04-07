@@ -19,7 +19,8 @@ export default function (/* { store, ssrContext } */) {
     routes,
     scrollBehavior (to, from, savedPosition) {
       if (savedPosition) return savedPosition
-      if (to.name == from.name && from.name == 'code') return { x: 0, y: window.scrollY }
+      if (to.name == from.name && (from.name == 'code' ||
+        (from.name == 'noteCode' && to.params.note == from.params.note))) return { x: 0, y: window.scrollY }
       return { x: 0, y: 0 }
     },
 

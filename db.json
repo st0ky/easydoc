@@ -1,0 +1,791 @@
+{
+  "notes": {
+    "0": {
+      "id": 0,
+      "title": "hello - 0",
+      "content": "## 0\nhere is my תוכן. i like לכתוב בעברית...",
+      "tags": [
+        "hey",
+        "vuln",
+        "interesting"
+      ],
+      "links": [
+        "note-id://1"
+      ],
+      "created": 1586094365360,
+      "edited": 1586094365360
+    },
+    "1": {
+      "id": 1,
+      "title": "hello - 1",
+      "content": "## 1\nhere is my תוכן. i like לכתוב בעברית...",
+      "tags": [
+        "hey",
+        "interesting"
+      ],
+      "links": [
+        "note-id://0"
+      ],
+      "created": 1586094365360,
+      "edited": 1586094365360
+    },
+    "2": {
+      "id": 2,
+      "title": "hello - 2",
+      "content": "## 2\nhere is my תוכן. i like לכתוב בעברית...\nSUCCESS#\nMOTIVATION#",
+      "tags": [
+        "hey",
+        "interesting"
+      ],
+      "links": [
+        "note-id://0"
+      ],
+      "created": 1586094365360,
+      "edited": 1586097649232
+    },
+    "3": {
+      "id": 3,
+      "title": "hello - 3",
+      "content": "## 3\nhere is my תוכן. i like לכתוב בעברית...",
+      "tags": [
+        "hey",
+        "interesting"
+      ],
+      "links": [
+        "note-id://0"
+      ],
+      "created": 1586094365360,
+      "edited": 1586094365360
+    },
+    "4": {
+      "title": "src",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 4,
+      "created": 1586094633178,
+      "edited": 1586094633178
+    },
+    "5": {
+      "title": "רעיונות",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 5,
+      "created": 1586097425849,
+      "edited": 1586097444968
+    },
+    "6": {
+      "title": "עצים",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 6,
+      "created": 1586097654619,
+      "edited": 1586097683651
+    },
+    "7": {
+      "title": "תזוזה על העץ עם החיצים",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 7,
+      "created": 1586097692589,
+      "edited": 1586097706980
+    },
+    "8": {
+      "title": "להציג עץ כמו ב-freemind",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 8,
+      "created": 1586097713029,
+      "edited": 1586097737841
+    },
+    "9": {
+      "title": "צבעים",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 9,
+      "created": 1586097756279,
+      "edited": 1586097764710
+    },
+    "10": {
+      "title": "new note",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "id": 10,
+      "created": 1586162826699,
+      "edited": 1586162826699
+    },
+    "-2": {
+      "id": -2,
+      "title": "live demo",
+      "content": "זהו דמו של מערכת התיעוד EasyDoc. אתם מוזמנים להתנסות. כנראה שכל שינוי שתעשו פה ישוקף לכל מי שמסתכל על הדמו. אז בבקשה לא להרוס יותר מידי\nהקוד נמצא פה: https://github.com/st0ky/easydoc\nמקווה שתהנו\nסטוקי\n\nסתם בשביל להתנסות גלשו לפה\nhttp://easydoc.zenysec.com:8080/#/tree/1/note/2/code/2/range/0\n###### מלא תודה לתומר אייזנברג על המכונה של הדמו :)",
+      "tags": [
+        "מגניב"
+      ],
+      "links": [],
+      "created": 1586094365360,
+      "edited": 1586096066708
+    },
+    "-1": {
+      "id": -1,
+      "title": "unrelated",
+      "content": "",
+      "tags": [],
+      "links": [],
+      "created": 1586094365360,
+      "edited": 1586094365360
+    }
+  },
+  "trees": {
+    "1": {
+      "1": {
+        "note": 1,
+        "children": [
+          2,
+          3
+        ],
+        "parent": null
+      },
+      "2": {
+        "note": 2,
+        "children": [],
+        "parent": 1
+      },
+      "3": {
+        "note": 3,
+        "children": [],
+        "parent": 1
+      }
+    },
+    "5": {
+      "5": {
+        "note": 5,
+        "children": [
+          9,
+          6
+        ],
+        "parent": null
+      },
+      "6": {
+        "note": 6,
+        "children": [
+          8,
+          7
+        ],
+        "parent": 5
+      },
+      "7": {
+        "note": 7,
+        "children": [],
+        "parent": 6
+      },
+      "8": {
+        "note": 8,
+        "children": [],
+        "parent": 6
+      },
+      "9": {
+        "note": 9,
+        "children": [
+          10
+        ],
+        "parent": 5
+      },
+      "10": {
+        "note": 10,
+        "children": [],
+        "parent": 9
+      }
+    }
+  },
+  "tags": [
+    "מגניב"
+  ],
+  "fileTrees": {
+    "4": {
+      "name": "src",
+      "fileId": 1,
+      "dir": true,
+      "children": [
+        {
+          "name": "App.vue",
+          "fileId": 2,
+          "dir": false,
+          "children": []
+        },
+        {
+          "name": "assets",
+          "fileId": 3,
+          "dir": true,
+          "children": [
+            {
+              "name": "quasar-logo-full.svg",
+              "fileId": 79,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "sad.svg",
+              "fileId": 80,
+              "dir": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "boot",
+          "fileId": 4,
+          "dir": true,
+          "children": [
+            {
+              "name": ".gitkeep",
+              "fileId": 77,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "socketio.js",
+              "fileId": 78,
+              "dir": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "components",
+          "fileId": 5,
+          "dir": true,
+          "children": [
+            {
+              "name": "EssentialLink.vue",
+              "fileId": 66,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "FileTree.vue",
+              "fileId": 67,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "NoteCard.vue",
+              "fileId": 68,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "NoteTree.vue",
+              "fileId": 69,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "NoteView",
+              "fileId": 70,
+              "dir": true,
+              "children": [
+                {
+                  "name": "Code.vue",
+                  "fileId": 75,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "NoteList.vue",
+                  "fileId": 76,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "name": "TreeNode.vue",
+              "fileId": 71,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "dialogs",
+              "fileId": 72,
+              "dir": true,
+              "children": [
+                {
+                  "name": "Confirm.vue",
+                  "fileId": 73,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "FileExplorer.vue",
+                  "fileId": 74,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "css",
+          "fileId": 6,
+          "dir": true,
+          "children": [
+            {
+              "name": "app.sass",
+              "fileId": 64,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "quasar.variables.sass",
+              "fileId": 65,
+              "dir": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "index.template.html",
+          "fileId": 7,
+          "dir": false,
+          "children": []
+        },
+        {
+          "name": "layouts",
+          "fileId": 8,
+          "dir": true,
+          "children": [
+            {
+              "name": "MainLayout.vue",
+              "fileId": 63,
+              "dir": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "pages",
+          "fileId": 9,
+          "dir": true,
+          "children": [
+            {
+              "name": "Error404.vue",
+              "fileId": 60,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "Index.vue",
+              "fileId": 61,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "Note.vue",
+              "fileId": 62,
+              "dir": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "router",
+          "fileId": 10,
+          "dir": true,
+          "children": [
+            {
+              "name": "index.js",
+              "fileId": 58,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "routes.js",
+              "fileId": 59,
+              "dir": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "statics",
+          "fileId": 11,
+          "dir": true,
+          "children": [
+            {
+              "name": "app-logo-128x128.png",
+              "fileId": 41,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "icons",
+              "fileId": 42,
+              "dir": true,
+              "children": [
+                {
+                  "name": "apple-icon-120x120.png",
+                  "fileId": 43,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "apple-icon-152x152.png",
+                  "fileId": 44,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "apple-icon-167x167.png",
+                  "fileId": 45,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "apple-icon-180x180.png",
+                  "fileId": 46,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "favicon-16x16.png",
+                  "fileId": 47,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "favicon-32x32.png",
+                  "fileId": 48,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "favicon-96x96.png",
+                  "fileId": 49,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "favicon.ico",
+                  "fileId": 50,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "icon-128x128.png",
+                  "fileId": 51,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "icon-192x192.png",
+                  "fileId": 52,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "icon-256x256.png",
+                  "fileId": 53,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "icon-384x384.png",
+                  "fileId": 54,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "icon-512x512.png",
+                  "fileId": 55,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "ms-icon-144x144.png",
+                  "fileId": 56,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "safari-pinned-tab.svg",
+                  "fileId": 57,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "store",
+          "fileId": 12,
+          "dir": true,
+          "children": [
+            {
+              "name": "index.js",
+              "fileId": 13,
+              "dir": false,
+              "children": []
+            },
+            {
+              "name": "module-example",
+              "fileId": 14,
+              "dir": true,
+              "children": [
+                {
+                  "name": "actions.js",
+                  "fileId": 36,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "getters.js",
+                  "fileId": 37,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "index.js",
+                  "fileId": 38,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "mutations.js",
+                  "fileId": 39,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "state.js",
+                  "fileId": 40,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "name": "notes",
+              "fileId": 15,
+              "dir": true,
+              "children": [
+                {
+                  "name": "actions.js",
+                  "fileId": 31,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "getters.js",
+                  "fileId": 32,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "index.js",
+                  "fileId": 33,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "mutations.js",
+                  "fileId": 34,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "state.js",
+                  "fileId": 35,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "name": "session",
+              "fileId": 16,
+              "dir": true,
+              "children": [
+                {
+                  "name": "actions.js",
+                  "fileId": 25,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "getters.js",
+                  "fileId": 26,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "index.js",
+                  "fileId": 27,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "mutations.js",
+                  "fileId": 28,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "state.js",
+                  "fileId": 29,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "store-flag.d.ts",
+                  "fileId": 30,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "name": "socket",
+              "fileId": 17,
+              "dir": true,
+              "children": [
+                {
+                  "name": "actions.js",
+                  "fileId": 19,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "getters.js",
+                  "fileId": 20,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "index.js",
+                  "fileId": 21,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "mutations.js",
+                  "fileId": 22,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "state.js",
+                  "fileId": 23,
+                  "dir": false,
+                  "children": []
+                },
+                {
+                  "name": "store-flag.d.ts",
+                  "fileId": 24,
+                  "dir": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "name": "store-flag.d.ts",
+              "fileId": 18,
+              "dir": false,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "fileIds": {
+    "0": "",
+    "1": "/home/ubuntu/easydoc/client/src",
+    "2": "/home/ubuntu/easydoc/client/src/App.vue",
+    "3": "/home/ubuntu/easydoc/client/src/assets",
+    "4": "/home/ubuntu/easydoc/client/src/boot",
+    "5": "/home/ubuntu/easydoc/client/src/components",
+    "6": "/home/ubuntu/easydoc/client/src/css",
+    "7": "/home/ubuntu/easydoc/client/src/index.template.html",
+    "8": "/home/ubuntu/easydoc/client/src/layouts",
+    "9": "/home/ubuntu/easydoc/client/src/pages",
+    "10": "/home/ubuntu/easydoc/client/src/router",
+    "11": "/home/ubuntu/easydoc/client/src/statics",
+    "12": "/home/ubuntu/easydoc/client/src/store",
+    "13": "/home/ubuntu/easydoc/client/src/store/index.js",
+    "14": "/home/ubuntu/easydoc/client/src/store/module-example",
+    "15": "/home/ubuntu/easydoc/client/src/store/notes",
+    "16": "/home/ubuntu/easydoc/client/src/store/session",
+    "17": "/home/ubuntu/easydoc/client/src/store/socket",
+    "18": "/home/ubuntu/easydoc/client/src/store/store-flag.d.ts",
+    "19": "/home/ubuntu/easydoc/client/src/store/socket/actions.js",
+    "20": "/home/ubuntu/easydoc/client/src/store/socket/getters.js",
+    "21": "/home/ubuntu/easydoc/client/src/store/socket/index.js",
+    "22": "/home/ubuntu/easydoc/client/src/store/socket/mutations.js",
+    "23": "/home/ubuntu/easydoc/client/src/store/socket/state.js",
+    "24": "/home/ubuntu/easydoc/client/src/store/socket/store-flag.d.ts",
+    "25": "/home/ubuntu/easydoc/client/src/store/session/actions.js",
+    "26": "/home/ubuntu/easydoc/client/src/store/session/getters.js",
+    "27": "/home/ubuntu/easydoc/client/src/store/session/index.js",
+    "28": "/home/ubuntu/easydoc/client/src/store/session/mutations.js",
+    "29": "/home/ubuntu/easydoc/client/src/store/session/state.js",
+    "30": "/home/ubuntu/easydoc/client/src/store/session/store-flag.d.ts",
+    "31": "/home/ubuntu/easydoc/client/src/store/notes/actions.js",
+    "32": "/home/ubuntu/easydoc/client/src/store/notes/getters.js",
+    "33": "/home/ubuntu/easydoc/client/src/store/notes/index.js",
+    "34": "/home/ubuntu/easydoc/client/src/store/notes/mutations.js",
+    "35": "/home/ubuntu/easydoc/client/src/store/notes/state.js",
+    "36": "/home/ubuntu/easydoc/client/src/store/module-example/actions.js",
+    "37": "/home/ubuntu/easydoc/client/src/store/module-example/getters.js",
+    "38": "/home/ubuntu/easydoc/client/src/store/module-example/index.js",
+    "39": "/home/ubuntu/easydoc/client/src/store/module-example/mutations.js",
+    "40": "/home/ubuntu/easydoc/client/src/store/module-example/state.js",
+    "41": "/home/ubuntu/easydoc/client/src/statics/app-logo-128x128.png",
+    "42": "/home/ubuntu/easydoc/client/src/statics/icons",
+    "43": "/home/ubuntu/easydoc/client/src/statics/icons/apple-icon-120x120.png",
+    "44": "/home/ubuntu/easydoc/client/src/statics/icons/apple-icon-152x152.png",
+    "45": "/home/ubuntu/easydoc/client/src/statics/icons/apple-icon-167x167.png",
+    "46": "/home/ubuntu/easydoc/client/src/statics/icons/apple-icon-180x180.png",
+    "47": "/home/ubuntu/easydoc/client/src/statics/icons/favicon-16x16.png",
+    "48": "/home/ubuntu/easydoc/client/src/statics/icons/favicon-32x32.png",
+    "49": "/home/ubuntu/easydoc/client/src/statics/icons/favicon-96x96.png",
+    "50": "/home/ubuntu/easydoc/client/src/statics/icons/favicon.ico",
+    "51": "/home/ubuntu/easydoc/client/src/statics/icons/icon-128x128.png",
+    "52": "/home/ubuntu/easydoc/client/src/statics/icons/icon-192x192.png",
+    "53": "/home/ubuntu/easydoc/client/src/statics/icons/icon-256x256.png",
+    "54": "/home/ubuntu/easydoc/client/src/statics/icons/icon-384x384.png",
+    "55": "/home/ubuntu/easydoc/client/src/statics/icons/icon-512x512.png",
+    "56": "/home/ubuntu/easydoc/client/src/statics/icons/ms-icon-144x144.png",
+    "57": "/home/ubuntu/easydoc/client/src/statics/icons/safari-pinned-tab.svg",
+    "58": "/home/ubuntu/easydoc/client/src/router/index.js",
+    "59": "/home/ubuntu/easydoc/client/src/router/routes.js",
+    "60": "/home/ubuntu/easydoc/client/src/pages/Error404.vue",
+    "61": "/home/ubuntu/easydoc/client/src/pages/Index.vue",
+    "62": "/home/ubuntu/easydoc/client/src/pages/Note.vue",
+    "63": "/home/ubuntu/easydoc/client/src/layouts/MainLayout.vue",
+    "64": "/home/ubuntu/easydoc/client/src/css/app.sass",
+    "65": "/home/ubuntu/easydoc/client/src/css/quasar.variables.sass",
+    "66": "/home/ubuntu/easydoc/client/src/components/EssentialLink.vue",
+    "67": "/home/ubuntu/easydoc/client/src/components/FileTree.vue",
+    "68": "/home/ubuntu/easydoc/client/src/components/NoteCard.vue",
+    "69": "/home/ubuntu/easydoc/client/src/components/NoteTree.vue",
+    "70": "/home/ubuntu/easydoc/client/src/components/NoteView",
+    "71": "/home/ubuntu/easydoc/client/src/components/TreeNode.vue",
+    "72": "/home/ubuntu/easydoc/client/src/components/dialogs",
+    "73": "/home/ubuntu/easydoc/client/src/components/dialogs/Confirm.vue",
+    "74": "/home/ubuntu/easydoc/client/src/components/dialogs/FileExplorer.vue",
+    "75": "/home/ubuntu/easydoc/client/src/components/NoteView/Code.vue",
+    "76": "/home/ubuntu/easydoc/client/src/components/NoteView/NoteList.vue",
+    "77": "/home/ubuntu/easydoc/client/src/boot/.gitkeep",
+    "78": "/home/ubuntu/easydoc/client/src/boot/socketio.js",
+    "79": "/home/ubuntu/easydoc/client/src/assets/quasar-logo-full.svg",
+    "80": "/home/ubuntu/easydoc/client/src/assets/sad.svg"
+  }
+}

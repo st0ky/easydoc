@@ -41,6 +41,9 @@ export default {
       let params = { ...oldParams }
       params.fileId = node.fileId
       params.line = node.line !== undefined ? node.line : 0
+      params.endLine = node.endLine !== undefined ? node.endLine : -1
+      params.startCol = node.startCol !== undefined ? node.startCol : -1
+      params.endCol = node.endCol !== undefined ? node.endCol : -1
       return params
     }
   },
