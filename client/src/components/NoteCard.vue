@@ -118,10 +118,10 @@
         <vue-markdown :source="content" />
       </q-card-section>
 
-      <q-separator v-if="links.length" />
+      <q-separator v-if="links.length || edit_mode" />
       <q-card-actions
         vertical
-        v-if="links.length"
+        v-if="links.length || edit_mode"
         @dblclick="primary && !edit_mode ? enter_edit('links') : '' "
       >
         <template v-for="(link, idx) in links">
@@ -147,17 +147,38 @@
 
           </div>
         </template>
-        <q-select
+        <q-list
+          class="row q-gutter-sm"
           v-if="edit_mode"
-          hint="add note link"
-          :options="options"
-          @filter="filterFn"
-          @input="createValue"
-          v-model="model"
-          use-input
-          input-debounce="0"
-          :autofocus="focus == 'links'"
-        />
+        >
+          <q-btn
+            class="col-1"
+            :color="$q.dark.isActive ? '' : 'grey-7'"
+            flat
+            icon='add'
+            @click="addLink"
+          />
+          <q-select
+            hint="select note"
+            class="col-grow"
+            :options="noteOptions"
+            @filter="filterFn"
+            v-model="noteModel"
+            use-input
+            input-debounce="0"
+            :autofocus="focus == 'links'"
+          />
+          <q-select
+            hint="select tree"
+            class="col-4"
+            :options="treeOptions"
+            v-model="treeModel"
+            use-input
+            input-debounce="0"
+            :autofocus="focus == 'links'"
+          />
+
+        </q-list>
       </q-card-actions>
     </q-card>
   </div>
@@ -188,13 +209,16 @@ export default {
         tags: [],
         links: []
       },
-      options: [],
-      model: null
+      noteOptions: [],
+      treeOptions: [],
+      noteModel: null,
+      treeModel: null
     }
   },
   computed: {
     ...mapState('notes', [
-      'notes'
+      'notes',
+      'trees'
     ]),
     ...mapState('socket', [
       'treeNotes'
@@ -212,12 +236,19 @@ export default {
       set (v) { this.$socket.emit('update note', { id: this.note, tags: v }) }
     },
     links () { return this.notes[this.note].links },
-    titles () {
+    noteTitles () {
       let res = [];
       for (let note of Object.values(this.notes)) {
         if (note.id < 0) continue
-        if (this.treeNotes.indexOf(note.id) != -1) continue
         res.push({ label: note.title, value: note.id })
+      }
+      return res
+    },
+    treeTitles () {
+      let res = [];
+      for (let tree of Object.keys(this.trees)) {
+        tree = parseInt(tree)
+        res.push({ label: this.notes[tree].title, value: tree })
       }
       return res
     }
@@ -233,6 +264,8 @@ export default {
         links: this.links.slice()
       }
       this.focus = target
+      this.noteModel = null
+      this.treeModel = null
     },
     exit_edit () {
       this.edit_mode = false
@@ -254,18 +287,25 @@ export default {
     },
     filterFn (val, update, abort) {
       if (!val) {
-        update(() => { this.options = this.titles })
+        update(() => { this.noteOptions = this.noteTitles })
         return
       }
       update(() => {
         const needle = val.toLowerCase()
 
-        this.options = this.titles.filter(v => fuzzysearch(needle, v.label.toLowerCase()))
+        this.noteOptions = this.noteTitles.filter(v => fuzzysearch(needle, v.label.toLowerCase()))
       })
     },
     createValue (val) {
       this.$socket.emit('update note', { id: this.note, links: this.links.concat([{ type: 'note', noteId: val.value }]) })
       this.model = null
+    },
+    addLink () {
+      if (this.noteModel === null) return
+      let link = this.treeModel === null ? { type: 'note', noteId: this.noteModel.value } : { type: 'note', noteId: this.noteModel.value, treeId: this.treeModel.value }
+      this.$socket.emit('update note', { id: this.note, links: this.links.concat([link]) })
+      this.noteModel = null
+      this.treeModel = null
     }
   },
   watch: {
@@ -275,12 +315,18 @@ export default {
         return
       }
       this.exit_edit()
-
+    },
+    noteTitles (to, from) {
+      this.noteOptions = to
+    },
+    treeTitles (to, from) {
+      this.treeOptions = to
     }
   },
   mounted () {
     this.$store.dispatch('notes/prepareTags')
-    this.options = this.titles
+    this.noteOptions = this.noteTitles
+    this.treeOptions = this.treeTitles
   }
 }
 </script>
