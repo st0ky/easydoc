@@ -5,7 +5,7 @@
       bordered
       class="my-card"
       :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1', primary && note > -1 ? 'cursor-pointer' : ''] "
-      v-if="$store.state.notes.notes[note]"
+      v-if="notes[note]"
       @keyup.esc="cancel"
       @keyup.ctrl.enter="exit_edit"
     >
@@ -93,7 +93,7 @@
               flat
               @click="$socket.emit('delete note', note)"
               icon="delete"
-              v-if="note > -1 && !edit_mode && !$store.state.notes.trees[note]"
+              v-if="note > -1 && !edit_mode && !treeNotes.indexOf(note) != -1"
             />
           </div>
         </div>
@@ -124,11 +124,39 @@
         v-if="links.length"
         @dblclick="primary && !edit_mode ? enter_edit('links') : '' "
       >
-        <note-link
-          flat
-          v-for="(link, idx) in links"
-          :key="idx"
-          v-bind="link"
+        <template v-for="(link, idx) in links">
+          <div
+            class="row"
+            :key="idx"
+          >
+            <q-btn
+              v-if="edit_mode"
+              icon='cancel'
+              rounded
+              flat
+              size='sm'
+              :color="$q.dark.isActive ? '' : 'grey-7'"
+              class="col-1"
+              @click="$socket.emit('update note', { id: note, links: links.slice(0, idx).concat(links.slice(idx+1)) })"
+            />
+            <note-link
+              flat
+              v-bind="link"
+              :class="edit_mode ? 'col-11' : ''"
+            />
+
+          </div>
+        </template>
+        <q-select
+          v-if="edit_mode"
+          hint="add note link"
+          :options="options"
+          @filter="filterFn"
+          @input="createValue"
+          v-model="model"
+          use-input
+          input-debounce="0"
+          :autofocus="focus == 'links'"
         />
       </q-card-actions>
     </q-card>
@@ -137,8 +165,11 @@
 
 <script>
 
+import { mapState } from 'vuex'
+
 import VueMarkdown from 'vue-markdown'
 import NoteLink from 'components/NoteLink.vue'
+import fuzzysearch from '../utils/fuzzysearch.js'
 
 export default {
   name: 'NoteCard',
@@ -157,22 +188,39 @@ export default {
         tags: [],
         links: []
       },
+      options: [],
+      model: null
     }
   },
   computed: {
+    ...mapState('notes', [
+      'notes'
+    ]),
+    ...mapState('socket', [
+      'treeNotes'
+    ]),
     title: {
-      get () { return this.$store.state.notes.notes[this.note].title },
+      get () { return this.notes[this.note].title },
       set (v) { this.$socket.emit('update note', { id: this.note, title: v ? v : "" }) }
     },
     content: {
-      get () { return this.$store.state.notes.notes[this.note].content },
+      get () { return this.notes[this.note].content },
       set (v) { this.$socket.emit('update note', { id: this.note, content: v }) }
     },
     tags: {
-      get () { return this.$store.state.notes.notes[this.note].tags },
+      get () { return this.notes[this.note].tags },
       set (v) { this.$socket.emit('update note', { id: this.note, tags: v }) }
     },
-    links () { return this.$store.state.notes.notes[this.note].links },
+    links () { return this.notes[this.note].links },
+    titles () {
+      let res = [];
+      for (let note of Object.values(this.notes)) {
+        if (note.id < 0) continue
+        if (this.treeNotes.indexOf(note.id) != -1) continue
+        res.push({ label: note.title, value: note.id })
+      }
+      return res
+    }
   },
   methods: {
     enter_edit (target = null) {
@@ -203,6 +251,21 @@ export default {
         tags: this.originalNote.tags,
         links: this.originalNote.links
       })
+    },
+    filterFn (val, update, abort) {
+      if (!val) {
+        update(() => { this.options = this.titles })
+        return
+      }
+      update(() => {
+        const needle = val.toLowerCase()
+
+        this.options = this.titles.filter(v => fuzzysearch(needle, v.label.toLowerCase()))
+      })
+    },
+    createValue (val) {
+      this.$socket.emit('update note', { id: this.note, links: this.links.concat([{ type: 'note', noteId: val.value }]) })
+      this.model = null
     }
   },
   watch: {
@@ -217,6 +280,7 @@ export default {
   },
   mounted () {
     this.$store.dispatch('notes/prepareTags')
+    this.options = this.titles
   }
 }
 </script>
