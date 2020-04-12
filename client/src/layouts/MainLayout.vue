@@ -84,7 +84,7 @@
           v-model="leftDrawerOpen"
           show-if-above
           bordered
-          :content-class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
+          :content-class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
           :width="drawerWidth"
           :breakpoint="0"
         >

@@ -56,7 +56,7 @@ export function SOCKET_UPDATE_TAGS (state, tags) {
 export function SOCKET_NEW_TREES (state, trees) {
     console.log('SOCKET_NEW_TREES', trees)
     for (let [noteId, tree] of Object.entries(trees)) {
-        this.commit("notes/newTree", { tree: tree, noteId: noteId })
+        this.commit("notes/newTree", { tree: tree, noteId: parseInt(noteId) })
     }
 }
 

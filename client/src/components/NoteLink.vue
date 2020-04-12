@@ -37,7 +37,7 @@ export default {
     ]),
     to () {
       let treeId = this.treeId >= 0 ? this.treeId : parseInt(this.$route.params.tree)
-      treeId = isNaN(treeId) ? parseInt(Object.keys(trees)[0]) : treeId
+      treeId = isNaN(treeId) ? parseInt(Object.keys(this.trees)[0]) : treeId
       let noteId = this.noteId >= 0 ? this.noteId : parseInt(this.$route.params.note)
       noteId = isNaN(noteId) ? -1 : noteId
       let names = { file: noteId < 0 ? 'code' : "noteCode", note: 'noteView', extern: this.url }

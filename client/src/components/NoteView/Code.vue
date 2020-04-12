@@ -3,7 +3,7 @@
     <q-card
       flat
       bordered
-      :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1'"
+      :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
     >
       <q-list
         dir="ltr"

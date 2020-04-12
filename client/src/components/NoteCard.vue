@@ -4,7 +4,7 @@
       flat
       bordered
       class="my-card"
-      :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-1', primary && note > -1 ? 'cursor-pointer' : ''] "
+      :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3', primary && note > -1 ? 'cursor-pointer' : ''] "
       v-if="notes[note]"
       @keyup.esc="cancel"
       @keyup.ctrl.enter="exit_edit"
