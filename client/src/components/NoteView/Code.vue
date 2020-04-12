@@ -1,63 +1,61 @@
 <template>
-  <div class="q-pa-md">
-    <q-card
-      flat
-      bordered
-      :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
+  <q-card
+    flat
+    bordered
+    :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
+  >
+    <q-list
+      dir="ltr"
+      class="row"
     >
-      <q-list
-        dir="ltr"
-        class="row"
-      >
 
-        <q-item> {{ path }} </q-item>
-        <q-space />
-        <q-btn
-          :color="$q.dark.isActive ? '' : 'grey-7'"
-          round
-          flat
-          icon="trip_origin"
-          @click="goToPoint"
-        >
-          <q-tooltip>remark point</q-tooltip>
-        </q-btn>
-        <q-btn
-          :color="$q.dark.isActive ? '' : 'grey-7'"
-          round
-          flat
-          icon="note_add"
-          @click="addNote"
-        >
-          <q-tooltip>note on point</q-tooltip>
-        </q-btn>
-        <q-btn
-          :color="$q.dark.isActive ? '' : 'grey-7'"
-          round
-          flat
-          icon="las la-thumbtack"
-          :disable="$route.params.note===undefined"
-          @click="pin"
-        >
-          <q-tooltip>link to point</q-tooltip>
-        </q-btn>
-      </q-list>
-      <vue-ace-editor
-        ref="editor"
-        :content="content"
-        :fontSize="14"
-        :height="height"
-        :readonly="true"
-        lang="python"
-        theme="monokai"
-        @init="editorInit"
-        @onChange="editorChange"
-        @onInput="editorInput"
-        @onFocus="editorFocus"
-        @onBlur="editorBlur"
-        @onPaste="editorPaste"
-      />
-    </q-card>
-  </div>
+      <q-item> {{ path }} </q-item>
+      <q-space />
+      <q-btn
+        :color="$q.dark.isActive ? '' : 'grey-7'"
+        round
+        flat
+        icon="trip_origin"
+        @click="goToPoint"
+      >
+        <q-tooltip>remark point</q-tooltip>
+      </q-btn>
+      <q-btn
+        :color="$q.dark.isActive ? '' : 'grey-7'"
+        round
+        flat
+        icon="note_add"
+        @click="addNote"
+      >
+        <q-tooltip>note on point</q-tooltip>
+      </q-btn>
+      <q-btn
+        :color="$q.dark.isActive ? '' : 'grey-7'"
+        round
+        flat
+        icon="las la-thumbtack"
+        :disable="$route.params.note===undefined"
+        @click="pin"
+      >
+        <q-tooltip>link to point</q-tooltip>
+      </q-btn>
+    </q-list>
+    <vue-ace-editor
+      ref="editor"
+      :content="content"
+      :fontSize="14"
+      :height="height"
+      :readonly="true"
+      lang="python"
+      theme="monokai"
+      @init="editorInit"
+      @onChange="editorChange"
+      @onInput="editorInput"
+      @onFocus="editorFocus"
+      @onBlur="editorBlur"
+      @onPaste="editorPaste"
+    />
+  </q-card>
 </template>
 
 <script>

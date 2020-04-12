@@ -15,7 +15,9 @@
         </div>
       </template>
       <template v-slot:after>
-        <router-view />
+        <div class="q-pa-md">
+          <router-view />
+        </div>
       </template>
     </q-splitter>
 

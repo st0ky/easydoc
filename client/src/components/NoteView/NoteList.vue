@@ -1,6 +1,6 @@
 <template>
   <div
-    class="q-pa-md q-gutter-sm row items-start"
+    class="q-gutter-sm row items-start"
     v-if="valid"
   >
     <template v-for="child in $store.state.notes.trees[tree][note].children">

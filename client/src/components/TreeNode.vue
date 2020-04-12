@@ -141,7 +141,6 @@ export default {
   },
   sockets: {
     UPDATE_TREE_NODE: function ({ tree, node }) {
-      console.log(tree, node)
       if (node.note == this.note) {
         this.tree.setExpanded(this.note, true)
       }
