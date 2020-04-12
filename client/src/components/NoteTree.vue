@@ -16,7 +16,9 @@
         icon="eva-expand-outline"
         :to="{name: 'mindtree', params: { treeId: tree}}"
         label=""
-      />
+      >
+        <q-tooltip>open in mindtree</q-tooltip>
+      </q-btn>
     </div>
     <div
       class="col-12"
