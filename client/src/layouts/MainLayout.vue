@@ -84,30 +84,48 @@
           v-model="leftDrawerOpen"
           show-if-above
           bordered
-          :content-class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
           :width="drawerWidth"
           :breakpoint="0"
         >
           <q-tabs
             v-model="tab"
-            inline-label
             elevated
             :class="$q.dark.isActive ? '' : 'bg-primary text-white'"
           >
+            <q-btn-dropdown
+              auto-close
+              flat
+            >
+              <q-list>
+                <template v-for="(v, tree) in trees">
+                  <q-item
+                    :key="tree"
+                    clickable
+                    @click="tab = parseInt(tree)"
+                  >
+                    <q-item-section> {{notes[parseInt(tree)].title}} </q-item-section>
+                  </q-item>
+                </template>
+                <template v-for="(v, tree) in fileTrees">
+                  <q-item
+                    :key="tree"
+                    clickable
+                    @click="tab = parseInt(tree)"
+                  >
+                    <q-item-section>Files: {{notes[parseInt(tree)].title}} </q-item-section>
+                  </q-item>
+                </template>
+              </q-list>
+            </q-btn-dropdown>
             <q-tab
-              class="q-px-xs"
-              v-for="(v, tree) in trees"
-              :key="tree"
-              :name="parseInt(tree)"
-              :label="notes[parseInt(tree)].title"
+              v-if="tab !== undefined"
+              :name="tab"
+              :label="notes[tab].title"
             />
-
             <q-tab
-              class="q-px-xs"
-              v-for="(v, tree) in fileTrees"
-              :key="tree"
-              :name="parseInt(tree)"
-              :label="'Files: ' + notes[parseInt(tree)].title"
+              v-if="tab === undefined"
+              :name="undefined"
+              label="Select Tab"
             />
 
           </q-tabs>
