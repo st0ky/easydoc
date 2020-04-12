@@ -1,3 +1,9 @@
 {
-  "draggable": {}
+  "draggable": {},
+  "@quasar/typescript": {
+    "webpack": "vanilla",
+    "rename": false,
+    "vscode": true,
+    "prettier": false
+  }
 }
