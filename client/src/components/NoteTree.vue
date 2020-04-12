@@ -1,25 +1,48 @@
 <template>
-  <div
-    @keyup.n="newNote"
-    @keyup.insert="newNote"
-    @keyup.46.exact="confirmDeleteNote"
-    @keyup.shift.46="deleteNote"
-  >
-    <q-tree
-      :nodes="[trees[tree][tree]]"
-      node-key="note"
-      label-key="note"
-      default-expand-all
-      @update:selected="selectedTreeNode=target"
+  <div class="row">
+    <div class="col-12 row q-gutter-xs">
+      <q-input
+        ref="filter"
+        filled
+        dense
+        v-model="filter"
+        label="Filter"
+        class="col-9"
+      />
+      <q-btn
+        class="col"
+        :color="$q.dark.isActive ? '' : 'grey-7'"
+        flat
+        icon="eva-expand-outline"
+        :to="{name: 'mindtree', params: { treeId: tree}}"
+        label=""
+      />
+    </div>
+    <div
+      class="col-12"
+      @keyup.n="newNote"
+      @keyup.insert="newNote"
+      @keyup.46.exact="confirmDeleteNote"
+      @keyup.shift.46="deleteNote"
     >
-      <template v-slot:default-header="prop">
-        <tree-node
-          :note="prop.node.note"
-          :tree="prop.tree"
-        />
+      <q-tree
+        :nodes="[trees[tree][tree]]"
+        node-key="note"
+        label-key="note"
+        :filter="filter"
+        :filter-method="myFilterMethod"
+        default-expand-all
+        @update:selected="selectedTreeNode=target"
+      >
+        <template v-slot:default-header="prop">
+          <tree-node
+            :note="prop.node.note"
+            :tree="prop.tree"
+          />
 
-      </template>
-    </q-tree>
+        </template>
+      </q-tree>
+    </div>
   </div>
 </template>
 
@@ -28,6 +51,7 @@
 import { mapState } from 'vuex'
 import TreeNode from 'components/TreeNode.vue'
 import Confirm from 'components/dialogs/Confirm.vue'
+import fuzzysearch from '../utils/fuzzysearch.js'
 
 export default {
   name: 'NoteTree',
@@ -37,6 +61,7 @@ export default {
   components: { TreeNode },
   data () {
     return {
+      filter: '',
       selectedTreeNode: null
     };
   },
@@ -47,6 +72,9 @@ export default {
     ]),
   },
   methods: {
+    myFilterMethod (node, filter) {
+      return this.notes[node.note] && fuzzysearch(filter, this.notes[node.note].title)
+    },
     newNote () {
       this.sockets.subscribe("new note ack", (noteId) => {
         if (this.selectedTreeNode != null) {
