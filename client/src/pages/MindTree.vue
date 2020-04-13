@@ -24,7 +24,7 @@ import { DrawCommandHandler } from 'gojs/extensionsJSM/DrawCommandHandler.js';
 
 export default {
   name: 'MindTree',
-  props: { treeId: { type: Number, required: true } },
+  props: { tree: { type: Number, required: true } },
   components: {},
   data () {
     return {
@@ -42,7 +42,7 @@ export default {
       'trees'
     ]),
 
-    ourTree () { return this.trees[this.treeId] !== undefined ? this.trees[this.treeId] : {} }
+    ourTree () { return this.trees[this.tree] !== undefined ? this.trees[this.tree] : {} }
 
   },
   methods: {
@@ -105,7 +105,7 @@ export default {
     },
 
     layoutTree (node) {
-      if (node.data.key == this.treeId) {  // adding to the root?
+      if (node.data.key == this.tree) {  // adding to the root?
         this.layoutAll();  // lay out everything
       } else {  // otherwise lay out only the subtree starting at this parent node
         var parts = node.findTreeParts();
@@ -127,7 +127,7 @@ export default {
     },
 
     layoutAll () {
-      var root = this.myDiagram.findNodeForKey(this.treeId);
+      var root = this.myDiagram.findNodeForKey(this.tree);
       if (root === null) return;
       this.myDiagram.startTransaction("Layout");
       // split the nodes and links into two collections
@@ -153,12 +153,12 @@ export default {
 
     reloadTree () {
       console.log('reload tree')
-      if (!this.trees[this.treeId]) {
+      if (!this.trees[this.tree]) {
         console.log("no such tree")
         return
       }
       this.model = []
-      for (let [key, node] of Object.entries(this.trees[this.treeId])) {
+      for (let [key, node] of Object.entries(this.trees[this.tree])) {
         let obj = { key: parseInt(key), parent: node.parent, text: this.notes[node.note].title }
         if (typeof (obj.parent) != 'number') {
           obj.parent = String(obj.parent)
@@ -349,9 +349,9 @@ export default {
       this.myDiagram.addDiagramListener("SelectionMoved", (e) => {
         console.log("SelectionMoved")
 
-        var rootX = this.myDiagram.findNodeForKey(this.treeId).location.x;
+        var rootX = this.myDiagram.findNodeForKey(this.tree).location.x;
         this.myDiagram.nodes.each((node) => {
-          if (node.data.parent !== this.treeId) return; // Only consider nodes connected to the root
+          if (node.data.parent !== this.tree) return; // Only consider nodes connected to the root
           var nodeX = node.location.x;
           if (rootX < nodeX && node.data.dir !== "right") {
             this.updateNodeDirection(node, "right");

@@ -138,6 +138,7 @@
               <q-tab-panel
                 :key="tree"
                 :name="parseInt(tree)"
+                class="q-pa-xs"
               >
                 <note-tree :tree="parseInt(tree)" />
               </q-tab-panel>

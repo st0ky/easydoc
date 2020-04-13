@@ -5,12 +5,12 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/Index.vue') },
       {
-        path: 'mindtree/:treeId',
+        path: 'mindtree/:tree',
         name: 'mindtree',
         component: () => import('pages/MindTree.vue'),
         props (route) {
           const props = { ...route.params }
-          props.treeId = parseInt(props.treeId)
+          props.tree = parseInt(props.tree)
           return props
         }
       },
