@@ -38,6 +38,7 @@ export const deleteNote = function (state, note) {
   for (const tree of Object.values(state.trees)) {
     parent = tree[tree[note].parent]
     parent.children.splice(parent.children.indexOf(tree[note]), 1)
+    Vue.delete(tree, note)
   }
   Vue.delete(state.notes, note)
 }

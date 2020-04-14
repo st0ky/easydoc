@@ -14,7 +14,7 @@
         :color="$q.dark.isActive ? '' : 'grey-7'"
         flat
         icon="eva-expand-outline"
-        :to="{name: 'mindtree', params: { treeId: tree}}"
+        :to="{name: 'mindtree', params: { tree: tree}}"
         label=""
       >
         <q-tooltip>open in mindtree</q-tooltip>

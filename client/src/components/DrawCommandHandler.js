@@ -32,11 +32,12 @@
 * <pre>
 *    myDiagram.commandHandler = new DrawCommandHandler();
 * </pre>*/
-export function DrawCommandHandler () {
+export function DrawCommandHandler (parentComp) {
     go.CommandHandler.call(this);
     this._arrowKeyBehavior = "move";
     this._pasteOffset = new go.Point(10, 10);
     this._lastPasteOffset = new go.Point(0, 0);
+    this.parentComp = parentComp
 }
 go.Diagram.inherit(DrawCommandHandler, go.CommandHandler);
 
@@ -383,9 +384,43 @@ DrawCommandHandler.prototype.doKeyDown = function () {
         }
         // otherwise drop through to get the default scrolling behavior
     }
+    let selected = this.diagram.selection.first()
+    if (selected && (e.key == 'N' || e.key == "Insert")) {
+        this.parentComp.newNote(selected.data.key)
+    }
 
     // otherwise still does all standard commands
     go.CommandHandler.prototype.doKeyDown.call(this);
+};
+
+import Confirm from 'components/dialogs/Confirm.vue'
+
+DrawCommandHandler.prototype.deleteSelection = function () {
+    var diagram = this.diagram;
+    if (diagram === null) return;
+
+    let titles = []
+    diagram.selection.each(function (part) {
+        titles.push(part.data.text)
+    });
+    if (titles.length == 0) return
+    if (titles.length == 1)
+        titles = titles[0]
+
+    this.parentComp.$q.dialog({
+        component: Confirm,
+        parent: this.parentComp,
+        message: `Are you sure you want to permanently delete '${titles}'?`
+    }).onOk(() => {
+        diagram.selection.each((part) => {
+            this.parentComp.deleteNote(part.data.key)
+            // console.log('delete ', part.data)
+
+        });
+    })
+
+    // otherwise still does all standard commands
+    // go.CommandHandler.prototype.deleteSelection.call(this);
 };
 
 /**

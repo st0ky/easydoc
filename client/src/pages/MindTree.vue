@@ -34,7 +34,8 @@ export default {
         width: 0,
         height: 0
       },
-      model: new go.TreeModel([])
+      model: new go.TreeModel([]),
+      _modelCopy: {}
     }
   },
   computed: {
@@ -43,10 +44,28 @@ export default {
       'trees'
     ]),
 
-    ourTree () { return this.trees[this.tree] !== undefined ? this.trees[this.tree] : {} }
+    ourTree () { return this.trees[this.tree] !== undefined ? [this.tree, this.trees[this.tree]] : [-1, {}] },
+    treeTitles () {
+      let res = {}
+      for (let node of Object.values(this.ourTree[1])) {
+        res[node.note] = this.notes[node.note].title
+      }
+      return res
+    }
 
   },
   methods: {
+    deleteNote (noteId) {
+      this.$socket.emit('delete note', noteId)
+    },
+    newNote (parent) {
+      this.sockets.subscribe("new note ack", (noteId) => {
+        this.$socket.emit("move note", { noteId: noteId, treeId: this.tree, parentId: parent })
+        this.sockets.unsubscribe("new note ack")
+
+      })
+      this.$socket.emit("new note", { title: "new note" })
+    },
     spotConverter (dir, from) {
       if (dir === "left") {
         return (from ? go.Spot.Left : go.Spot.Right);
@@ -54,30 +73,6 @@ export default {
         return (from ? go.Spot.Right : go.Spot.Left);
       }
     },
-
-    // changeTextSize (obj, factor) {
-    //   var adorn = obj.part;
-    //   adorn.diagram.startTransaction("Change Text Size");
-    //   var node = adorn.adornedPart;
-    //   var tb = node.findObject("TEXT");
-    //   tb.scale *= factor;
-    //   adorn.diagram.commitTransaction("Change Text Size");
-    // },
-
-    // toggleTextWeight (obj) {
-    //   var adorn = obj.part;
-    //   adorn.diagram.startTransaction("Change Text Weight");
-    //   var node = adorn.adornedPart;
-    //   var tb = node.findObject("TEXT");
-    //   // assume "bold" is at the start of the font specifier
-    //   var idx = tb.font.indexOf("bold");
-    //   if (idx < 0) {
-    //     tb.font = "bold " + tb.font;
-    //   } else {
-    //     tb.font = tb.font.substr(idx + 5);
-    //   }
-    //   adorn.diagram.commitTransaction("Change Text Weight");
-    // },
 
     updateNodeDirection (node, dir) {
       this.myDiagram.model.setDataProperty(node.data, "dir", dir);
@@ -152,49 +147,95 @@ export default {
       this.myDiagram.commitTransaction("Layout");
     },
 
+    detectChanges (to, from) {
+      let deleted = []
+      for (let val of Object.values(this._modelCopy)) {
+        if (this.trees[this.tree][val.key] === undefined) deleted.push(val)
+      }
+      let created = []
+      for (let val of Object.values(this.trees[this.tree])) {
+        if (this._modelCopy[val.note] === undefined) created.push(val)
+      }
+      let changed = []
+      for (let val of Object.values(this.trees[this.tree])) {
+        if (this._modelCopy[val.note] === undefined) continue
+        if (this._modelCopy[val.note].parent == 'null') continue
+        if (this._modelCopy[val.note].parent == val.parent) continue
+        changed.push(val)
+      }
+      return { changed: changed, created: created, deleted }
+    },
+
     reloadTree () {
       console.log('reload tree')
       if (!this.trees[this.tree]) {
         console.log("no such tree")
         return
       }
-      this.model = []
+      let model = []
+      this._modelCopy = {}
       for (let [key, node] of Object.entries(this.trees[this.tree])) {
         let obj = { key: parseInt(key), parent: node.parent, text: this.notes[node.note].title }
         if (typeof (obj.parent) != 'number') {
           obj.parent = String(obj.parent)
         }
-        this.model.push(obj)
+        this._modelCopy[obj.key] = obj
+        model.push(obj)
       }
-      this.myDiagram.model = new go.TreeModel(this.model)
+      this.model = new go.TreeModel(model)
+      this.myDiagram.model = this.model
       this.layoutAll()
     },
-
-
-    // load () {
-    //   this.myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
-    // },
-    // handleResize () {
-    //   this.window.width = window.innerWidth;
-    //   this.window.height = window.innerHeight;
-    // }
 
   },
   watch: {
     ourTree: {
-      handler: function (to, from) {
-        this.reloadTree()
+      handler: function ([toTreeId, toTree], [fromTreeId, fromTree]) {
+        if (toTreeId != fromTreeId) {
+          this.reloadTree()
+          return
+        }
+        let { changed, created, deleted } = this.detectChanges(toTree, fromTree)
+        if ((changed.length && created.length) ||
+          (deleted.length && created.length) ||
+          (deleted.length && changed.length)) {
+          this.reloadTree()
+          return
+        }
+        for (let obj of deleted) {
+          this.model.removeNodeData(this.model.findNodeDataForKey(obj.note))
+          // let parent = this._modelCopy[obj.note].parent
+          delete this._modelCopy[obj.note]
+          // this.layoutTree(this.myDiagram.findNodeForKey(parent));
+        }
+        for (let obj of changed) {
+          this.model.setParentKeyForNodeData(this.model.findNodeDataForKey(obj.note), obj.parent)
+          this._modelCopy[obj.note].parent = obj.parent
+          // this.layoutTree(this.myDiagram.findNodeForKey(obj.parent));
+        }
+        for (let obj of created) {
+          obj = { key: obj.note, parent: obj.parent, text: this.notes[obj.note].title }
+          this.model.addNodeData(obj)
+          this._modelCopy[obj.key] = obj
+          // this.layoutTree(this.myDiagram.findNodeForKey(obj.key));
+        }
+        this.layoutAll()
       },
       deep: true
+    },
+    treeTitles: function (to, from) {
+      for (let [k, v] of Object.entries(to)) {
+        if (from[k] == v) continue
+        this.model.setDataProperty(this.model.findNodeDataForKey(parseInt(k)), "text", v)
+        this.layoutTree(this.myDiagram.findNodeForKey(parseInt(k)));
+      }
     }
   },
   mounted () {
     this.$nextTick(() => {
-      console.log(this.$refs.mindtree.$el)
-      console.log(DrawCommandHandler)
       this.myDiagram =
         $(go.Diagram, this.$refs.mindtree.$el, {
-          commandHandler: new DrawCommandHandler(),
+          commandHandler: new DrawCommandHandler(this),
           "commandHandler.arrowKeyBehavior": "tree",
           // when the user drags a node, also move/copy/delete the whole subtree starting with that node
           // "commandHandler.copiesTree": true,
@@ -219,7 +260,8 @@ export default {
               {
                 name: "TEXT",
                 minSize: new go.Size(30, 15),
-                editable: true
+                editable: true,
+                isMultiline: false
               },
               new go.Binding("text", "text").makeTwoWay((val, srcData, model) => {
                 this.$socket.emit('update note', { id: srcData.key, title: val })
