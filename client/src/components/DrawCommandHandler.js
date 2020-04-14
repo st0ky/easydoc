@@ -519,10 +519,13 @@ DrawCommandHandler.prototype._arrowKeyTree = function () {
     if (!(selected instanceof go.Node)) return;
 
     var e = diagram.lastInput;
-    if (e.key === "Right") {
+    if ((e.key === "Right" && (selected.data.dir === undefined || selected.data.dir == "right")) ||
+        (e.key === "Left" && selected.data.dir == "left")) {
+        console.log(selected)
+        console.log(selected.data)
         if (selected.isTreeLeaf) {
             // no-op
-        } else if (!selected.isTreeExpanded) {
+        } else if (!selected.isTreeExpanded && (e.control || e.meta)) {
             if (diagram.commandHandler.canExpandTree(selected)) {
                 diagram.commandHandler.expandTree(selected);  // expands the tree
             }
@@ -530,8 +533,8 @@ DrawCommandHandler.prototype._arrowKeyTree = function () {
             var first = this._sortTreeChildrenByY(selected).first();
             if (first !== null) diagram.select(first);
         }
-    } else if (e.key === "Left") {
-        if (!selected.isTreeLeaf && selected.isTreeExpanded) {
+    } else if (e.key === "Left" || e.key === "Right") {
+        if (!selected.isTreeLeaf && selected.isTreeExpanded && (e.control || e.meta)) {
             if (diagram.commandHandler.canCollapseTree(selected)) {
                 diagram.commandHandler.collapseTree(selected);  // collapses the tree
             }

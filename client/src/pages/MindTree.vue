@@ -197,38 +197,57 @@ export default {
           commandHandler: new DrawCommandHandler(),
           "commandHandler.arrowKeyBehavior": "tree",
           // when the user drags a node, also move/copy/delete the whole subtree starting with that node
-          "commandHandler.copiesTree": true,
-          "commandHandler.copiesParentKey": true,
+          // "commandHandler.copiesTree": true,
+          // "commandHandler.copiesParentKey": true,
           "commandHandler.deletesTree": true,
           "draggingTool.dragsTree": true,
-          "undoManager.isEnabled": true
+          // "undoManager.isEnabled": true
         });
 
-      // this.myDiagram.layout = $(go.TreeLayout, { nodeSpacing: 20 });
-      // this.myDiagram.commandHandler = new DrawCommandHandler();
 
       // when the document is modified, add a "*" to the title and enable the "Save" button
       this.myDiagram.addDiagramListener("Modified", (e) => {
         console.log("Modified", this.model)
-        // this.$set(this.model.nodeDataArray[0], 'text', this.model.nodeDataArray[0].text + "22")
       });
 
       // a node consists of some text with a line shape underneath
       this.myDiagram.nodeTemplate =
         $(go.Node, "Vertical",
           { selectionObjectName: "TEXT" },
-          $(go.TextBlock,
-            {
-              name: "TEXT",
-              minSize: new go.Size(30, 15),
-              editable: true
-            },
-            // remember not only the text string but the scale and the font in the node data
-            new go.Binding("text", "text").makeTwoWay((val, srcData, model) => {
-              this.$socket.emit('update note', { id: srcData.key, title: val })
-            }),
-            // new go.Binding("scale", "scale").makeTwoWay(),
-            // new go.Binding("font", "font").makeTwoWay()
+          $(go.Panel, "Horizontal",
+            $(go.TextBlock,
+              {
+                name: "TEXT",
+                minSize: new go.Size(30, 15),
+                editable: true
+              },
+              new go.Binding("text", "text").makeTwoWay((val, srcData, model) => {
+                this.$socket.emit('update note', { id: srcData.key, title: val })
+              }),
+            ),
+            $(go.TextBlock,
+              {
+                margin: new go.Margin(4, 4, 4, 4),
+                font: "bold 8pt sans-serif",
+                toolTip: $("ToolTip",
+                  $(go.TextBlock, "expand / collapse\ntype CTRL + LEFT / RIGHT", { margin: 4 }
+                  )),
+                click: (e, thisObj) => {
+                  if (!thisObj.part.isTreeLeaf && thisObj.part.isTreeExpanded) {
+                    if (this.myDiagram.commandHandler.canCollapseTree(thisObj.part)) {
+                      this.myDiagram.commandHandler.collapseTree(thisObj.part);  // collapses the tree
+                    }
+                  } else if (!thisObj.part.isTreeLeaf && !thisObj.part.isTreeExpanded) {
+                    if (this.myDiagram.commandHandler.canExpandTree(thisObj.part)) {
+                      this.myDiagram.commandHandler.expandTree(thisObj.part);  // collapses the tree
+                    }
+                  }
+                }
+              },
+
+              new go.Binding("visible", "isTreeLeaf", function (leaf) { return !leaf }).ofObject(),
+              new go.Binding("text", "isTreeExpanded", function (expand) { return expand ? "-" : "+" }).ofObject()),
+
           ),
           $(go.Shape, "LineH",
             {
@@ -237,15 +256,15 @@ export default {
               // this line shape is the port -- what links connect with
               portId: "", fromSpot: go.Spot.LeftRightSides, toSpot: go.Spot.LeftRightSides
             },
-            // new go.Binding("stroke", "brush"),
             // make sure links come in from the proper direction and go out appropriately
-            // new go.Binding("fromSpot", "dir", (d) => { return this.spotConverter(d, true); }),
-            // new go.Binding("toSpot", "dir", (d) => { return this.spotConverter(d, false); })
+            new go.Binding("fromSpot", "dir", (d) => { return this.spotConverter(d, true); }),
+            new go.Binding("toSpot", "dir", (d) => { return this.spotConverter(d, false); })
           ),
+
           // remember the locations of each node in the node data
           new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
           // make sure text "grows" in the desired direction
-          // new go.Binding("locationSpot", "dir", (d) => { return this.spotConverter(d, false); })
+          new go.Binding("locationSpot", "dir", (d) => { return this.spotConverter(d, false); })
         );
 
       // selected nodes show a button for adding children
@@ -255,44 +274,28 @@ export default {
             // this Adornment has a rectangular blue Shape around the selected node
             $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 2 }),
             $(go.Placeholder, { margin: new go.Margin(4, 4, 0, 4) })
+
           ),
           // and this Adornment has a Button to the right of the selected node
-          // $("Button",
-          //   {
-          //     alignment: go.Spot.Right,
-          //     alignmentFocus: go.Spot.Left,
-          //     click: this.addNodeAndLink  // define click behavior for this Button in the Adornment
-          //   },
-          //   $(go.TextBlock, "+",  // the Button content
-          //     { font: "bold 8pt sans-serif" })
-          // )
+
         );
 
-      // the context menu allows users to change the font size and weight,
       // and to perform a limited tree layout starting at that node
       this.myDiagram.nodeTemplate.contextMenu =
         $("ContextMenu",
+
           // $("ContextMenuButton",
-          //   $(go.TextBlock, "Bigger"),
-          //   { click: (e, obj) => { this.changeTextSize(obj, 1.1); } }),
-          // $("ContextMenuButton",
-          //   $(go.TextBlock, "Smaller"),
-          //   { click: (e, obj) => { this.changeTextSize(obj, 1 / 1.1); } }),
-          // $("ContextMenuButton",
-          //   $(go.TextBlock, "Bold/Normal"),
-          //   { click: (e, obj) => { this.toggleTextWeight(obj); } }),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Copy"),
-            { click: (e, obj) => { e.diagram.commandHandler.copySelection(); } }),
+          //   $(go.TextBlock, "Copy"),
+          //   { click: (e, obj) => { e.diagram.commandHandler.copySelection(); } }),
           $("ContextMenuButton",
             $(go.TextBlock, "Delete"),
             { click: (e, obj) => { e.diagram.commandHandler.deleteSelection(); } }),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Undo"),
-            { click: (e, obj) => { e.diagram.commandHandler.undo(); } }),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Redo"),
-            { click: (e, obj) => { e.diagram.commandHandler.redo(); } }),
+          // $("ContextMenuButton",
+          //   $(go.TextBlock, "Undo"),
+          //   { click: (e, obj) => { e.diagram.commandHandler.undo(); } }),
+          // $("ContextMenuButton",
+          //   $(go.TextBlock, "Redo"),
+          //   { click: (e, obj) => { e.diagram.commandHandler.redo(); } }),
           // $("ContextMenuButton",
           //   $(go.TextBlock, "Layout"),
           //   {
@@ -316,35 +319,26 @@ export default {
             selectable: false
           },
           $(go.Shape,
-            { strokeWidth: 3 },
-            // new go.Binding("stroke", "toNode", (n) => {
-            //   if (n.data.brush) return n.data.brush;
-            //   return "black";
-            // }).ofObject()
+            { strokeWidth: 3 }
           )
         );
 
       // the Diagram's context menu just displays commands for general functionality
       this.myDiagram.contextMenu =
         $("ContextMenu",
-          $("ContextMenuButton",
-            $(go.TextBlock, "Paste"),
-            { click: (e, obj) => { e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint); } },
-            new go.Binding("visible", "", (o) => { return o.diagram && o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint); }).ofObject()),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Undo"),
-            { click: (e, obj) => { e.diagram.commandHandler.undo(); } },
-            new go.Binding("visible", "", (o) => { return o.diagram && o.diagram.commandHandler.canUndo(); }).ofObject()),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Redo"),
-            { click: (e, obj) => { e.diagram.commandHandler.redo(); } },
-            new go.Binding("visible", "", (o) => { return o.diagram && o.diagram.commandHandler.canRedo(); }).ofObject()),
           // $("ContextMenuButton",
-          //   $(go.TextBlock, "Save"),
-          //   { click: (e, obj) => { save(); } }),
+          //   $(go.TextBlock, "Paste"),
+          //   { click: (e, obj) => { e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint); } },
+          //   new go.Binding("visible", "", (o) => { return o.diagram && o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint); }).ofObject()),
           // $("ContextMenuButton",
-          //   $(go.TextBlock, "Load"),
-          //   { click: (e, obj) => { save(); } })
+          //   $(go.TextBlock, "Undo"),
+          //   { click: (e, obj) => { e.diagram.commandHandler.undo(); } },
+          //   new go.Binding("visible", "", (o) => { return o.diagram && o.diagram.commandHandler.canUndo(); }).ofObject()),
+          // $("ContextMenuButton",
+          //   $(go.TextBlock, "Redo"),
+          //   { click: (e, obj) => { e.diagram.commandHandler.redo(); } },
+          //   new go.Binding("visible", "", (o) => { return o.diagram && o.diagram.commandHandler.canRedo(); }).ofObject()),
+
         );
 
       this.myDiagram.addDiagramListener("SelectionMoved", (e) => {
@@ -366,13 +360,6 @@ export default {
       });
       this.reloadTree()
     })
-  },
-  // created () {
-  //   window.addEventListener('resize', this.handleResize);
-  //   this.handleResize();
-  // },
-  // destroyed () {
-  //   window.removeEventListener('resize', this.handleResize);
-  // },
+  }
 }
 </script>
