@@ -19,7 +19,8 @@ import go from 'gojs';
 var $ = go.GraphObject.make;
 // This works because we have overridden the /extensionsTS/tsconfig.json file
 // in the options to the loader: 'ts-loader', in the webpack.config.js
-import { DrawCommandHandler } from 'gojs/extensionsJSM/DrawCommandHandler.js';
+// import { DrawCommandHandler } from 'gojs/extensionsJSM/DrawCommandHandler.js';
+import { DrawCommandHandler } from 'components/DrawCommandHandler.js';
 
 
 export default {
@@ -194,7 +195,7 @@ export default {
       this.myDiagram =
         $(go.Diagram, this.$refs.mindtree.$el, {
           commandHandler: new DrawCommandHandler(),
-          "commandHandler.arrowKeyBehavior": "select",
+          "commandHandler.arrowKeyBehavior": "tree",
           // when the user drags a node, also move/copy/delete the whole subtree starting with that node
           "commandHandler.copiesTree": true,
           "commandHandler.copiesParentKey": true,
