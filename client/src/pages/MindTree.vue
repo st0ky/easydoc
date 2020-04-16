@@ -1,6 +1,11 @@
 <template>
   <q-page class="q-pa-md row items-stretch">
-
+    <q-input
+      class="col-12"
+      @paste.native="onPaste"
+      @drop.native="onPaste"
+      @dragenter="onPaste"
+    />
     <q-card
       ref="mindtree"
       class="col-12"
@@ -14,6 +19,7 @@
 <script>
 
 import { mapState } from 'vuex'
+import { colors } from 'quasar'
 
 import go from 'gojs';
 var $ = go.GraphObject.make;
@@ -51,10 +57,25 @@ export default {
         res[node.note] = this.notes[node.note].title
       }
       return res
+    },
+    treeTags () {
+      let res = {}
+      for (let node of Object.values(this.ourTree[1])) {
+        res[node.note] = JSON.stringify(this.notes[node.note].tags)
+      }
+      return res
     }
 
   },
   methods: {
+    onPaste (e) {
+      console.log(e)
+      console.log(e.clipboardData.types.slice())
+      for (let typ of e.clipboardData.types) {
+        console.log(typ, e.clipboardData.getData(typ))
+      }
+      return true
+    },
     deleteNote (noteId) {
       this.$socket.emit('delete note', noteId)
     },
@@ -175,7 +196,12 @@ export default {
       let model = []
       this._modelCopy = {}
       for (let [key, node] of Object.entries(this.trees[this.tree])) {
-        let obj = { key: parseInt(key), parent: node.parent, text: this.notes[node.note].title }
+        let obj = {
+          key: parseInt(key),
+          parent: node.parent,
+          text: this.notes[node.note].title,
+          tags: this.notes[node.note].tags
+        }
         if (typeof (obj.parent) != 'number') {
           obj.parent = String(obj.parent)
         }
@@ -214,7 +240,12 @@ export default {
           // this.layoutTree(this.myDiagram.findNodeForKey(obj.parent));
         }
         for (let obj of created) {
-          obj = { key: obj.note, parent: obj.parent, text: this.notes[obj.note].title }
+          obj = {
+            key: obj.note,
+            parent: obj.parent,
+            text: this.notes[obj.note].title,
+            tags: this.notes[obj.note].tags
+          }
           this.model.addNodeData(obj)
           this._modelCopy[obj.key] = obj
           // this.layoutTree(this.myDiagram.findNodeForKey(obj.key));
@@ -227,6 +258,13 @@ export default {
       for (let [k, v] of Object.entries(to)) {
         if (from[k] == v) continue
         this.model.setDataProperty(this.model.findNodeDataForKey(parseInt(k)), "text", v)
+        this.layoutTree(this.myDiagram.findNodeForKey(parseInt(k)));
+      }
+    },
+    treeTags: function (to, from) {
+      for (let [k, v] of Object.entries(to)) {
+        if (from[k] == v) continue
+        this.model.setDataProperty(this.model.findNodeDataForKey(parseInt(k)), "tags", JSON.parse(v))
         this.layoutTree(this.myDiagram.findNodeForKey(parseInt(k)));
       }
     }
@@ -302,6 +340,21 @@ export default {
             new go.Binding("fromSpot", "dir", (d) => { return this.spotConverter(d, true); }),
             new go.Binding("toSpot", "dir", (d) => { return this.spotConverter(d, false); })
           ),
+          $(go.Panel, "Horizontal", new go.Binding("itemArray", "tags"),
+            {
+              itemTemplate:
+                $(go.Panel, "Auto",
+                  { margin: 2 },
+                  $(go.Shape, "RoundedRectangle",
+                    { fill: colors.getBrand('primary'), strokeWidth: 0 }),
+                  $(go.TextBlock, new go.Binding("text", ""),
+                    {
+                      margin: 2,
+                      stroke: "white",
+                      font: "12px Roboto"
+                    })
+                )  // end of itemTemplate
+            }),
 
           // remember the locations of each node in the node data
           new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
