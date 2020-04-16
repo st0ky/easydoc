@@ -1,14 +1,15 @@
 <template>
   <q-page class="q-pa-md row items-stretch">
-    <q-input
+    <!-- <q-input
       class="col-12"
       @paste.native="onPaste"
       @drop.native="onPaste"
       @dragenter="onPaste"
-    />
+    /> -->
     <q-card
       ref="mindtree"
       class="col-12"
+      style="min-height: 300px"
       flat
       bordered
       :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
@@ -293,41 +294,79 @@ export default {
       this.myDiagram.nodeTemplate =
         $(go.Node, "Vertical",
           { selectionObjectName: "TEXT" },
-          $(go.Panel, "Horizontal",
-            $(go.TextBlock,
-              {
-                name: "TEXT",
-                minSize: new go.Size(30, 15),
-                editable: true,
-                isMultiline: false
-              },
-              new go.Binding("text", "text").makeTwoWay((val, srcData, model) => {
-                this.$socket.emit('update note', { id: srcData.key, title: val })
-              }),
-            ),
-            $(go.TextBlock,
-              {
-                margin: new go.Margin(4, 4, 4, 4),
-                font: "bold 8pt sans-serif",
-                toolTip: $("ToolTip",
-                  $(go.TextBlock, "expand / collapse\ntype CTRL + LEFT / RIGHT", { margin: 4 }
-                  )),
-                click: (e, thisObj) => {
-                  if (!thisObj.part.isTreeLeaf && thisObj.part.isTreeExpanded) {
-                    if (this.myDiagram.commandHandler.canCollapseTree(thisObj.part)) {
-                      this.myDiagram.commandHandler.collapseTree(thisObj.part);  // collapses the tree
-                    }
-                  } else if (!thisObj.part.isTreeLeaf && !thisObj.part.isTreeExpanded) {
-                    if (this.myDiagram.commandHandler.canExpandTree(thisObj.part)) {
-                      this.myDiagram.commandHandler.expandTree(thisObj.part);  // collapses the tree
+          {
+            mouseDragEnter: (e, node, prev) => {
+              var diagram = node.diagram;
+              if (!diagram.selection.count) return;
+              var shape = node.findObject("NODE");
+              if (shape) {
+                if (shape.dragCount === undefined) shape.dragCount = 0
+                shape.dragCount += 1
+                shape.strokeWidth = "1"
+                shape.stroke = "black"
+                shape.strokeDashArray = [3]
+              }
+            },
+            mouseDragLeave: (e, node, next) => {
+              var shape = node.findObject("NODE");
+              if (shape) {
+                if (shape.dragCount === undefined) shape.dragCount = 1
+                shape.dragCount -= 1
+                if (shape.dragCount == 0) {
+                  shape.stroke = null
+                }
+              }
+            },
+            mouseDrop: (e, node) => {
+              var diagram = node.diagram;
+              let curNote = node.data.key
+              diagram.selection.each((sel) => {
+                if (!(sel instanceof go.Node)) return
+                if (!Number.isInteger(sel.data.key)) return
+                this.$socket.emit("move note", { noteId: sel.data.key, treeId: this.tree, parentId: curNote })
+              })
+            }
+          },
+          $(go.Panel, "Auto",
+            $(go.Shape, { fill: null, stroke: null, name: "NODE" }),
+            $(go.Panel, "Horizontal", { margin: new go.Margin(4, 4, 4, 4), name: "TEXT" },
+
+
+              $(go.TextBlock,
+                {
+                  font: "14px Roboto, -apple-system, Helvetica Neue, Helvetica, Arial, sans-serif",
+                  minSize: new go.Size(30, 15),
+                  editable: true,
+                  isMultiline: false
+                },
+                new go.Binding("text", "text").makeTwoWay((val, srcData, model) => {
+                  this.$socket.emit('update note', { id: srcData.key, title: val })
+                }),
+              ),
+              $(go.TextBlock,
+                {
+                  margin: new go.Margin(4, 4, 4, 4),
+                  font: "14px Roboto, -apple-system, Helvetica Neue, Helvetica, Arial, sans-serif",
+                  toolTip: $("ToolTip",
+                    $(go.TextBlock, "expand / collapse\ntype CTRL + LEFT / RIGHT", { margin: 4 }
+                    )),
+                  click: (e, thisObj) => {
+                    if (!thisObj.part.isTreeLeaf && thisObj.part.isTreeExpanded) {
+                      if (this.myDiagram.commandHandler.canCollapseTree(thisObj.part)) {
+                        this.myDiagram.commandHandler.collapseTree(thisObj.part);  // collapses the tree
+                      }
+                    } else if (!thisObj.part.isTreeLeaf && !thisObj.part.isTreeExpanded) {
+                      if (this.myDiagram.commandHandler.canExpandTree(thisObj.part)) {
+                        this.myDiagram.commandHandler.expandTree(thisObj.part);  // collapses the tree
+                      }
                     }
                   }
-                }
-              },
+                },
 
-              new go.Binding("visible", "isTreeLeaf", function (leaf) { return !leaf }).ofObject(),
-              new go.Binding("text", "isTreeExpanded", function (expand) { return expand ? "-" : "+" }).ofObject()),
+                new go.Binding("visible", "isTreeLeaf", function (leaf) { return !leaf }).ofObject(),
+                new go.Binding("text", "isTreeExpanded", function (expand) { return expand ? "-" : "+" }).ofObject()),
 
+            )
           ),
           $(go.Shape, "LineH",
             {
@@ -368,7 +407,7 @@ export default {
           $(go.Panel, "Auto",
             // this Adornment has a rectangular blue Shape around the selected node
             $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 2 }),
-            $(go.Placeholder, { margin: new go.Margin(4, 4, 0, 4) })
+            $(go.Placeholder, { margin: new go.Margin(4, 4, 4, 4) })
 
           ),
           // and this Adornment has a Button to the right of the selected node
