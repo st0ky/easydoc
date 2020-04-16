@@ -414,8 +414,6 @@ DrawCommandHandler.prototype.deleteSelection = function () {
     }).onOk(() => {
         diagram.selection.each((part) => {
             this.parentComp.deleteNote(part.data.key)
-            // console.log('delete ', part.data)
-
         });
     })
 
@@ -551,22 +549,30 @@ DrawCommandHandler.prototype._angleCloseness = function (a, dir) {
 DrawCommandHandler.prototype._arrowKeyTree = function () {
     var diagram = this.diagram;
     var selected = diagram.selection.first();
+    diagram.selection.each(function (p) { if (p instanceof go.Node) selected = p; });
     if (!(selected instanceof go.Node)) return;
 
     var e = diagram.lastInput;
+    console.log(diagram.selection)
+    console.log(Array.from(diagram.selection.iterator))
+    let selectFn = (sel) => {
+        if (e.shift) sel.isSelected = true
+        else if (e.control || e.meta) sel.isSelected = !sel.isSelected
+        else diagram.select(sel)
+        diagram.scrollToRect(sel.actualBounds)
+    }
+
     if ((e.key === "Right" && (selected.data.dir === undefined || selected.data.dir == "right")) ||
         (e.key === "Left" && selected.data.dir == "left")) {
-        console.log(selected)
-        console.log(selected.data)
         if (selected.isTreeLeaf) {
             // no-op
-        } else if (!selected.isTreeExpanded && (e.control || e.meta)) {
+        } else if (!selected.isTreeExpanded) {
             if (diagram.commandHandler.canExpandTree(selected)) {
                 diagram.commandHandler.expandTree(selected);  // expands the tree
             }
         } else {  // already expanded -- select the first child node
             var first = this._sortTreeChildrenByY(selected).first();
-            if (first !== null) diagram.select(first);
+            if (first !== null) selectFn(first);
         }
     } else if (e.key === "Left" || e.key === "Right") {
         if (!selected.isTreeLeaf && selected.isTreeExpanded && (e.control || e.meta)) {
@@ -575,49 +581,73 @@ DrawCommandHandler.prototype._arrowKeyTree = function () {
             }
         } else {  // either a leaf or is already collapsed -- select the parent node
             var parent = selected.findTreeParentNode();
-            if (parent !== null) diagram.select(parent);
+            if (parent !== null) selectFn(parent);
         }
     } else if (e.key === "Up") {
-        var parent = selected.findTreeParentNode();
-        if (parent !== null) {
+        let changed = false
+        while (selected !== null) {
+            var parent = selected.findTreeParentNode();
+            if (parent === null) {
+                if (changed) selectFn(selected);
+                break
+            }
             var list = this._sortTreeChildrenByY(parent);
+            if (list.length == 1 && changed) {
+                selectFn(selected);
+                break;
+            }
             var idx = list.indexOf(selected);
-            if (idx > 0) {  // if there is a previous sibling
-                var prev = list.elt(idx - 1);
-                // keep looking at the last child until it's a leaf or collapsed
-                while (prev !== null && prev.isTreeExpanded && !prev.isTreeLeaf) {
-                    var children = this._sortTreeChildrenByY(prev);
-                    prev = children.last();
-                }
-                if (prev !== null) diagram.select(prev);
-            } else {  // no previous sibling -- select parent
-                diagram.select(parent);
+            if (idx > 0) {  // select next lower node
+                selectFn(list.elt(idx - 1));
+                break;
+            } else {  // already at bottom of list of children
+                selected = parent
+                changed = true
             }
         }
     } else if (e.key === "Down") {
-        // if at an expanded parent, select the first child
-        if (selected.isTreeExpanded && !selected.isTreeLeaf) {
-            var first = this._sortTreeChildrenByY(selected).first();
-            if (first !== null) diagram.select(first);
-        } else {
-            while (selected !== null) {
-                var parent = selected.findTreeParentNode();
-                if (parent === null) break;
-                var list = this._sortTreeChildrenByY(parent);
-                var idx = list.indexOf(selected);
-                if (idx < list.length - 1) {  // select next lower node
-                    diagram.select(list.elt(idx + 1));
-                    break;
-                } else {  // already at bottom of list of children
-                    selected = parent;
+        let changed = false
+        while (selected !== null) {
+            var parent = selected.findTreeParentNode();
+            if (parent === null) {
+                if (changed) selectFn(selected);
+                else if (!selected.isTreeLeaf) {
+                    if (!selected.isTreeExpanded) {
+                        if (diagram.commandHandler.canExpandTree(selected)) {
+                            diagram.commandHandler.expandTree(selected);  // expands the tree
+                        }
+                    }
+                    list = this._sortTreeChildrenByY(selected)
+                    selectFn(list.elt(list.length - 1))
                 }
+                break
+            }
+            var list = this._sortTreeChildrenByY(parent);
+            var idx = list.indexOf(selected);
+            if (idx < list.length - 1) {  // select next lower node
+                selectFn(list.elt(idx + 1));
+                break;
+            } else {  // already at bottom of list of children
+                if (!selected.isTreeLeaf && !changed) {
+                    if (!selected.isTreeExpanded) {
+                        if (diagram.commandHandler.canExpandTree(selected)) {
+                            diagram.commandHandler.expandTree(selected);  // expands the tree
+                        }
+                    }
+                    list = this._sortTreeChildrenByY(selected)
+                    selectFn(list.elt(list.length - 1))
+                    break
+                }
+                if (changed) {
+                    selectFn(selected);
+                    break;
+                }
+                selected = parent
+                changed = true
             }
         }
     }
 
-    // make sure the selection is now in the viewport, but not necessarily centered
-    var sel = diagram.selection.first();
-    if (sel !== null) diagram.scrollToRect(sel.actualBounds);
 }
 
 DrawCommandHandler.prototype._sortTreeChildrenByY = function (node) {
