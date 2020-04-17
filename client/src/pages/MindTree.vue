@@ -210,7 +210,8 @@ export default {
           key: parseInt(key),
           parent: node.parent,
           text: this.notes[node.note].title,
-          tags: this.notes[node.note].tags
+          tags: this.notes[node.note].tags,
+          dir: "left"
         }
         if (typeof (obj.parent) != 'number') {
           obj.parent = String(obj.parent)
@@ -263,7 +264,8 @@ export default {
             key: obj.note,
             parent: obj.parent,
             text: this.notes[obj.note].title,
-            tags: this.notes[obj.note].tags
+            tags: this.notes[obj.note].tags,
+            dir: this._modelCopy[obj.parent].dir
           }
           this.model.addNodeData(obj)
           this._modelCopy[obj.key] = obj
@@ -313,8 +315,8 @@ export default {
         this.$socket.emit('update note', { id: e.subject.part.data.key, title: e.subject.text })
         this.layoutAll()
       });
-      this.myDiagram.addDiagramListener("TreeExpanded", this.layoutAll)
-      this.myDiagram.addDiagramListener("TreeCollapsed", this.layoutAll)
+      this.myDiagram.addDiagramListener("TreeExpanded", () => { this.$nextTick(this.layoutAll) })
+      this.myDiagram.addDiagramListener("TreeCollapsed", () => { this.$nextTick(this.layoutAll) })
 
 
 

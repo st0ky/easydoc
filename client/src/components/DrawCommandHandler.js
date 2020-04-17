@@ -390,8 +390,12 @@ DrawCommandHandler.prototype.doKeyDown = function () {
     let selected = this.diagram.selection.first()
     if (selected && (e.key == 'N' || e.key == "Insert")) {
         this.parentComp.newNote(selected.data.key)
+        return
     }
-
+    if (selected && e.key == "\r" && Number.isInteger(selected.data.parent)) {
+        this.parentComp.newNote(selected.data.parent)
+        return
+    }
     // otherwise still does all standard commands
     go.CommandHandler.prototype.doKeyDown.call(this);
 };
