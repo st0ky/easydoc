@@ -42,7 +42,8 @@ export default {
         height: 0
       },
       model: new go.TreeModel([]),
-      _modelCopy: {}
+      _modelCopy: {},
+      _lastNew: null
     }
   },
   computed: {
@@ -78,21 +79,29 @@ export default {
       return true
     },
     deleteNote (noteId) {
+      let node = this.myDiagram.findNodeForKey(noteId)
+      if (node) {
+        let parent = node.findTreeParentNode()
+        if (parent) this.myDiagram.select(parent)
+        node.isSelected = false
+      }
       this.$socket.emit('delete note', noteId)
     },
     newNote (parent) {
       this.sockets.subscribe("new note ack", (noteId) => {
         this.$socket.emit("move note", { noteId: noteId, treeId: this.tree, parentId: parent })
+        this._lastNew = noteId
+
         this.sockets.unsubscribe("new note ack")
 
       })
       this.$socket.emit("new note", { title: "new note" })
     },
     spotConverter (dir, from) {
-      if (dir === "left") {
-        return (from ? go.Spot.Left : go.Spot.Right);
-      } else {
+      if (dir === "right") {
         return (from ? go.Spot.Right : go.Spot.Left);
+      } else {
+        return (from ? go.Spot.Left : go.Spot.Right);
       }
     },
 
@@ -127,7 +136,7 @@ export default {
         this.layoutAll();  // lay out everything
       } else {  // otherwise lay out only the subtree starting at this parent node
         var parts = node.findTreeParts();
-        this.layoutAngle(parts, node.data.dir === "left" ? 180 : 0);
+        this.layoutAngle(parts, node.data.dir === "right" ? 0 : 180);
       }
     },
 
@@ -153,14 +162,14 @@ export default {
       var leftward = new go.Set(/*go.Part*/);
       root.findLinksConnected().each((link) => {
         var child = link.toNode;
-        if (child.data.dir === "left") {
-          leftward.add(root);  // the root node is in both collections
-          leftward.add(link);
-          leftward.addAll(child.findTreeParts());
-        } else {
+        if (child.data.dir === "right") {
           rightward.add(root);  // the root node is in both collections
           rightward.add(link);
           rightward.addAll(child.findTreeParts());
+        } else {
+          leftward.add(root);  // the root node is in both collections
+          leftward.add(link);
+          leftward.addAll(child.findTreeParts());
         }
       });
       // do one layout and then the other without moving the shared root node
@@ -210,6 +219,7 @@ export default {
         model.push(obj)
       }
       this.model = new go.TreeModel(model)
+      this.model.setDataProperty(this.model.modelData, "cursor", "auto")
       this.myDiagram.model = this.model
       this.layoutAll()
     },
@@ -238,6 +248,14 @@ export default {
         for (let obj of changed) {
           this.model.setParentKeyForNodeData(this.model.findNodeDataForKey(obj.note), obj.parent)
           this._modelCopy[obj.note].parent = obj.parent
+          if (Number.isInteger(this._lastNew) && this._lastNew == obj.note) {
+            let tb = this.myDiagram.findNodeForKey(this._lastNew).findObject("TITLE")
+            this.$nextTick(() => {
+              this.myDiagram.select(tb.part)
+              this.myDiagram.commandHandler.editTextBlock(tb)
+            })
+          }
+
           // this.layoutTree(this.myDiagram.findNodeForKey(obj.parent));
         }
         for (let obj of created) {
@@ -290,10 +308,30 @@ export default {
         console.log("Modified", this.model)
       });
 
+      this.myDiagram.addDiagramListener("TextEdited", (e) => {
+        this._lastNew = null
+        this.$socket.emit('update note', { id: e.subject.part.data.key, title: e.subject.text })
+        this.layoutAll()
+      });
+      this.myDiagram.addDiagramListener("TreeExpanded", this.layoutAll)
+      this.myDiagram.addDiagramListener("TreeCollapsed", this.layoutAll)
+
+
+
+
       // a node consists of some text with a line shape underneath
       this.myDiagram.nodeTemplate =
         $(go.Node, "Vertical",
-          { selectionObjectName: "TEXT" },
+          {
+            selectionObjectName: "TEXT",
+            click: (e, thisObj) => {
+              var inp = this.myDiagram.lastInput
+              if (inp.control || inp.meta) {
+                this.$router.push({ name: 'noteView', params: { tree: this.tree, note: thisObj.part.data.key } })
+                e.handled = true
+              }
+            }
+          },
           {
             mouseDragEnter: (e, node, prev) => {
               var diagram = node.diagram;
@@ -329,24 +367,22 @@ export default {
           },
           $(go.Panel, "Auto",
             $(go.Shape, { fill: null, stroke: null, name: "NODE" }),
-            $(go.Panel, "Horizontal", { margin: new go.Margin(4, 4, 4, 4), name: "TEXT" },
-
-
+            $(go.Panel, "Horizontal", { isOpposite: true, margin: new go.Margin(4, 4, 4, 4), name: "TEXT" },
               $(go.TextBlock,
                 {
                   font: "14px Roboto, -apple-system, Helvetica Neue, Helvetica, Arial, sans-serif",
                   minSize: new go.Size(30, 15),
                   editable: true,
-                  isMultiline: false
+                  isMultiline: false,
+                  name: "TITLE"
                 },
-                new go.Binding("text", "text").makeTwoWay((val, srcData, model) => {
-                  this.$socket.emit('update note', { id: srcData.key, title: val })
-                }),
+                new go.Binding("text", "text"),
               ),
               $(go.TextBlock,
                 {
                   margin: new go.Margin(4, 4, 4, 4),
-                  font: "14px Roboto, -apple-system, Helvetica Neue, Helvetica, Arial, sans-serif",
+                  font: "25px Consolas",
+                  stroke: colors.getBrand('secondary'),
                   toolTip: $("ToolTip",
                     $(go.TextBlock, "expand / collapse\ntype CTRL + LEFT / RIGHT", { margin: 4 }
                     )),
@@ -360,13 +396,17 @@ export default {
                         this.myDiagram.commandHandler.expandTree(thisObj.part);  // collapses the tree
                       }
                     }
+                    e.handled = true
                   }
                 },
 
                 new go.Binding("visible", "isTreeLeaf", function (leaf) { return !leaf }).ofObject(),
-                new go.Binding("text", "isTreeExpanded", function (expand) { return expand ? "-" : "+" }).ofObject()),
+                new go.Binding("text", "isTreeExpanded", function (expand) { return expand ? "-" : "+" }).ofObject()
+              ),
+              new go.Binding("isOpposite", "dir", function (dir) { return !(dir === "right") }),
 
-            )
+            ),
+
           ),
           $(go.Shape, "LineH",
             {
@@ -398,7 +438,9 @@ export default {
           // remember the locations of each node in the node data
           new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
           // make sure text "grows" in the desired direction
-          new go.Binding("locationSpot", "dir", (d) => { return this.spotConverter(d, false); })
+          new go.Binding("locationSpot", "dir", (d) => { return this.spotConverter(d, false); }),
+          new go.Binding("cursor", "cursor").ofModel()
+
         );
 
       // selected nodes show a button for adding children

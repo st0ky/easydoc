@@ -366,6 +366,9 @@ DrawCommandHandler.prototype.doKeyDown = function () {
     if (diagram === null) return;
     var e = diagram.lastInput;
 
+    diagram.model.setDataProperty(diagram.model.modelData, "cursor", (e.control || e.meta) ? "pointer" : "auto")
+
+
     // determines the function of the arrow keys
     if (e.key === "Up" || e.key === "Down" || e.key === "Left" || e.key === "Right") {
         var behavior = this.arrowKeyBehavior;
@@ -391,6 +394,14 @@ DrawCommandHandler.prototype.doKeyDown = function () {
 
     // otherwise still does all standard commands
     go.CommandHandler.prototype.doKeyDown.call(this);
+};
+
+DrawCommandHandler.prototype.doKeyUp = function () {
+    var diagram = this.diagram;
+    if (diagram === null) return;
+    var e = diagram.lastInput;
+    diagram.model.setDataProperty(diagram.model.modelData, "cursor", (e.control || e.meta) ? "pointer" : "auto")
+    go.CommandHandler.prototype.doKeyUp.call(this);
 };
 
 import Confirm from 'components/dialogs/Confirm.vue'
@@ -562,8 +573,8 @@ DrawCommandHandler.prototype._arrowKeyTree = function () {
         diagram.scrollToRect(sel.actualBounds)
     }
 
-    if ((e.key === "Right" && (selected.data.dir === undefined || selected.data.dir == "right")) ||
-        (e.key === "Left" && selected.data.dir == "left")) {
+    if ((e.key === "Right" && selected.data.dir == "right") ||
+        (e.key === "Left" && (selected.data.dir === undefined || selected.data.dir == "left"))) {
         if (selected.isTreeLeaf) {
             // no-op
         } else if (!selected.isTreeExpanded) {
