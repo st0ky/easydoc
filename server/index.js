@@ -162,6 +162,8 @@ function initConnection (socket) {
     socket.emit("NEW_TREES", db.get('trees'))
     socket.emit('STATE', 'init fileTrees');
     socket.emit("NEW_FILETREES", db.get('fileTrees'))
+    socket.emit('STATE', 'init tags');
+    socket.emit("UPDATE_TAGS", db.get('tags'))
     socket.emit('STATE', 'ready');
 }
 
@@ -178,6 +180,9 @@ nsp.on('connection', function (socket) {
         if (!note.value()) {
             console.log('can not find such note', updatedFields.id, typeof (updatedFields.id), 'got', note.value())
             return
+        }
+        if (updatedFields.tags) {
+            updatedFields.tags = _.filter(updatedFields.tags)
         }
         for (let field of Object.keys(updatedFields)) {
             if (noteEditableFields.indexOf(field) == -1) continue

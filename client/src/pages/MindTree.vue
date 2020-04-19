@@ -7,13 +7,83 @@
       @dragenter="onPaste"
     /> -->
     <q-card
-      ref="mindtree"
-      class="col-12"
+      class="col-12 q-pa-none"
       style="min-height: 300px"
       flat
       bordered
       :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
-    ></q-card>
+    >
+      <div
+        class="fit"
+        ref="mindtree"
+      />
+      <q-menu
+        no-parent-event
+        ref="nodeMenuRef"
+        anchor="top left"
+        self="top left"
+        :offset="nodeMenu"
+      >
+        <q-list
+          style="min-width: 100px"
+          v-if="curNode"
+        >
+          <q-item clickable>
+            <q-item-section>Tags</q-item-section>
+            <q-menu
+              anchor="top left"
+              self="top right"
+            >
+              <q-list>
+                <q-item
+                  v-for="tag in tags"
+                  :key="tag"
+                  dense
+                  clickable
+                  v-close-popup
+                  @click="toggleTag(curNode.data.key, tag)"
+                >
+                  {{ tag }}
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-item>
+          <q-item
+            clickable
+            v-close-popup
+            dense
+            @click="newNote(curNode.data.key)"
+          >
+            New Node (Insert \ N)
+          </q-item>
+          <q-item
+            clickable
+            v-close-popup
+            dense
+            @click="deleteNote(curNode.data.key)"
+          >
+            Delete (Del)
+          </q-item>
+          <q-item
+            clickable
+            v-close-popup
+            dense
+            v-if="!curNode.isTreeLeaf"
+            @click="collapseExpand(curNode)"
+          >
+            Collapse / Expand (CTRL + LEFT \ RIGHT)
+          </q-item>
+          <q-item
+            :to="{ name: 'noteView', params: { tree: this.tree, note: curNode.data.key } }"
+            v-close-popup
+            dense
+          >
+            Go To Note (CTRL + CLICK)
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-card>
+
   </q-page>
 </template>
 
@@ -43,13 +113,18 @@ export default {
       },
       model: new go.TreeModel([]),
       _modelCopy: {},
-      _lastNew: null
+      _lastNew: null,
+      nodeMenu: [0, 0],
+      curNode: null
     }
   },
   computed: {
     ...mapState('notes', [
       'notes',
       'trees'
+    ]),
+    ...mapState('socket', [
+      'tags'
     ]),
 
     ourTree () { return this.trees[this.tree] !== undefined ? [this.tree, this.trees[this.tree]] : [-1, {}] },
@@ -70,6 +145,15 @@ export default {
 
   },
   methods: {
+    toggleTag (noteId, tag) {
+      let cur = this.notes[noteId].tags.slice()
+      if (cur.indexOf(tag) != -1) {
+        cur.splice(cur.indexOf(tag), 1)
+      } else {
+        cur.push(tag)
+      }
+      this.$socket.emit('update note', { id: noteId, tags: cur })
+    },
     onPaste (e) {
       console.log(e)
       console.log(e.clipboardData.types.slice())
@@ -176,6 +260,18 @@ export default {
       this.layoutAngle(rightward, 0);
       this.layoutAngle(leftward, 180);
       this.myDiagram.commitTransaction("Layout");
+    },
+
+    collapseExpand (o) {
+      if (!o.part.isTreeLeaf && o.part.isTreeExpanded) {
+        if (this.myDiagram.commandHandler.canCollapseTree(o.part)) {
+          this.myDiagram.commandHandler.collapseTree(o.part);  // collapses the tree
+        }
+      } else if (!o.part.isTreeLeaf && !o.part.isTreeExpanded) {
+        if (this.myDiagram.commandHandler.canExpandTree(o.part)) {
+          this.myDiagram.commandHandler.expandTree(o.part);  // collapses the tree
+        }
+      }
     },
 
     detectChanges (to, from) {
@@ -292,7 +388,7 @@ export default {
   mounted () {
     this.$nextTick(() => {
       this.myDiagram =
-        $(go.Diagram, this.$refs.mindtree.$el, {
+        $(go.Diagram, this.$refs.mindtree, {
           commandHandler: new DrawCommandHandler(this),
           "commandHandler.arrowKeyBehavior": "tree",
           // when the user drags a node, also move/copy/delete the whole subtree starting with that node
@@ -387,18 +483,7 @@ export default {
                   toolTip: $("ToolTip",
                     $(go.TextBlock, "expand / collapse\ntype CTRL + LEFT / RIGHT", { margin: 4 }
                     )),
-                  click: (e, thisObj) => {
-                    if (!thisObj.part.isTreeLeaf && thisObj.part.isTreeExpanded) {
-                      if (this.myDiagram.commandHandler.canCollapseTree(thisObj.part)) {
-                        this.myDiagram.commandHandler.collapseTree(thisObj.part);  // collapses the tree
-                      }
-                    } else if (!thisObj.part.isTreeLeaf && !thisObj.part.isTreeExpanded) {
-                      if (this.myDiagram.commandHandler.canExpandTree(thisObj.part)) {
-                        this.myDiagram.commandHandler.expandTree(thisObj.part);  // collapses the tree
-                      }
-                    }
-                    e.handled = true
-                  }
+                  click: (e, o) => { this.collapseExpand(o) }
                 },
 
                 new go.Binding("visible", "isTreeLeaf", function (leaf) { return !leaf }).ofObject(),
@@ -458,61 +543,37 @@ export default {
         );
 
       // and to perform a limited tree layout starting at that node
-      this.myDiagram.nodeTemplate.contextMenu =
-        $("ContextMenu",
+      this.myDiagram.nodeTemplate.contextMenu = $(go.HTMLInfo, {
+        show: (obj, diagram, tool) => {
+          var mousePt = diagram.lastInput.viewPoint
+          let rect = this.$refs.mindtree.getBoundingClientRect()
+          this.curNode = obj;
+          this.nodeMenu = [-(mousePt.x + rect.x + 4), -(mousePt.y + 2)];
+          this.$nextTick(this._nodeMenu.show)
+        },
+        hide: () => { this._nodeMenu.hide() }
+      })
 
-          // $("ContextMenuButton",
-          //   $(go.TextBlock, "Copy"),
-          //   { click: (e, obj) => { e.diagram.commandHandler.copySelection(); } }),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Delete"),
-            { click: (e, o) => { e.diagram.commandHandler.deleteSelection(); } }),
-          $("ContextMenuButton",
-            $(go.TextBlock, "New"),
-            { click: (e, o) => { this.newNote(o.part.adornedPart.data.key) } }),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Collapse / Expand (CTRL + LEFT \ RIGHT)",
-              new go.Binding("visible", "", function (o) { return !o.part.adornedPart.isTreeLeaf }).ofObject()
-            ),
-            {
-              click: (e, o) => {
-                if (!o.part.adornedPart.isTreeLeaf && o.part.adornedPart.isTreeExpanded) {
-                  if (this.myDiagram.commandHandler.canCollapseTree(o.part.adornedPart)) {
-                    this.myDiagram.commandHandler.collapseTree(o.part.adornedPart);  // collapses the tree
-                  }
-                } else if (!o.part.adornedPart.isTreeLeaf && !o.part.adornedPart.isTreeExpanded) {
-                  if (this.myDiagram.commandHandler.canExpandTree(o.part.adornedPart)) {
-                    this.myDiagram.commandHandler.expandTree(o.part.adornedPart);  // collapses the tree
-                  }
-                }
-              }
-            },
-          ),
-          $("ContextMenuButton",
-            $(go.TextBlock, "Go To Note (CTRL + CLICK)"),
-            {
-              click: (e, o) => {
-                this.$router.push({ name: 'noteView', params: { tree: this.tree, note: o.part.adornedPart.data.key } })
-              }
-            }),
-          // $("ContextMenuButton",
-          //   $(go.TextBlock, "Undo"),
-          //   { click: (e, obj) => { e.diagram.commandHandler.undo(); } }),
-          // $("ContextMenuButton",
-          //   $(go.TextBlock, "Redo"),
-          //   { click: (e, obj) => { e.diagram.commandHandler.redo(); } }),
-          // $("ContextMenuButton",
-          //   $(go.TextBlock, "Layout"),
-          //   {
-          //     click: (e, obj) => {
-          //       var adorn = obj.part;
-          //       adorn.diagram.startTransaction("Subtree Layout");
-          //       this.layoutTree(adorn.adornedPart);
-          //       adorn.diagram.commitTransaction("Subtree Layout");
-          //     }
-          //   }
-          // )
-        );
+      // $("ContextMenuButton",
+      //   $(go.TextBlock, "Copy"),
+      //   { click: (e, obj) => { e.diagram.commandHandler.copySelection(); } }),
+      // $("ContextMenuButton",
+      //   $(go.TextBlock, "Undo"),
+      //   { click: (e, obj) => { e.diagram.commandHandler.undo(); } }),
+      // $("ContextMenuButton",
+      //   $(go.TextBlock, "Redo"),
+      //   { click: (e, obj) => { e.diagram.commandHandler.redo(); } }),
+      // $("ContextMenuButton",
+      //   $(go.TextBlock, "Layout"),
+      //   {
+      //     click: (e, obj) => {
+      //       var adorn = obj.part;
+      //       adorn.diagram.startTransaction("Subtree Layout");
+      //       this.layoutTree(adorn.adornedPart);
+      //       adorn.diagram.commitTransaction("Subtree Layout");
+      //     }
+      //   }
+      // )
 
       // a link is just a Bezier-curved line of the same color as the node to which it is connected
       this.myDiagram.linkTemplate =
@@ -562,7 +623,9 @@ export default {
         });
         this.layoutAll()
 
+
       });
+      this._nodeMenu = this.$refs.nodeMenuRef
       this.reloadTree()
     })
   }
