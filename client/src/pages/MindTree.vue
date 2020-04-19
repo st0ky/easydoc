@@ -220,7 +220,6 @@ export default {
         model.push(obj)
       }
       this.model = new go.TreeModel(model)
-      this.model.setDataProperty(this.model.modelData, "cursor", "auto")
       this.myDiagram.model = this.model
       this.layoutAll()
     },
@@ -441,7 +440,7 @@ export default {
           new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
           // make sure text "grows" in the desired direction
           new go.Binding("locationSpot", "dir", (d) => { return this.spotConverter(d, false); }),
-          new go.Binding("cursor", "cursor").ofModel()
+          new go.Binding("cursor", "", (o) => { return (o.diagram.lastInput.control || o.diagram.lastInput.meta) ? "pointer" : "auto" }).ofObject()
 
         );
 
@@ -467,7 +466,35 @@ export default {
           //   { click: (e, obj) => { e.diagram.commandHandler.copySelection(); } }),
           $("ContextMenuButton",
             $(go.TextBlock, "Delete"),
-            { click: (e, obj) => { e.diagram.commandHandler.deleteSelection(); } }),
+            { click: (e, o) => { e.diagram.commandHandler.deleteSelection(); } }),
+          $("ContextMenuButton",
+            $(go.TextBlock, "New"),
+            { click: (e, o) => { this.newNote(o.part.adornedPart.data.key) } }),
+          $("ContextMenuButton",
+            $(go.TextBlock, "Collapse / Expand (CTRL + LEFT \ RIGHT)",
+              new go.Binding("visible", "", function (o) { return !o.part.adornedPart.isTreeLeaf }).ofObject()
+            ),
+            {
+              click: (e, o) => {
+                if (!o.part.adornedPart.isTreeLeaf && o.part.adornedPart.isTreeExpanded) {
+                  if (this.myDiagram.commandHandler.canCollapseTree(o.part.adornedPart)) {
+                    this.myDiagram.commandHandler.collapseTree(o.part.adornedPart);  // collapses the tree
+                  }
+                } else if (!o.part.adornedPart.isTreeLeaf && !o.part.adornedPart.isTreeExpanded) {
+                  if (this.myDiagram.commandHandler.canExpandTree(o.part.adornedPart)) {
+                    this.myDiagram.commandHandler.expandTree(o.part.adornedPart);  // collapses the tree
+                  }
+                }
+              }
+            },
+          ),
+          $("ContextMenuButton",
+            $(go.TextBlock, "Go To Note (CTRL + CLICK)"),
+            {
+              click: (e, o) => {
+                this.$router.push({ name: 'noteView', params: { tree: this.tree, note: o.part.adornedPart.data.key } })
+              }
+            }),
           // $("ContextMenuButton",
           //   $(go.TextBlock, "Undo"),
           //   { click: (e, obj) => { e.diagram.commandHandler.undo(); } }),

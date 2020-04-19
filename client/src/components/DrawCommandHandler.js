@@ -366,9 +366,6 @@ DrawCommandHandler.prototype.doKeyDown = function () {
     if (diagram === null) return;
     var e = diagram.lastInput;
 
-    diagram.model.setDataProperty(diagram.model.modelData, "cursor", (e.control || e.meta) ? "pointer" : "auto")
-
-
     // determines the function of the arrow keys
     if (e.key === "Up" || e.key === "Down" || e.key === "Left" || e.key === "Right") {
         var behavior = this.arrowKeyBehavior;
@@ -388,7 +385,7 @@ DrawCommandHandler.prototype.doKeyDown = function () {
         // otherwise drop through to get the default scrolling behavior
     }
     let selected = this.diagram.selection.first()
-    if (selected && (e.key == 'N' || e.key == "Insert")) {
+    if (selected && (e.key == 'N' || (e.key == "Insert" && !e.shift))) {
         this.parentComp.newNote(selected.data.key)
         return
     }
@@ -398,14 +395,6 @@ DrawCommandHandler.prototype.doKeyDown = function () {
     }
     // otherwise still does all standard commands
     go.CommandHandler.prototype.doKeyDown.call(this);
-};
-
-DrawCommandHandler.prototype.doKeyUp = function () {
-    var diagram = this.diagram;
-    if (diagram === null) return;
-    var e = diagram.lastInput;
-    diagram.model.setDataProperty(diagram.model.modelData, "cursor", (e.control || e.meta) ? "pointer" : "auto")
-    go.CommandHandler.prototype.doKeyUp.call(this);
 };
 
 import Confirm from 'components/dialogs/Confirm.vue'
