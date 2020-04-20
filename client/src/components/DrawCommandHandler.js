@@ -404,8 +404,10 @@ DrawCommandHandler.prototype.deleteSelection = function () {
     if (diagram === null) return;
 
     let titles = []
+    let notes = []
     diagram.selection.each(function (part) {
         titles.push(part.data.text)
+        notes.push(part.data.key)
     });
     if (titles.length == 0) return
     if (titles.length == 1)
@@ -416,9 +418,9 @@ DrawCommandHandler.prototype.deleteSelection = function () {
         parent: this.parentComp,
         message: `Are you sure you want to permanently delete '${titles}'?`
     }).onOk(() => {
-        diagram.selection.each((part) => {
-            this.parentComp.deleteNote(part.data.key)
-        });
+        for (let note of notes) {
+            this.parentComp.deleteNote(note)
+        }
     })
 
     // otherwise still does all standard commands

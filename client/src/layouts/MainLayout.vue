@@ -118,12 +118,12 @@
               </q-list>
             </q-btn-dropdown>
             <q-tab
-              v-if="tab !== undefined"
+              v-if="tab !== undefined && notes[tab]"
               :name="tab"
               :label="notes[tab].title"
             />
             <q-tab
-              v-if="tab === undefined"
+              v-if="tab === undefined || !notes[tab]"
               :name="undefined"
               label="Select Tab"
             />
