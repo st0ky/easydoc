@@ -302,11 +302,10 @@ nsp.on('connection', function (socket) {
 
         let newNotes = []
         while (queue.length) {
-            console.log(queue)
             let [parent, children] = queue.pop()
             let parentChildren = tree.get(parent).get("children")
             for (let child of children) {
-                let note = createNewNote({ title: child.text }, false, false)
+                let note = createNewNote(child, false, false)
                 newNotes.push(note)
                 let obj = { note: note.id, parent: parent, children: [] }
                 tree.set(note.id, obj).value()

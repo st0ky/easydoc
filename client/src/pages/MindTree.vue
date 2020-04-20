@@ -149,24 +149,21 @@ export default {
       this.$socket.emit('update note', { id: noteId, tags: cur })
     },
     onPaste (e) {
+      let parent = this.myDiagram.selection.first()
+      if (!parent) return
+      parent = parent.data.key
+
       let types = e.clipboardData.types.slice()
-      if (types.indexOf("subtrees") != -1) {
-        console.log("subtrees")
-        let subtrees = JSON.parse(e.clipboardData.getData("subtrees"))
-        for (let subtree in subtrees) {
-          // for (let node in tree) {
-          //   this.$socket.emit("copy subtree", { noteId: node.key, treeId: this.tree, parentId: node.parent })
-          // }
-        }
+      if (types.indexOf("notes/tree") != -1) {
+        console.log("notes/tree")
+        e.preventDefault()
+        let subtree = JSON.parse(e.clipboardData.getData("notes/tree"))
+        this.$socket.emit("new subtree", { treeId: this.tree, subtree: subtree, parentId: parent })
+        return
       }
       if (types.indexOf("text/plain") != -1) {
-        let text = e.clipboardData.getData("text/plain")
-        let parent = this.myDiagram.selection.first()
-        if (!parent) return
-        parent = parent.data.key
         e.preventDefault()
-
-
+        let text = e.clipboardData.getData("text/plain")
         let lines = text.split("\r\n")
 
         let sep = null
@@ -195,12 +192,12 @@ export default {
           }
           if (stack.length < lvl) {
             while (stack.length < lvl) {
-              let obj = { text: "", children: [] }
+              let obj = { title: "", children: [] }
               stack[stack.length - 1].children.push(obj)
               stack[stack.length] = obj
             }
           }
-          let obj = { text: key, children: [] }
+          let obj = { title: key, children: [] }
           stack[lvl - 1].children.push(obj)
           stack[lvl] = obj
 
@@ -212,21 +209,26 @@ export default {
     },
     onCopy (e) {
       let plain = ""
+      let notesTree = { children: [] }
       let notesId = []
       this.myDiagram.selection.each((sel) => {
-        let queue = [[0, sel.data.key]]
+        let queue = [[0, notesTree, sel.data.key]]
         while (queue.length) {
-          let [lvl, note] = queue.pop()
+          let [lvl, parent, note] = queue.pop()
+          let obj = { ...this.notes[note], children: [] }
+          parent.children.push(obj)
           notesId.push(note)
           plain += "\t".repeat(lvl) + this.notes[note].title + "\r\n"
           for (let child of this.trees[this.tree][note].children) {
-            queue.push([lvl + 1, child.note])
+            queue.push([lvl + 1, obj, child.note])
           }
         }
       })
       if (plain) {
         plain = plain.slice(0, plain.length - 2)
       }
+      console.log(JSON.stringify(notesTree))
+      e.clipboardData.setData("notes/tree", JSON.stringify(notesTree))
       e.clipboardData.setData("text/plain", plain)
       e.preventDefault()
       notesId = Array.from(new Set(notesId))
@@ -495,9 +497,6 @@ export default {
       });
       this.myDiagram.addDiagramListener("TreeExpanded", () => { this.$nextTick(this.layoutAll) })
       this.myDiagram.addDiagramListener("TreeCollapsed", () => { this.$nextTick(this.layoutAll) })
-
-
-
 
       // a node consists of some text with a line shape underneath
       this.myDiagram.nodeTemplate =
