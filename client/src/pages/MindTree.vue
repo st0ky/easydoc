@@ -498,6 +498,8 @@ export default {
       this.myDiagram.addDiagramListener("TreeExpanded", () => { this.$nextTick(this.layoutAll) })
       this.myDiagram.addDiagramListener("TreeCollapsed", () => { this.$nextTick(this.layoutAll) })
 
+
+
       // a node consists of some text with a line shape underneath
       this.myDiagram.nodeTemplate =
         $(go.Node, "Vertical",
