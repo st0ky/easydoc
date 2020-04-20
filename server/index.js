@@ -127,7 +127,7 @@ function removeNodeFromTree (treeId, noteId) {
     nsp.emit('REMOVE_NODES_FROM_TREE', { tree: treeId, omit: toRemove })
 }
 
-function createNewNote (fields, trees = false) {
+function createNewNote (fields, trees = false, emit = true) {
     let note = { title: '', content: '', tags: [], links: [] }
     for (let field of Object.keys(fields)) {
         if (noteEditableFields.indexOf(field) == -1) continue
@@ -142,8 +142,8 @@ function createNewNote (fields, trees = false) {
         db.get(trees).set(note.id, null).write()
         emitTreeNotes(nsp)
     }
-    nsp.emit('NEW_NOTE', note)
-    return note.id
+    if (emit) nsp.emit('NEW_NOTE', note)
+    return note
 }
 
 function emitTreeNotes (socket) {
@@ -258,7 +258,7 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('new note', function (fields) {
-        socket.emit('new note ack', createNewNote(fields))
+        socket.emit('new note ack', createNewNote(fields).id)
     });
 
     socket.on('delete note', function (note) {
@@ -282,7 +282,7 @@ nsp.on('connection', function (socket) {
     });
 
     socket.on('new tree', function (title = '') {
-        let treeId = createNewNote({ title: title }, 'trees')
+        let treeId = createNewNote({ title: title }, 'trees').id
         let tree = { note: treeId, children: [], parent: null }
         let obj = {}
         obj[treeId] = tree
@@ -293,13 +293,46 @@ nsp.on('connection', function (socket) {
 
     });
 
+    socket.on('new subtree', function ({ treeId, parentId, subtree }) {
+
+        let queue = [[parentId, subtree.children]]
+        let tree = db.get("trees").get(treeId)
+        if (tree.value() === undefined) return
+        if (tree.get(parentId).value() === undefined) return
+
+        let newNotes = []
+        while (queue.length) {
+            console.log(queue)
+            let [parent, children] = queue.pop()
+            let parentChildren = tree.get(parent).get("children")
+            for (let child of children) {
+                let note = createNewNote({ title: child.text }, false, false)
+                newNotes.push(note)
+                let obj = { note: note.id, parent: parent, children: [] }
+                tree.set(note.id, obj).value()
+                parentChildren.push(note.id).value()
+                queue.push([note.id, child.children])
+            }
+        }
+        db.write()
+        nsp.emit("NEW_NOTES", newNotes)
+        let updated = [tree.get(parentId).value()]
+        for (let node of newNotes) {
+            updated.push(tree.get(node.id).value())
+        }
+        nsp.emit("UPDATE_TREE_NODES", { tree: treeId, nodes: updated })
+        socket.emit('new subtree ack', parentId)
+
+    });
+
+
     socket.on('new file tree', function (dir) {
         dir = path.resolve("../" + dir)
         if (!fs.statSync(dir).isDirectory()) return
         if (db.get('fileIds').values().indexOf(dir) != -1) return
 
         let treeName = dir.split(path.sep).pop()
-        let treeId = createNewNote({ title: treeName }, 'fileTrees')
+        let treeId = createNewNote({ title: treeName }, 'fileTrees').id
         let nextFileId = parseInt(db.get('fileIds').keys().maxBy(_.toInteger)) + 1
 
         db.get('fileIds').set(nextFileId, dir).value()

@@ -393,6 +393,25 @@ DrawCommandHandler.prototype.doKeyDown = function () {
         this.parentComp.newNote(selected.data.parent)
         return
     }
+
+    // if (e.key == "G") {
+    //     console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
+    //     navigator.clipboard.read().then(async (items) => {
+    //         for (let item of items) {
+    //             for (let typ of item.types) {
+    //                 console.log(typ, await (new Response(await item.getType(typ))).text())
+
+    //             }
+    //         }
+    //     })
+    //     return
+    // }
+
+
+    if ((e.control || e.meta) && (e.key === "V" || e.key === "C" || e.key === "X")) {
+        e.bubbles = true;
+        return
+    }
     // otherwise still does all standard commands
     go.CommandHandler.prototype.doKeyDown.call(this);
 };

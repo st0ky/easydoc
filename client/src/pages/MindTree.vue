@@ -1,11 +1,5 @@
 <template>
   <q-page class="q-pa-md row items-stretch">
-    <!-- <q-input
-      class="col-12"
-      @paste.native="onPaste"
-      @drop.native="onPaste"
-      @dragenter="onPaste"
-    /> -->
     <q-card
       class="col-12 q-pa-none"
       style="min-height: 300px"
@@ -155,18 +149,103 @@ export default {
       this.$socket.emit('update note', { id: noteId, tags: cur })
     },
     onPaste (e) {
-      console.log(e)
-      console.log(e.clipboardData.types.slice())
-      for (let typ of e.clipboardData.types) {
-        console.log(typ, e.clipboardData.getData(typ))
+      let types = e.clipboardData.types.slice()
+      if (types.indexOf("subtrees") != -1) {
+        console.log("subtrees")
+        let subtrees = JSON.parse(e.clipboardData.getData("subtrees"))
+        for (let subtree in subtrees) {
+          // for (let node in tree) {
+          //   this.$socket.emit("copy subtree", { noteId: node.key, treeId: this.tree, parentId: node.parent })
+          // }
+        }
+      }
+      if (types.indexOf("text/plain") != -1) {
+        let text = e.clipboardData.getData("text/plain")
+        let parent = this.myDiagram.selection.first()
+        if (!parent) return
+        parent = parent.data.key
+        e.preventDefault()
+
+
+        let lines = text.split("\r\n")
+
+        let sep = null
+        let res = {}
+        let stack = [{ children: [] }]
+
+        for (let line of lines) {
+          if (!line) continue
+          if (line.startsWith("\t")) {
+            if (sep !== null && sep !== "\t") return
+            if (sep === null) sep = "\t"
+          }
+          if (line.startsWith(" ")) {
+            if (sep !== null && !sep.startsWith(" ")) return
+            if (sep === null) sep = /^ +/.exec(line).pop()
+          }
+          if (sep === null) {
+            var key = line
+            var lvl = 1
+          } else {
+            var key = new RegExp(`^(${sep})*(.*)`).exec(line).pop()
+            var lvl = ((line.length - key.length) / sep.length) + 1
+          }
+          if (stack.length > lvl) {
+            stack = stack.slice(0, lvl)
+          }
+          if (stack.length < lvl) {
+            while (stack.length < lvl) {
+              let obj = { text: "", children: [] }
+              stack[stack.length - 1].children.push(obj)
+              stack[stack.length] = obj
+            }
+          }
+          let obj = { text: key, children: [] }
+          stack[lvl - 1].children.push(obj)
+          stack[lvl] = obj
+
+        }
+        this.$socket.emit("new subtree", { treeId: this.tree, subtree: stack[0], parentId: parent })
+
       }
       return true
     },
-    deleteNote (noteId) {
+    onCopy (e) {
+      let plain = ""
+      let notesId = []
+      this.myDiagram.selection.each((sel) => {
+        let queue = [[0, sel.data.key]]
+        while (queue.length) {
+          let [lvl, note] = queue.pop()
+          notesId.push(note)
+          plain += "\t".repeat(lvl) + this.notes[note].title + "\r\n"
+          for (let child of this.trees[this.tree][note].children) {
+            queue.push([lvl + 1, child.note])
+          }
+        }
+      })
+      if (plain) {
+        plain = plain.slice(0, plain.length - 2)
+      }
+      e.clipboardData.setData("text/plain", plain)
+      e.preventDefault()
+      notesId = Array.from(new Set(notesId))
+      return notesId
+    },
+    onCut (e) {
+      let notesId = this.onCopy(e)
+      for (let note of notesId) {
+        this.deleteNote(note, false)
+      }
+    },
+
+    deleteNote (noteId, selectParent = true) {
       let node = this.myDiagram.findNodeForKey(noteId)
       if (node) {
-        let parent = node.findTreeParentNode()
-        if (parent) this.myDiagram.select(parent)
+        if (selectParent) {
+          let parent = node.findTreeParentNode()
+          if (parent) this.myDiagram.select(parent)
+        }
         node.isSelected = false
       }
       this.$socket.emit('delete note', noteId)
@@ -387,6 +466,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+
       this.myDiagram =
         $(go.Diagram, this.$refs.mindtree, {
           commandHandler: new DrawCommandHandler(this),
@@ -394,8 +474,11 @@ export default {
           // when the user drags a node, also move/copy/delete the whole subtree starting with that node
           // "commandHandler.copiesTree": true,
           // "commandHandler.copiesParentKey": true,
-          "commandHandler.deletesTree": true,
+          // "commandHandler.deletesTree": true,
           "draggingTool.dragsTree": true,
+          "draggingTool.isCopyEnabled": false,
+          "animationManager.isEnabled": false,
+          // "draggingTool.isPasteEnabled": false,
           // "undoManager.isEnabled": true
         });
 
@@ -619,15 +702,22 @@ export default {
           } else if (rootX > nodeX && node.data.dir !== "left") {
             this.updateNodeDirection(node, "left");
           }
-          console.log("layout on SelectionMoved")
         });
         this.layoutAll()
-
-
       });
       this._nodeMenu = this.$refs.nodeMenuRef
       this.reloadTree()
     })
+  },
+  created () {
+    document.addEventListener("paste", this.onPaste)
+    document.addEventListener("copy", this.onCopy)
+    document.addEventListener("cut", this.onCut)
+  },
+  destroyed () {
+    document.removeEventListener("paste", this.onPaste)
+    document.removeEventListener("copy", this.onCopy)
+    document.removeEventListener("cut", this.onCut)
   }
 }
 </script>
