@@ -5,7 +5,7 @@
       style="min-height: 300px"
       flat
       bordered
-      :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
+      :class="$q.dark.isActive ? 'elev-8dp' : 'bg-grey-3'"
     >
       <div
         class="fit"
@@ -24,6 +24,9 @@
         >
           <q-item clickable>
             <q-item-section>Tags</q-item-section>
+            <q-item-section side>
+              <q-icon name="keyboard_arrow_left" />
+            </q-item-section>
             <q-menu
               anchor="top left"
               self="top right"
@@ -398,11 +401,23 @@ export default {
       }
       this.model = new go.TreeModel(model)
       this.myDiagram.model = this.model
+      this.updateColors()
       this.layoutAll()
     },
 
+    updateColors () {
+      let dark = this.$q.dark.isActive
+      this.model.setDataProperty(this.model.modelData, "lineColor", dark ? "grey" : "black")
+      this.model.setDataProperty(this.model.modelData, "textColor", dark ? "white" : "black")
+      this.model.setDataProperty(this.model.modelData, "primaryColor", colors.getBrand('primary'))
+      this.model.setDataProperty(this.model.modelData, "onPrimaryColor", colors.getBrand('on-primary'))
+      this.model.setDataProperty(this.model.modelData, "secondColor", colors.getBrand('secondary'))
+    }
+
   },
   watch: {
+    '$q.dark.isActive': function () { this.updateColors() },
+
     ourTree: {
       handler: function ([toTreeId, toTree], [fromTreeId, fromTree]) {
         if (toTreeId != fromTreeId) {
@@ -522,7 +537,7 @@ export default {
                 if (shape.dragCount === undefined) shape.dragCount = 0
                 shape.dragCount += 1
                 shape.strokeWidth = "1"
-                shape.stroke = "black"
+                shape.stroke = this.$q.dark.isActive ? "white" : "black"
                 shape.strokeDashArray = [3]
               }
             },
@@ -557,19 +572,19 @@ export default {
                   isMultiline: false,
                   name: "TITLE"
                 },
+                new go.Binding("stroke", "textColor").ofModel(),
                 new go.Binding("text", "text"),
               ),
               $(go.TextBlock,
                 {
                   margin: new go.Margin(4, 4, 4, 4),
                   font: "25px Consolas",
-                  stroke: colors.getBrand('secondary'),
                   toolTip: $("ToolTip",
                     $(go.TextBlock, "expand / collapse\ntype CTRL + LEFT / RIGHT", { margin: 4 }
                     )),
                   click: (e, o) => { this.collapseExpand(o) }
                 },
-
+                new go.Binding("stroke", "secondColor").ofModel(),
                 new go.Binding("visible", "isTreeLeaf", function (leaf) { return !leaf }).ofObject(),
                 new go.Binding("text", "isTreeExpanded", function (expand) { return expand ? "-" : "+" }).ofObject()
               ),
@@ -585,6 +600,7 @@ export default {
               // this line shape is the port -- what links connect with
               portId: "", fromSpot: go.Spot.LeftRightSides, toSpot: go.Spot.LeftRightSides
             },
+            new go.Binding("stroke", "lineColor").ofModel(),
             // make sure links come in from the proper direction and go out appropriately
             new go.Binding("fromSpot", "dir", (d) => { return this.spotConverter(d, true); }),
             new go.Binding("toSpot", "dir", (d) => { return this.spotConverter(d, false); })
@@ -595,13 +611,16 @@ export default {
                 $(go.Panel, "Auto",
                   { margin: 2 },
                   $(go.Shape, "RoundedRectangle",
-                    { fill: colors.getBrand('primary'), strokeWidth: 0 }),
+                    { strokeWidth: 0 },
+                    new go.Binding("fill", "primaryColor").ofModel()),
                   $(go.TextBlock, new go.Binding("text", ""),
                     {
                       margin: 2,
-                      stroke: "white",
-                      font: "12px Roboto"
-                    })
+                      font: "12px Roboto",
+                      // stroke: "var(--q-color-on-primary)"
+                    },
+                    new go.Binding("stroke", "onPrimaryColor").ofModel()
+                  )
                 )  // end of itemTemplate
             }),
 
@@ -618,7 +637,8 @@ export default {
         $(go.Adornment, "Spot",
           $(go.Panel, "Auto",
             // this Adornment has a rectangular blue Shape around the selected node
-            $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 2 }),
+            $(go.Shape, { fill: null, strokeWidth: 2 },
+              new go.Binding("stroke", "secondColor").ofModel()),
             $(go.Placeholder, { margin: new go.Margin(4, 4, 4, 4) })
 
           ),
@@ -669,7 +689,8 @@ export default {
             selectable: false
           },
           $(go.Shape,
-            { strokeWidth: 3 }
+            { strokeWidth: 3 },
+            new go.Binding("stroke", "lineColor").ofModel()
           )
         );
 

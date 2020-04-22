@@ -11,7 +11,7 @@
       />
       <q-btn
         class="col"
-        :color="$q.dark.isActive ? '' : 'grey-7'"
+        :color="$q.dark.isActive ? 'elev-8dp' : 'grey-7'"
         flat
         icon="eva-expand-outline"
         :to="{name: 'mindtree', params: { tree: tree}}"

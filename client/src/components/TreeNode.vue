@@ -21,6 +21,7 @@
           v-for="(tag, i) in notes[note].tags"
           :key="i"
           color="primary"
+          text-color="on-primary"
         > {{ tag }} </q-badge>
       </div>
     </q-item>

@@ -4,20 +4,16 @@
       v-model="splitterModel"
       horizontal
       v-if="valid"
-      style="height: 100%"
     >
       <template v-slot:before>
-        <div class="q-pa-md">
-          <note-card
-            primary
-            :note="note"
-          />
-        </div>
+        <note-card
+          primary
+          :note="note"
+          class="q-ma-md"
+        />
       </template>
       <template v-slot:after>
-        <div class="q-pa-md">
-          <router-view />
-        </div>
+        <router-view class="q-ma-md" />
       </template>
     </q-splitter>
 

@@ -4,7 +4,7 @@
       flat
       bordered
       class="my-card"
-      :class="[$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3', primary && note > -1 ? 'cursor-pointer' : ''] "
+      :class="[$q.dark.isActive ? primary? 'elev-08dp' : 'elev-1dp' : 'bg-grey-3', primary && note > -1 ? 'cursor-pointer' : ''] "
       v-if="notes[note]"
       @keyup.esc="cancel"
       @keyup.ctrl.enter="exit_edit"
@@ -31,7 +31,8 @@
           </div>
 
           <div
-            :class="primary? 'col-4' : 'col-6'"
+            :class="primary? 'col-4 justify-start' : 'col justify-center'"
+            class="row "
             @dblclick="primary && !edit_mode ? enter_edit('tags') : '' "
           >
             <q-select
@@ -50,9 +51,9 @@
             />
             <template v-if="!edit_mode">
               <q-chip
-                size="sm"
+                :size="primary? '' : 'sm'"
                 color="primary"
-                text-color="white"
+                text-color="on-primary"
                 v-for="(tag, idx) in tags"
                 :key="idx"
               > {{tag}} </q-chip>
@@ -64,13 +65,16 @@
             v-if="primary"
           >
             <q-btn
-              :color="$q.dark.isActive ? '' : 'grey-7'"
+              :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
               round
               flat
               icon="edit"
               v-if="note != -1 && !edit_mode"
               @click="enter_edit('title')"
-            />
+            >
+              <q-tooltip>edit note (double click)</q-tooltip>
+
+            </q-btn>
             <q-btn
               color="green"
               round
@@ -78,7 +82,9 @@
               icon="done"
               @click="exit_edit"
               v-if="edit_mode"
-            />
+            >
+              <q-tooltip>end editing (CTRL + ENTER)</q-tooltip>
+            </q-btn>
             <q-btn
               color="red"
               round
@@ -86,15 +92,19 @@
               icon="cancel"
               @click="cancel"
               v-if="edit_mode"
-            />
+            >
+              <q-tooltip>cancel editing (Esc)</q-tooltip>
+            </q-btn>
             <q-btn
-              :color="$q.dark.isActive ? '' : 'grey-7'"
+              :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
               round
               flat
               @click="$socket.emit('delete note', note)"
               icon="delete"
               v-if="note > -1 && !edit_mode && !treeNotes.indexOf(note) != -1"
-            />
+            >
+              <q-tooltip>delete note</q-tooltip>
+            </q-btn>
           </div>
         </div>
       </q-card-section>
@@ -135,10 +145,12 @@
               rounded
               flat
               size='sm'
-              :color="$q.dark.isActive ? '' : 'grey-7'"
+              :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
               class="col-1"
               @click="$socket.emit('update note', { id: note, links: links.slice(0, idx).concat(links.slice(idx+1)) })"
-            />
+            >
+              <q-tooltip>remove link</q-tooltip>
+            </q-btn>
             <note-link
               flat
               v-bind="link"
@@ -153,7 +165,7 @@
         >
           <q-btn
             class="col-1"
-            :color="$q.dark.isActive ? '' : 'grey-7'"
+            :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
             flat
             icon='add'
             @click="addLink"

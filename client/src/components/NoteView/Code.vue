@@ -2,7 +2,8 @@
   <q-card
     flat
     bordered
-    :class="$q.dark.isActive ? 'bg-grey-8' : 'bg-grey-3'"
+    :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
+    class="col-12"
   >
     <q-list
       dir="ltr"
@@ -12,7 +13,7 @@
       <q-item> {{ path }} </q-item>
       <q-space />
       <q-btn
-        :color="$q.dark.isActive ? '' : 'grey-7'"
+        :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
         round
         flat
         icon="trip_origin"
@@ -21,7 +22,7 @@
         <q-tooltip>remark point</q-tooltip>
       </q-btn>
       <q-btn
-        :color="$q.dark.isActive ? '' : 'grey-7'"
+        :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
         round
         flat
         icon="note_add"
@@ -30,7 +31,7 @@
         <q-tooltip>note on point</q-tooltip>
       </q-btn>
       <q-btn
-        :color="$q.dark.isActive ? '' : 'grey-7'"
+        :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
         round
         flat
         icon="las la-thumbtack"
