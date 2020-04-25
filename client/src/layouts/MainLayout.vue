@@ -79,6 +79,7 @@
       unit="px"
       emit-immediately
       :before-class="splitterClass"
+      after-class="noscroll"
       @input="onChange"
     >
       <template v-slot:before>
@@ -88,8 +89,10 @@
           bordered
           :width="drawerWidth"
           :breakpoint="0"
+          content-class="noscroll"
         >
-          <q-scroll-area class="fit">
+        <div class="column" style="height: 100vh">
+          <q-scroll-area class="col">
             <q-tabs
               v-model="tab"
               elevated
@@ -159,6 +162,9 @@
 
             </q-tab-panels>
           </q-scroll-area>
+        
+        
+        </div>
         </q-drawer>
       </template>
 
@@ -276,4 +282,7 @@ export default {
 .q-splitter__before.splitt
   transition: width 0.2s ease-out
   width: 0px !important
+
+.noscroll
+  overflow: hidden
 </style>
