@@ -38,6 +38,20 @@
         >
           <q-menu>
             <q-list style="min-width: 160px">
+               <q-item
+                clickable
+                v-close-popup
+                @click="$router.go(-1)"
+              >
+                <q-item-section>Go Back (Esc)</q-item-section>
+              </q-item>
+               <q-item
+                clickable
+                v-close-popup
+                @click="$router.go(1)"
+              >
+                <q-item-section>Go Forward (CTRL + Enter)</q-item-section>
+              </q-item>
               <q-item
                 clickable
                 v-close-popup
@@ -248,6 +262,16 @@ export default {
         this.$socket.emit('new file tree', path)
       })
 
+    },
+    keyListener(e) {
+      if (e.key === 'Escape') {
+          this.$router.go(-1)
+          e.preventDefault()
+      }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          this.$router.go(1)
+          e.preventDefault()
+      }
     }
   },
   watch: {
@@ -262,6 +286,13 @@ export default {
     if (to !== undefined && !isNaN(to)) {
       this.tab = to
     }
+  },
+  created () {
+    document.addEventListener('keyup', this.keyListener)
+  },
+  destroyed() {
+    document.removeEventListener('keyup', this.keyListener)
+
   },
 
   data () {

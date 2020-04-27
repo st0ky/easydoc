@@ -6,8 +6,8 @@
       class="my-card"
       :class="[$q.dark.isActive ? primary? 'elev-08dp' : 'elev-1dp' : 'bg-grey-3', primary && note > -1 ? 'cursor-pointer' : ''] "
       v-if="notes[note]"
-      @keyup.esc="cancel"
-      @keyup.ctrl.enter="exit_edit"
+      @keyup.esc.stop="cancel"
+      @keyup.ctrl.enter.stop="exit_edit"
     >
       <q-card-section>
         <div class="row items-center no-wrap fit">
