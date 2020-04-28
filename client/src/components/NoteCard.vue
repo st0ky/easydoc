@@ -255,7 +255,7 @@ export default {
         if (note.id < 0) continue
         res.push({ label: note.title, value: note.id })
       }
-      return res
+      return Object.freeze(res)
     },
     treeTitles () {
       let res = [];
@@ -263,7 +263,7 @@ export default {
         tree = parseInt(tree)
         res.push({ label: this.notes[tree].title, value: tree })
       }
-      return res
+      return  Object.freeze(res)
     }
   },
   methods: {
@@ -306,7 +306,7 @@ export default {
       update(() => {
         const needle = val.toLowerCase()
 
-        this.noteOptions = this.noteTitles.filter(v => fuzzysearch(needle, v.label.toLowerCase()))
+        this.noteOptions = Object.freeze(this.noteTitles.filter(v => fuzzysearch(needle, v.label.toLowerCase())))
       })
     },
     createValue (val) {

@@ -22,6 +22,7 @@
           </q-toolbar-title>
         </router-link>
         <q-toolbar-title />
+        <search ref="search" hint="Type '/' to focus here..." />
         <q-btn flat dense round icon="more_vert" aria-label="Menu">
           <q-menu>
             <q-list style="min-width: 160px">
@@ -156,13 +157,15 @@ import { mapState } from "vuex";
 import FileExplorer from "components/dialogs/FileExplorer.vue";
 import NoteTree from "components/NoteTree.vue";
 import FileTree from "components/FileTree.vue";
+import Search from "components/Search.vue";
 
 export default {
   name: "MainLayout",
 
   components: {
     NoteTree,
-    FileTree
+    FileTree,
+    Search
   },
 
   computed: {
@@ -228,6 +231,10 @@ export default {
         this.$router.go(1);
         e.preventDefault();
       }
+      if (e.key === "/") {
+        this.$refs.search.focus();
+        e.preventDefault();
+      }
     }
   },
   watch: {
@@ -257,8 +264,7 @@ export default {
       drawerLeft: true,
       drawerRight: false,
       splitterModel: 200,
-      leftDrawerOpen: false,
-      searchText: ""
+      leftDrawerOpen: false
     };
   }
 };
