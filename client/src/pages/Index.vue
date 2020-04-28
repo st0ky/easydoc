@@ -1,16 +1,15 @@
 <template>
   <q-page>
-    <note-card
-      primary
-      :note="-2"
-      class="q-pa-md"
-    />
+    <note-card primary :note="-2" class="q-pa-md" />
     <q-separator />
     <q-list class="q-pa-md q-gutter-md column items-start">
       <div class="text-h6">Trees:</div>
       <template v-for="(value, tree, index) in $store.state.notes.trees">
         <q-item
-          :to="{name: 'noteView', params: { tree: parseInt(tree), note: parseInt(tree)}}"
+          :to="{
+            name: 'noteView',
+            params: { tree: parseInt(tree), note: parseInt(tree) }
+          }"
           :key="index"
           class="q-pa-none"
         >
@@ -22,29 +21,28 @@
 </template>
 
 <script>
-import NoteCard from 'components/NoteCard.vue'
+import NoteCard from "components/NoteCard.vue";
 
 export default {
-  name: 'PageIndex',
+  name: "PageIndex",
   components: { NoteCard },
   computed: {
     focusedNote: {
-      get () {
+      get() {
         if (!this.$store.state.notes.focus) {
-          return false
+          return false;
         }
-        return this.$store.state.notes.notes[this.$store.state.notes.focus]
+        return this.$store.state.notes.notes[this.$store.state.notes.focus];
       }
     },
     notes: {
-      get () {
-        return this.$store.state.notes.notes
+      get() {
+        return this.$store.state.notes.notes;
       }
     }
   },
-  data () {
-    return {
-    }
-  },
-}
+  data() {
+    return {};
+  }
+};
 </script>

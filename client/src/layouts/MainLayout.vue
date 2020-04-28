@@ -3,10 +3,7 @@
     view="Lhh Lpr lff"
     :class="$q.dark.isActive ? 'elev-00dp text-white' : ''"
   >
-    <q-header
-      elevated
-      :class="$q.dark.isActive ? 'elev-04dp' : ''"
-    >
+    <q-header elevated :class="$q.dark.isActive ? 'elev-04dp' : ''">
       <q-toolbar>
         <q-btn
           flat
@@ -19,58 +16,28 @@
           <q-tooltip>Collapse / Exapnd drawer</q-tooltip>
         </q-btn>
 
-        <router-link
-          :to="{path: '/'}"
-          tag="div"
-          class="cursor-pointer"
-        >
+        <router-link :to="{ path: '/' }" tag="div" class="cursor-pointer">
           <q-toolbar-title shrink>
             EasyDoc
           </q-toolbar-title>
         </router-link>
         <q-toolbar-title />
-        <q-btn
-          flat
-          dense
-          round
-          icon="more_vert"
-          aria-label="Menu"
-        >
+        <q-btn flat dense round icon="more_vert" aria-label="Menu">
           <q-menu>
             <q-list style="min-width: 160px">
-               <q-item
-                clickable
-                v-close-popup
-                @click="$router.go(-1)"
-              >
+              <q-item clickable v-close-popup @click="$router.go(-1)">
                 <q-item-section>Go Back (Esc)</q-item-section>
               </q-item>
-               <q-item
-                clickable
-                v-close-popup
-                @click="$router.go(1)"
-              >
+              <q-item clickable v-close-popup @click="$router.go(1)">
                 <q-item-section>Go Forward (CTRL + Enter)</q-item-section>
               </q-item>
-              <q-item
-                clickable
-                v-close-popup
-                @click="newFileTree"
-              >
+              <q-item clickable v-close-popup @click="newFileTree">
                 <q-item-section>New File Tree</q-item-section>
               </q-item>
-              <q-item
-                clickable
-                v-close-popup
-                @click="newTree"
-              >
+              <q-item clickable v-close-popup @click="newTree">
                 <q-item-section>New tree</q-item-section>
               </q-item>
-              <q-item
-                clickable
-                @click="newNote"
-                v-close-popup
-              >
+              <q-item clickable @click="newNote" v-close-popup>
                 <q-item-section>New note</q-item-section>
               </q-item>
               <q-item>
@@ -81,11 +48,9 @@
                   v-close-popup
                 />
               </q-item>
-
             </q-list>
           </q-menu>
         </q-btn>
-
       </q-toolbar>
     </q-header>
     <q-splitter
@@ -105,90 +70,80 @@
           :breakpoint="0"
           content-class="noscroll"
         >
-        <div class="column" style="height: 100vh">
-          <q-scroll-area class="col">
-            <q-tabs
-              v-model="tab"
-              elevated
-              :class="$q.dark.isActive ? 'elev-16dp' : 'bg-primary text-white'"
-            >
-              <q-btn-dropdown
-                auto-close
-                flat
+          <div class="column" style="height: 100vh">
+            <q-scroll-area class="col">
+              <q-tabs
+                v-model="tab"
+                elevated
+                :class="
+                  $q.dark.isActive ? 'elev-16dp' : 'bg-primary text-white'
+                "
               >
-                <q-list>
-                  <template v-for="(v, tree) in trees">
-                    <q-item
-                      :key="tree"
-                      clickable
-                      @click="tab = parseInt(tree)"
-                    >
-                      <q-item-section> {{notes[parseInt(tree)].title}} </q-item-section>
-                    </q-item>
-                  </template>
-                  <template v-for="(v, tree) in fileTrees">
-                    <q-item
-                      :key="tree"
-                      clickable
-                      @click="tab = parseInt(tree)"
-                    >
-                      <q-item-section>Files: {{notes[parseInt(tree)].title}} </q-item-section>
-                    </q-item>
-                  </template>
-                </q-list>
-              </q-btn-dropdown>
-              <q-tab
-                v-if="tab !== undefined && notes[tab]"
-                :name="tab"
-                :label="notes[tab].title"
-              />
-              <q-tab
-                v-if="tab === undefined || !notes[tab]"
-                :name="undefined"
-                label="Select Tab"
-              />
+                <q-btn-dropdown auto-close flat>
+                  <q-list>
+                    <template v-for="(v, tree) in trees">
+                      <q-item
+                        :key="tree"
+                        clickable
+                        @click="tab = parseInt(tree)"
+                      >
+                        <q-item-section>
+                          {{ notes[parseInt(tree)].title }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                    <template v-for="(v, tree) in fileTrees">
+                      <q-item
+                        :key="tree"
+                        clickable
+                        @click="tab = parseInt(tree)"
+                      >
+                        <q-item-section
+                          >Files: {{ notes[parseInt(tree)].title }}
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-btn-dropdown>
+                <q-tab
+                  v-if="tab !== undefined && notes[tab]"
+                  :name="tab"
+                  :label="notes[tab].title"
+                />
+                <q-tab
+                  v-if="tab === undefined || !notes[tab]"
+                  :name="undefined"
+                  label="Select Tab"
+                />
+              </q-tabs>
+              <q-separator />
 
-            </q-tabs>
-            <q-separator />
+              <q-tab-panels v-model="tab" keep-alive>
+                <template v-for="(v, tree) in trees">
+                  <q-tab-panel
+                    :key="tree"
+                    :name="parseInt(tree)"
+                    class="q-pa-xs"
+                  >
+                    <note-tree :tree="parseInt(tree)" />
+                  </q-tab-panel>
+                </template>
 
-            <q-tab-panels
-              v-model="tab"
-              keep-alive
-            >
-              <template v-for="(v, tree) in trees">
-                <q-tab-panel
-                  :key="tree"
-                  :name="parseInt(tree)"
-                  class="q-pa-xs"
-                >
-                  <note-tree :tree="parseInt(tree)" />
-                </q-tab-panel>
-              </template>
-
-              <template v-for="(v, tree) in fileTrees">
-                <q-tab-panel
-                  :key="tree"
-                  :name="parseInt(tree)"
-                >
-                  <file-tree :tree="parseInt(tree)" />
-                </q-tab-panel>
-              </template>
-
-            </q-tab-panels>
-          </q-scroll-area>
-        
-        
-        </div>
+                <template v-for="(v, tree) in fileTrees">
+                  <q-tab-panel :key="tree" :name="parseInt(tree)">
+                    <file-tree :tree="parseInt(tree)" />
+                  </q-tab-panel>
+                </template>
+              </q-tab-panels>
+            </q-scroll-area>
+          </div>
         </q-drawer>
       </template>
 
       <template v-slot:after>
-
         <q-scroll-area style="height: calc(100vh - 0px)">
           <q-page-container style="padding-right: 0">
-
             <router-view />
-
           </q-page-container>
         </q-scroll-area>
       </template>
@@ -197,14 +152,13 @@
 </template>
 
 <script>
-
-import { mapState } from 'vuex'
-import FileExplorer from 'components/dialogs/FileExplorer.vue'
-import NoteTree from 'components/NoteTree.vue'
-import FileTree from 'components/FileTree.vue'
+import { mapState } from "vuex";
+import FileExplorer from "components/dialogs/FileExplorer.vue";
+import NoteTree from "components/NoteTree.vue";
+import FileTree from "components/FileTree.vue";
 
 export default {
-  name: 'MainLayout',
+  name: "MainLayout",
 
   components: {
     NoteTree,
@@ -212,90 +166,91 @@ export default {
   },
 
   computed: {
-    ...mapState('notes', [
-      'notes',
-      'trees'
-    ]),
-    ...mapState('socket', [
-      'fileTrees'
-    ]),
-    drawerWidth () {
-      return this.splitterModel + 1
+    ...mapState("notes", ["notes", "trees"]),
+    ...mapState("socket", ["fileTrees"]),
+    drawerWidth() {
+      return this.splitterModel + 1;
     },
-    splitterClass () {
-      return !this.leftDrawerOpen ? 'splitt' : ''
+    splitterClass() {
+      return !this.leftDrawerOpen ? "splitt" : "";
     },
-    compPadding () {
-      return this.leftDrawerOpen ? { paddingLeft: '0px' } : ''
+    compPadding() {
+      return this.leftDrawerOpen ? { paddingLeft: "0px" } : "";
     },
-    treeFromParams () {
-      return parseInt(this.$route.params.tree)
+    treeFromParams() {
+      return parseInt(this.$route.params.tree);
     }
   },
   methods: {
-    onChange (v) {
-      this.leftDrawerOpen = v > 0
+    onChange(v) {
+      this.leftDrawerOpen = v > 0;
     },
-    newNote () {
-      this.sockets.subscribe("new note ack", (noteId) => {
-        this.$router.push({ name: 'noteView', params: { tree: this.tab, note: noteId }, query: { edit: true } })
-        this.sockets.unsubscribe("new note ack")
-
-      })
-      this.$socket.emit("new note", { title: "new note" })
+    newNote() {
+      this.sockets.subscribe("new note ack", noteId => {
+        this.$router.push({
+          name: "noteView",
+          params: { tree: this.tab, note: noteId },
+          query: { edit: true }
+        });
+        this.sockets.unsubscribe("new note ack");
+      });
+      this.$socket.emit("new note", { title: "new note" });
     },
-    newTree () {
-      this.sockets.subscribe("new tree ack", (noteId) => {
-        this.tab = noteId
-        this.$router.push({ name: 'noteView', params: { tree: noteId, note: noteId }, query: { edit: true } })
-        this.sockets.unsubscribe("new tree ack")
-
-      })
-      this.$socket.emit("new tree", "new tree")
+    newTree() {
+      this.sockets.subscribe("new tree ack", noteId => {
+        this.tab = noteId;
+        this.$router.push({
+          name: "noteView",
+          params: { tree: noteId, note: noteId },
+          query: { edit: true }
+        });
+        this.sockets.unsubscribe("new tree ack");
+      });
+      this.$socket.emit("new tree", "new tree");
     },
-    newFileTree () {
-      this.$q.dialog({
-        component: FileExplorer,
-        parent: this,
-      }).onOk((path) => {
-        console.log(path)
-        this.$socket.emit('new file tree', path)
-      })
-
+    newFileTree() {
+      this.$q
+        .dialog({
+          component: FileExplorer,
+          parent: this
+        })
+        .onOk(path => {
+          console.log(path);
+          this.$socket.emit("new file tree", path);
+        });
     },
     keyListener(e) {
-      if (e.key === 'Escape') {
-          this.$router.go(-1)
-          e.preventDefault()
+      if (e.key === "Escape") {
+        this.$router.go(-1);
+        e.preventDefault();
       }
-      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-          this.$router.go(1)
-          e.preventDefault()
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        this.$router.go(1);
+        e.preventDefault();
       }
     }
   },
   watch: {
-    treeFromParams (to, from) {
+    treeFromParams(to, from) {
       if (to !== undefined && !isNaN(to)) {
-        this.tab = to
+        this.tab = to;
       }
     }
   },
-  mounted () {
-    let to = parseInt(this.$route.params.tree)
+  mounted() {
+    let to = parseInt(this.$route.params.tree);
     if (to !== undefined && !isNaN(to)) {
-      this.tab = to
+      this.tab = to;
     }
   },
-  created () {
-    document.addEventListener('keyup', this.keyListener)
+  created() {
+    document.addEventListener("keyup", this.keyListener);
   },
   destroyed() {
-    document.removeEventListener('keyup', this.keyListener)
-
+    document.removeEventListener("keyup", this.keyListener);
   },
 
-  data () {
+  data() {
     return {
       tab: undefined,
       booleanTest: false,
@@ -303,10 +258,10 @@ export default {
       drawerRight: false,
       splitterModel: 200,
       leftDrawerOpen: false,
-
-    }
+      searchText: ""
+    };
   }
-}
+};
 </script>
 
 <style lang="sass">

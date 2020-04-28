@@ -1,8 +1,16 @@
 <template>
-  <div :class="{ 'drag-enter-light': inDrag && !$q.dark.isActive,  'drag-enter-dark': inDrag && $q.dark.isActive}">
+  <div
+    :class="{
+      'drag-enter-light': inDrag && !$q.dark.isActive,
+      'drag-enter-dark': inDrag && $q.dark.isActive
+    }"
+  >
     <q-item
       dense
-      :to="{name: 'noteView', params: { tree: tree.nodes[0].note, note: note}}"
+      :to="{
+        name: 'noteView',
+        params: { tree: tree.nodes[0].note, note: note }
+      }"
       :active="active"
       draggable="true"
       @dragstart="onDragStart"
@@ -22,7 +30,9 @@
           :key="i"
           color="primary"
           text-color="on-primary"
-        > {{ tag }} </q-badge>
+        >
+          {{ tag }}
+        </q-badge>
       </div>
     </q-item>
     <q-input
@@ -43,33 +53,30 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 
 export default {
-  name: 'TreeNode',
-  props: ['note', 'tree'],
+  name: "TreeNode",
+  props: ["note", "tree"],
   components: {},
-  data () {
+  data() {
     return {
       edit: false,
       active: false,
       inDrag: 0,
       isDragged: false
-    }
+    };
   },
   computed: {
-    ...mapState('notes', [
-      'notes',
-      'trees'
-    ]),
+    ...mapState("notes", ["notes", "trees"]),
     title: {
-      get () {
-        return this.notes[this.note].title
+      get() {
+        return this.notes[this.note].title;
       },
-      set (v) {
-        this.$socket.emit('update note', { id: this.note, title: v });
+      set(v) {
+        this.$socket.emit("update note", { id: this.note, title: v });
       }
-    },
+    }
     // active: {
     //   get () {
     //     return this._active
@@ -88,85 +95,88 @@ export default {
   },
   methods: {
     // store the id of the draggable element
-    enterEdit (e) {
-      this.edit = true
+    enterEdit(e) {
+      this.edit = true;
     },
-    exitEdit (e) {
-      this.edit = false
-    },
-
-    onDragStart (e) {
-      e.dataTransfer.setData('note', this.note)
-      e.dataTransfer.dropEffect = 'move'
-      this.isDragged = true
+    exitEdit(e) {
+      this.edit = false;
     },
 
-    onDragEnd (e) {
-      this.isDragged = false
+    onDragStart(e) {
+      e.dataTransfer.setData("note", this.note);
+      e.dataTransfer.dropEffect = "move";
+      this.isDragged = true;
     },
 
-    onDragEnter (e) {
+    onDragEnd(e) {
+      this.isDragged = false;
+    },
+
+    onDragEnter(e) {
       if (!this.isDragged) {
-        this.inDrag += 1
-        this.$emit('dragEntered')
+        this.inDrag += 1;
+        this.$emit("dragEntered");
       }
     },
 
-    onDragLeave (e) {
-      if (this.isDragged) return
-      this.inDrag -= 1
-      if (this.inDrag < 0) this.inDrag = 0
+    onDragLeave(e) {
+      if (this.isDragged) return;
+      this.inDrag -= 1;
+      if (this.inDrag < 0) this.inDrag = 0;
     },
 
-    onDragOver (e) {
+    onDragOver(e) {
       if (!this.isDragged) {
-        e.preventDefault()
+        e.preventDefault();
       }
     },
 
-    onDrop (e) {
-      if (!this.inDrag) return
-      this.inDrag = 0
-      e.preventDefault()
-      this.$socket.emit("move note", { noteId: parseInt(e.dataTransfer.getData('note')), treeId: this.tree.nodes[0].note, parentId: this.note })
-      this.expandPath(this.note)
+    onDrop(e) {
+      if (!this.inDrag) return;
+      this.inDrag = 0;
+      e.preventDefault();
+      this.$socket.emit("move note", {
+        noteId: parseInt(e.dataTransfer.getData("note")),
+        treeId: this.tree.nodes[0].note,
+        parentId: this.note
+      });
+      this.expandPath(this.note);
     },
 
-    expandPath (note) {
+    expandPath(note) {
       while (note != null) {
-        this.tree.setExpanded(note, true)
-        if (!this.trees[this.tree.nodes[0].note]) break
-        note = this.trees[this.tree.nodes[0].note][note].parent
+        this.tree.setExpanded(note, true);
+        if (!this.trees[this.tree.nodes[0].note]) break;
+        note = this.trees[this.tree.nodes[0].note][note].parent;
       }
     }
   },
   sockets: {
-    UPDATE_TREE_NODE: function ({ tree, node }) {
+    UPDATE_TREE_NODE: function({ tree, node }) {
       if (node.note == this.note) {
-        this.tree.setExpanded(this.note, true)
+        this.tree.setExpanded(this.note, true);
       }
-    },
+    }
   },
   watch: {
-    $route (to, from) {
+    $route(to, from) {
       if (parseInt(this.$route.params.note) == this.note) {
-        this.expandPath(this.note)
+        this.expandPath(this.note);
       }
     }
   },
-  mounted: function () {
+  mounted: function() {
     // this.note = parseInt(this.note)
     if (parseInt(this.$route.params.note) == this.note) {
-      this.expandPath(this.note)
+      this.expandPath(this.note);
     }
   },
-  updated: function () {
+  updated: function() {
     if (parseInt(this.$route.params.note) == this.note) {
-      this.expandPath(this.note)
+      this.expandPath(this.note);
     }
   }
-
-}
+};
 </script>
 
 <style>
