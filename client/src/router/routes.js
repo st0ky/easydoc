@@ -49,7 +49,10 @@ const routes = [
         path: "tree/:tree/note/:note",
         component: () => import("pages/Note.vue"),
         props(route) {
-          return { note: parseInt(route.params.note) };
+          return {
+            note: parseInt(route.params.note),
+            tree: parseInt(route.params.tree)
+          };
         },
         children: [
           {
