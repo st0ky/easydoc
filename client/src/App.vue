@@ -6,28 +6,28 @@
 
 <script>
 export default {
-  name: 'App',
-  mounted () {
-    this.$q.dark.isActive = true
+  name: "App",
+  mounted() {
+    this.$q.dark.isActive = true;
   },
   watch: {
-    '$q.dark.isActive' (val) {
+    "$q.dark.isActive"(val) {
       if (val) {
-        let els = document.getElementsByClassName("body--light")
+        let els = document.getElementsByClassName("body--light");
         for (let el of els) {
-          el.classList.remove("body--light")
-          el.classList.add("body--dark")
+          el.classList.remove("body--light");
+          el.classList.add("body--dark");
         }
       } else {
-        let els = document.getElementsByClassName("body--dark")
+        let els = document.getElementsByClassName("body--dark");
         for (let el of els) {
-          el.classList.remove("body--dark")
-          el.classList.add("body--light")
+          el.classList.remove("body--dark");
+          el.classList.add("body--light");
         }
       }
     }
   }
-}
+};
 </script>
 
 <style lang="sass">
@@ -46,6 +46,12 @@ export default {
     color: #000000
   .bg-on-secondary
     background: #000000
+
+  .q-card
+    a:link
+      color: var(--q-color-primary)
+    a:visited
+      color: var(--q-color-secondary)
 
 .body--light
   --q-color-primary: #1976D2

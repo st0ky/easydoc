@@ -23,7 +23,6 @@
     <div
       class="col-12"
       @keyup.n="newNote"
-      @keyup.insert="newNote"
       @keyup.46.exact="confirmDeleteNote"
       @keyup.shift.46="deleteNote"
     >

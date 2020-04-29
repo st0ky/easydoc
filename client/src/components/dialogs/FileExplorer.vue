@@ -1,9 +1,9 @@
 <template>
-  <q-dialog
-    ref="dialog"
-    @hide="onDialogHide"
-  >
-    <q-card class="q-dialog-plugin">
+  <q-dialog ref="dialog" @hide="onDialogHide">
+    <q-card
+      class="q-dialog-plugin"
+      :class="$q.dark.isActive ? 'elev-24dp' : ''"
+    >
       <q-card-section class="row items-center">
         <q-avatar icon="las la-file-import" />
 
@@ -24,7 +24,7 @@
       <q-card-section>
         <q-tree
           :nodes="lazy"
-          ref='tree'
+          ref="tree"
           default-expand-all
           node-key="path"
           node-label="label"
@@ -33,7 +33,7 @@
           :selected="selected"
           @update:selected="onselect"
         >
-          <template v-slot:default-header="{node}">
+          <template v-slot:default-header="{ node }">
             <q-btn
               outline
               no-caps
@@ -53,124 +53,112 @@
           @click="onOKClick"
           :disable="!valid_select"
         />
-        <q-btn
-          color="primary"
-          label="Cancel"
-          flat
-          @click="onCancelClick"
-        />
+        <q-btn color="primary" label="Cancel" flat @click="onCancelClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>
-
 </template>
 
 <script>
-
-
-
 export default {
-  name: 'FileExplorer',
+  name: "FileExplorer",
   components: {},
-  data () {
+  data() {
     return {
-      lazy: [{ label: 'root', path: '/', children: [], lazy: true }],
+      lazy: [{ label: "root", path: "/", children: [], lazy: true }],
       pending: {},
       selected: null,
       tree: null,
       valid_select: false
-    }
+    };
   },
   computed: {
     _selected: {
-      get () {
-        return this.selected
+      get() {
+        return this.selected;
       },
-      set (v) {
-        this.valid_select = false
+      set(v) {
+        this.valid_select = false;
         if (!v) {
-          v = ''
+          v = "";
         }
-        this.selected = v
-        let splitted = v.split('/')
+        this.selected = v;
+        let splitted = v.split("/");
         for (let i in { ...[...Array(splitted.length)] }) {
-          let key = splitted.slice(0, splitted.length - i).join('/')
-          if (!this.tree.getNodeByKey(key)) break
+          let key = splitted.slice(0, splitted.length - i).join("/");
+          if (!this.tree.getNodeByKey(key)) break;
           if (!this.tree.isExpanded(key)) {
-            this.tree.setExpanded(key, true)
+            this.tree.setExpanded(key, true);
           }
         }
 
-        this.valid_select = !!this.tree.getNodeByKey(v)
+        this.valid_select = !!this.tree.getNodeByKey(v);
       }
     }
-
   },
   sockets: {
-    FS_CHILDREN: function ({ path, children }) {
+    FS_CHILDREN: function({ path, children }) {
       if (this.pending[path] !== undefined) {
-        this.pending[path](children)
-        delete this.pending[path]
+        this.pending[path](children);
+        delete this.pending[path];
       }
     }
   },
   methods: {
-    show () {
-      this.$refs.dialog.show()
+    show() {
+      this.$refs.dialog.show();
       this.$nextTick(() => {
-        this.tree = this.$refs.tree
-      })
+        this.tree = this.$refs.tree;
+      });
     },
     // following method is REQUIRED
     // (don't change its name --> "hide")
-    hide () {
-      this.$refs.dialog.hide()
+    hide() {
+      this.$refs.dialog.hide();
     },
 
-    onDialogHide () {
+    onDialogHide() {
       // required to be emitted
       // when QDialog emits "hide" event
-      this.$emit('hide')
+      this.$emit("hide");
     },
 
-    onOKClick () {
-      if (!this.valid_select) return
+    onOKClick() {
+      if (!this.valid_select) return;
       // on OK, it is REQUIRED to
       // emit "ok" event (with optional payload)
       // before hiding the QDialog
-      this.$emit('ok', this.selected)
+      this.$emit("ok", this.selected);
       // or with payload: this.$emit('ok', { ... })
 
       // then hiding dialog
-      this.hide()
+      this.hide();
     },
 
-    onCancelClick () {
+    onCancelClick() {
       // we just need to hide dialog
-      this.$emit('cancel')
-      this.hide()
+      this.$emit("cancel");
+      this.hide();
     },
-    onLazyLoad ({ node, key, done, fail }) {
+    onLazyLoad({ node, key, done, fail }) {
       if (node.children.length) {
-        done(node.children)
-        return
+        done(node.children);
+        return;
       }
-      this.pending[node.path] = done
-      this.$socket.emit("fs get children", node.path)
-      setTimeout(fail, 1000)
+      this.pending[node.path] = done;
+      this.$socket.emit("fs get children", node.path);
+      setTimeout(fail, 1000);
     },
-    onselect (target) {
-      console.log(target)
-      this._selected = target
+    onselect(target) {
+      console.log(target);
+      this._selected = target;
     }
   },
-  watch: {
-
-  },
-  mounted () {
+  watch: {},
+  mounted() {
     this.$nextTick(() => {
-      this.tree = this.$refs.tree
-    })
+      this.tree = this.$refs.tree;
+    });
   }
-}
+};
 </script>

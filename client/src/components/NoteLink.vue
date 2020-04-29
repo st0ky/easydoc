@@ -71,7 +71,12 @@ export default {
           .split("//")
           .pop()
           .slice(20);
-      if (this.type == "note") return this.notes[this.noteId].title;
+      if (this.type == "note")
+        return this.notes[this.noteId].title
+          ? this.notes[this.noteId].title
+          : this.notes[this.noteId].content
+          ? this.notes[this.noteId].content.slice(0, 20)
+          : `note number: ${this.noteId}`;
       if (this.type == "file" && this.name == "") {
         this.$socket.emit("fs get file name", this.fileId);
       }

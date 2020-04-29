@@ -39,7 +39,7 @@
                 <q-item-section>New tree</q-item-section>
               </q-item>
               <q-item clickable @click="newNote" v-close-popup>
-                <q-item-section>New note</q-item-section>
+                <q-item-section>New note (Insert)</q-item-section>
               </q-item>
               <q-item>
                 <q-toggle
@@ -190,9 +190,20 @@ export default {
     },
     newNote() {
       this.sockets.subscribe("new note ack", noteId => {
+        let tree =
+          this.$route.params.tree !== undefined
+            ? parseInt(this.$route.params.tree)
+            : this.tab;
+        if (this.$route.params.note !== undefined && tree !== undefined) {
+          this.$socket.emit("move note", {
+            noteId: noteId,
+            treeId: tree,
+            parentId: parseInt(this.$route.params.note)
+          });
+        }
         this.$router.push({
           name: "noteView",
-          params: { tree: this.tab, note: noteId },
+          params: { tree: tree, note: noteId },
           query: { edit: true }
         });
         this.sockets.unsubscribe("new note ack");
@@ -231,8 +242,12 @@ export default {
         this.$router.go(1);
         e.preventDefault();
       }
-      if (e.key === "/") {
+      if (e.code === "Slash") {
         this.$refs.search.focus();
+        e.preventDefault();
+      }
+      if (e.code === "Insert") {
+        this.newNote();
         e.preventDefault();
       }
     }
