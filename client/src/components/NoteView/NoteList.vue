@@ -1,7 +1,8 @@
 <template>
-  <div class="q-gutter-sm row items-start" v-if="valid">
-    <template v-for="child in $store.state.notes.trees[tree][note].children">
+  <div>
+    <q-list class="q-gutter-sm row items-start" v-if="valid">
       <q-item
+        v-for="child in $store.state.notes.trees[tree][note].children"
         :to="{ name: 'noteView', params: { tree: tree, note: child.note } }"
         :key="child.note"
         style="max-width: 50%"
@@ -9,7 +10,7 @@
       >
         <note-card :note="child.note" />
       </q-item>
-    </template>
+    </q-list>
   </div>
 </template>
 

@@ -40,9 +40,7 @@
             <div
               v-if="!edit_mode"
               :class="{ 'text-h6': title.length < 10 || this.primary }"
-            >
-              {{ title }}
-            </div>
+            >{{ title }}</div>
             <q-input
               v-model="title"
               v-if="edit_mode"
@@ -56,7 +54,7 @@
 
           <div
             :class="primary ? 'col-4 justify-start' : 'col justify-center'"
-            class="row "
+            class="row"
             @dblclick.stop="primary && !edit_mode ? enter_edit('tags') : ''"
           >
             <q-select
@@ -80,9 +78,7 @@
                 text-color="on-primary"
                 v-for="(tag, idx) in tags"
                 :key="idx"
-              >
-                {{ tag }}
-              </q-chip>
+              >{{ tag }}</q-chip>
             </template>
           </div>
 
@@ -97,24 +93,10 @@
             >
               <q-tooltip>edit note (double click)</q-tooltip>
             </q-btn>
-            <q-btn
-              color="green"
-              round
-              flat
-              icon="done"
-              @click="exit_edit"
-              v-if="edit_mode"
-            >
+            <q-btn color="green" round flat icon="done" @click="exit_edit" v-if="edit_mode">
               <q-tooltip>end editing (CTRL + ENTER)</q-tooltip>
             </q-btn>
-            <q-btn
-              color="red"
-              round
-              flat
-              icon="cancel"
-              @click="cancel"
-              v-if="edit_mode"
-            >
+            <q-btn color="red" round flat icon="cancel" @click="cancel" v-if="edit_mode">
               <q-tooltip>cancel editing (Esc)</q-tooltip>
             </q-btn>
             <q-btn
@@ -183,10 +165,11 @@
             icon="add"
             @click="addLink"
           >
-            <q-tooltip
-              >Add note link<br />To add code link choose first file from file
-              tree</q-tooltip
-            >
+            <q-tooltip>
+              Add note link
+              <br />To add code link choose first file from file
+              tree
+            </q-tooltip>
           </q-btn>
           <q-select
             hint="select note"

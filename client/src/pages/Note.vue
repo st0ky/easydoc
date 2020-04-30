@@ -11,20 +11,22 @@
   >
     <q-splitter v-model="splitterModel" horizontal v-if="valid">
       <template v-slot:before>
-        <div class="column q-pa-md q-gutter-sm">
-          <q-btn
-            :disable="trees[tree][note].parent === null"
-            :to="{
+        <div class="q-ma-md">
+          <div class="row q-gutter-y-sm">
+            <q-btn
+              :disable="trees[tree][note].parent === null"
+              :to="{
               name: 'noteView',
               params: { tree: tree, note: trees[tree][note].parent }
             }"
-            class="self-start"
-            :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
-          >
-            ...
-            <q-tooltip>Go To Parent (CTRL + UP)</q-tooltip>
-          </q-btn>
-          <note-card primary :note="note" />
+              class="self-start"
+              :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
+            >
+              ...
+              <q-tooltip>Go To Parent (CTRL + UP)</q-tooltip>
+            </q-btn>
+            <note-card class="col-12" primary :note="note" />
+          </div>
         </div>
       </template>
       <template v-slot:after>
