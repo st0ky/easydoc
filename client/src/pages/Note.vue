@@ -1,38 +1,34 @@
 <template>
   <q-page
+    class="column"
     @keyup.up.ctrl.stop="
-      trees[tree][note].parent !== null
+      parent !== null
         ? $router.push({
             name: 'noteView',
-            params: { tree: tree, note: trees[tree][note].parent }
+            params: { tree: tree, note: parent }
           })
         : ''
     "
   >
-    <q-splitter v-model="splitterModel" horizontal v-if="valid">
-      <template v-slot:before>
-        <div class="q-ma-md">
-          <div class="row q-gutter-y-sm">
-            <q-btn
-              :disable="trees[tree][note].parent === null"
-              :to="{
-              name: 'noteView',
-              params: { tree: tree, note: trees[tree][note].parent }
-            }"
-              class="self-start"
-              :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
-            >
-              ...
-              <q-tooltip>Go To Parent (CTRL + UP)</q-tooltip>
-            </q-btn>
-            <note-card class="col-12" primary :note="note" />
-          </div>
-        </div>
-      </template>
-      <template v-slot:after>
-        <router-view class="q-ma-md" />
-      </template>
-    </q-splitter>
+    <div class="col-auto q-pa-sm row-inline q-gutter-y-sm">
+      <q-btn
+        :disable="parent === null"
+        :to="{
+          name: 'noteView',
+          params: { tree: tree, note: parent }
+        }"
+        class="self-start"
+        :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
+      >
+        ...
+        <q-tooltip>Go To Parent (CTRL + UP)</q-tooltip>
+      </q-btn>
+      <note-card class="col-12" primary :note="note" />
+    </div>
+    <q-separator style="height: 1px" />
+    <div class="col q-pa-sm row items-stretch">
+      <router-view />
+    </div>
   </q-page>
 </template>
 
@@ -54,9 +50,10 @@ export default {
   },
   computed: {
     ...mapState("notes", ["notes", "trees"]),
-    valid() {
-      if (this.$store.state.notes.notes[this.note] === undefined) return null;
-      return true;
+    parent() {
+      if (!this.trees[this.tree]) return null;
+      if (!this.trees[this.tree][this.note]) return null;
+      return this.trees[this.tree][this.note].parent;
     }
   },
   methods: {},

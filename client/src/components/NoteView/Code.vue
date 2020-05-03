@@ -1,6 +1,11 @@
 <template>
-  <q-card flat bordered :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'" class="col-12">
-    <q-list dir="ltr" class="row">
+  <q-card
+    flat
+    bordered
+    :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
+    class="col-12 column"
+  >
+    <q-list dir="ltr" class="row col-auto">
       <q-item>{{ path }}</q-item>
       <q-space />
       <q-btn
@@ -26,43 +31,49 @@
         round
         flat
         icon="las la-thumbtack"
-        :disable="$route.params.note===undefined"
+        :disable="$route.params.note === undefined"
         @click="pin"
       >
         <q-tooltip>link to point</q-tooltip>
       </q-btn>
     </q-list>
-    <vue-ace-editor
-      ref="editor"
-      :content="content"
-      :fontSize="14"
-      :height="height"
-      :readonly="true"
-      lang="python"
-      theme="monokai"
-      @init="editorInit"
-      @onChange="editorChange"
-      @onInput="editorInput"
-      @onFocus="editorFocus"
-      @onBlur="editorBlur"
-      @onPaste="editorPaste"
-    />
+    <div class="col row  items-stretch">
+      <q-card bordered class="col-12">
+        <ace-editor
+          style="min-height: 500px"
+          ref="editor"
+          name="editor"
+          :value="content"
+          :fontSize="14"
+          :readOnly="true"
+          :editorProps="{ $blockScrolling: Infinity }"
+          :onLoad="onLoad"
+          width="100%"
+          height="100%"
+          mode="python"
+          theme="monokai"
+        />
+      </q-card>
+    </div>
   </q-card>
 </template>
 
 <script>
-import ace from "brace";
-import "brace/ext/language_tools";
+import brace from "brace";
+import { Ace as AceEditor, Split as SplitEditor } from "vue2-brace-editor";
+
+// import ace from "brace";
+// import "brace/ext/language_tools";
 import "brace/mode/python";
-import "brace/snippets/python";
-import "brace/theme/eclipse";
+// import "brace/snippets/python";
+// import "brace/theme/eclipse";
 import "brace/theme/monokai";
 
-import {
-  VueAceEditor,
-  VueSplitEditor,
-  VueStaticHighlight
-} from "vue2x-ace-editor";
+// import {
+//   VueAceEditor,
+//   VueSplitEditor,
+//   VueStaticHighlight
+// } from "vue2x-ace-editor";
 
 import { mapState } from "vuex";
 
@@ -76,7 +87,7 @@ export default {
     endCol: { type: Number, default: -1 },
     height: { type: String, default: "300px" }
   },
-  components: { VueAceEditor },
+  components: { AceEditor },
   data() {
     return {
       content: "",
@@ -115,6 +126,10 @@ export default {
     },
     editorPaste(editor) {
       //   console.log("pase", editor);
+    },
+    onLoad(editor) {
+      this.editor = editor;
+      this.update();
     },
     goToPoint() {
       let { line, endLine, startCol, endCol } = this.saved_state;
@@ -220,17 +235,17 @@ export default {
       });
     },
     CONNECTION: function() {
-      if (this.saved_state.fileId != -1) {
+      if (this.fileId != -1) {
         this.$socket.emit("fs get file content", this.fileId);
       }
     }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.editor = this.$refs.editor.editor;
-      this.update();
-    });
   }
+  // mounted() {
+  //   this.$nextTick(() => {
+  //     this.editor = this.$refs.editor.editor;
+  //     this.update();
+  //   });
+  // }
   //   beforeRouteUpdate (to, from, next) {
   //     console.log('getScrollTop', this.editor.getSession().getScrollTop())
   //     next()
