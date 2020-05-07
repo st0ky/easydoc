@@ -14,30 +14,31 @@
     "build": "set NODE_OPTIONS=--max_old_space_size=8096 && quasar build && rm -rf ../server/spa && cp -r dist/spa ../server"
   },
   "dependencies": {
+    "@babel/parser": "^7.9.6",
     "@quasar/extras": "^1.6.0",
     "gojs": "^2.1.12",
     "quasar": "^1.9.12",
     "vue-markdown": "^2.2.4",
-    "vue-socket.io": "^3.0.7",
+    "vue-socket.io": "3.0.7",
     "vue2-brace-editor": "^2.0.2"
   },
   "devDependencies": {
     "@quasar/app": "^1.6.0",
     "@quasar/quasar-app-extension-typescript": "^1.0.0-beta.2",
-    "@types/node": "11.9.5",
-    "@typescript-eslint/eslint-plugin": "^1.12.0",
-    "@typescript-eslint/parser": "^1.12.0",
+    "@types/node": "13.13.5",
+    "@typescript-eslint/eslint-plugin": "^2.31.0",
+    "@typescript-eslint/parser": "^2.31.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
-    "eslint-loader": "^3.0.3",
+    "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^6.2.2",
     "quasar-app-extension-draggable": "^0.2.2",
-    "ts-loader": "^6.2.2",
+    "ts-loader": "^7.0.2",
     "typescript": "^3.3.3"
   },
   "engines": {
