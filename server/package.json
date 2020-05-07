@@ -19,5 +19,8 @@
     "morgan": "^1.10.0",
     "socket.io": "^2.3.0",
     "utf-8-validate": "^5.0.2"
+  },
+  "devDependencies": {
+    "webpack-node-externals": "^1.7.2"
   }
 }
