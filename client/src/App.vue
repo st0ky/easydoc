@@ -36,6 +36,7 @@ export default {
   --q-color-secondary: #ffcc80
   --q-color-on-primary: #000000
   --q-color-on-secondary: #000000
+  --q-color-negative: #CF6679
 
   .text-on-primary
     color: #000000

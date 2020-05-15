@@ -4,7 +4,7 @@
     filled
     hide-dropdown-icon
     use-input
-    :label="$refs.select && $refs.select.focused ? '' : hint"
+    :placeholder="hint"
     hide-bottom-space
     v-model="model"
     clearable
@@ -27,7 +27,7 @@
         @click="$refs.select.inputValue = ''"
       />
     </template>
-    <template v-slot:option="{ index, opt, focused, itemProps }">
+    <template v-slot:option="{ index, opt, focused }">
       <q-item
         :to="{
           name: 'noteView',

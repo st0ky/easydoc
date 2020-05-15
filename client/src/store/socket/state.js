@@ -1,8 +1,10 @@
-export default function () {
+export default function() {
   return {
-    localState: 'uninit',
+    localState: "uninit",
     treeNotes: [],
     fileTrees: {},
-    tags: []
-  }
+    tags: [],
+    loginStatus: false,
+    user: null
+  };
 }

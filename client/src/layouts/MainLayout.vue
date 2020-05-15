@@ -1,8 +1,5 @@
 <template>
-  <q-layout
-    view="Lhh Lpr lff"
-    :class="$q.dark.isActive ? 'elev-00dp text-white' : ''"
-  >
+  <q-layout view="Lhh Lpr lff" :class="$q.dark.isActive ? 'elev-00dp text-white' : ''">
     <q-header elevated :class="$q.dark.isActive ? 'elev-04dp' : ''">
       <q-toolbar>
         <q-btn
@@ -17,9 +14,7 @@
         </q-btn>
 
         <router-link :to="{ path: '/' }" tag="div" class="cursor-pointer">
-          <q-toolbar-title shrink>
-            EasyDoc
-          </q-toolbar-title>
+          <q-toolbar-title shrink>EasyDoc</q-toolbar-title>
         </router-link>
         <q-toolbar-title />
         <search ref="search" hint="Type '/' to focus here..." />
@@ -42,12 +37,10 @@
                 <q-item-section>New note (Insert)</q-item-section>
               </q-item>
               <q-item>
-                <q-toggle
-                  v-model="$q.dark.isActive"
-                  label="Dark mode"
-                  left-label
-                  v-close-popup
-                />
+                <q-toggle v-model="$q.dark.isActive" label="Dark mode" left-label v-close-popup />
+              </q-item>
+              <q-item clickable @click="logOut" v-close-popup>
+                <q-item-section>Log out</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
@@ -83,25 +76,13 @@
                 <q-btn-dropdown auto-close flat>
                   <q-list>
                     <template v-for="(v, tree) in trees">
-                      <q-item
-                        :key="tree"
-                        clickable
-                        @click="tab = parseInt(tree)"
-                      >
-                        <q-item-section>
-                          {{ notes[parseInt(tree)].title }}
-                        </q-item-section>
+                      <q-item :key="tree" clickable @click="tab = parseInt(tree)">
+                        <q-item-section>{{ notes[parseInt(tree)].title }}</q-item-section>
                       </q-item>
                     </template>
                     <template v-for="(v, tree) in fileTrees">
-                      <q-item
-                        :key="tree"
-                        clickable
-                        @click="tab = parseInt(tree)"
-                      >
-                        <q-item-section
-                          >Files: {{ notes[parseInt(tree)].title }}
-                        </q-item-section>
+                      <q-item :key="tree" clickable @click="tab = parseInt(tree)">
+                        <q-item-section>Files: {{ notes[parseInt(tree)].title }}</q-item-section>
                       </q-item>
                     </template>
                   </q-list>
@@ -121,11 +102,7 @@
 
               <q-tab-panels v-model="tab" keep-alive>
                 <template v-for="(v, tree) in trees">
-                  <q-tab-panel
-                    :key="tree"
-                    :name="parseInt(tree)"
-                    class="q-pa-xs"
-                  >
+                  <q-tab-panel :key="tree" :name="parseInt(tree)" class="q-pa-xs">
                     <note-tree :tree="parseInt(tree)" />
                   </q-tab-panel>
                 </template>
@@ -170,7 +147,7 @@ export default {
 
   computed: {
     ...mapState("notes", ["notes", "trees"]),
-    ...mapState("socket", ["fileTrees"]),
+    ...mapState("socket", ["fileTrees", "user"]),
     drawerWidth() {
       return this.splitterModel + 1;
     },
@@ -187,6 +164,15 @@ export default {
   methods: {
     onChange(v) {
       this.leftDrawerOpen = v > 0;
+    },
+    logOut() {
+      this.$socket.emit("log out", this.user);
+      this.$nextTick(() => {
+        this.$router.replace({
+          path: "/login",
+          query: { from: this.$route.fullPath }
+        });
+      });
     },
     newNote() {
       this.sockets.subscribe("new note ack", noteId => {

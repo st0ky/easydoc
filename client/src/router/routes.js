@@ -1,5 +1,10 @@
 const routes = [
   {
+    path: "/login",
+    component: () => import("pages/Login.vue"),
+    meta: { guest: true }
+  },
+  {
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
     children: [
