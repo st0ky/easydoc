@@ -2,10 +2,10 @@ var _ = require('lodash');
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
 
 const fs = require('fs');
 var path = require('path');
+var io = require("socket.io")(server, { serveClient: false });
 
 const cors = require('cors');
 const bodyParser = require('body-parser');
