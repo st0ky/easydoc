@@ -11,7 +11,7 @@
     "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore ./",
     "test": "echo \"No test specified\" && exit 0",
     "start": "quasar dev",
-    "build": "set NODE_OPTIONS=--max_old_space_size=8096 && quasar build && rm -rf ../server/spa && cp -r dist/spa ../server"
+    "build": "quasar build"
   },
   "dependencies": {
     "@babel/parser": "^7.9.6",
