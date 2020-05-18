@@ -1,8 +1,11 @@
 import Vue from "vue";
-import { stat } from "fs";
+import { Cookies } from "quasar";
 
 export function SOCKET_CONNECTION(state, user_id) {
   console.log("SOCKET_CONNECTION", user_id);
+  if (state.user !== null) {
+    Vue.prototype.$socket.emit("login", state.user);
+  }
 }
 
 export function SOCKET_STATE(state, localState) {
@@ -90,4 +93,5 @@ export function SOCKET_LOGIN_UPDATE(state, { status, user }) {
   console.log("LOGIN_UPDATE", status, user);
   state.loginStatus = status;
   state.user = user;
+  Cookies.set("user", user);
 }

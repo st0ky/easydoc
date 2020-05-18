@@ -162,7 +162,7 @@ function emitTreeNotes(socket) {
 }
 
 function initConnection(socket) {
-  socket.emit("CONNECTION", socket.id);
+  socket.emit("STATE", "init");
   socket.emit("STATE", "init notes");
   emitTreeNotes(socket);
   socket.emit("NEW_NOTES", db.get("notes"));
@@ -185,8 +185,9 @@ nsp.on("connection", function (socket) {
     }
   }
 
+  socket.emit("CONNECTION", socket.id);
+
   socket.on("login", function (user) {
-    console.log("login", user);
     if (!db.get("users").get(user).value()) {
       socket.emit("LOGIN_FAIL", {
         user: user,
@@ -204,15 +205,13 @@ nsp.on("connection", function (socket) {
   });
 
   socket.on("logout", function () {
-    console.log("logout", username);
     if (username == null) return;
-    emitForUser(username, "LOGIN_UPDATE", { status: false, user: username });
+    emitForUser(username, "LOGIN_UPDATE", { status: false, user: null });
     users[username] = [];
     username = null;
   });
 
   socket.on("add user", function (user) {
-    console.log("add user", user);
     if (db.get("users").get(user).value()) {
       socket.emit("ADD_USER_FAIL", {
         user: user,

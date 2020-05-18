@@ -1,6 +1,9 @@
 <template>
   <div class="fixed-center text-center">
-    <q-card class="q-dialog-plugin" :class="$q.dark.isActive ? 'elev-24dp' : ''">
+    <q-card
+      class="q-dialog-plugin"
+      :class="$q.dark.isActive ? 'elev-24dp' : ''"
+    >
       <q-card-section>
         <q-tabs v-model="tab">
           <q-tab name="login" label="Login" />
@@ -8,13 +11,16 @@
         </q-tabs>
       </q-card-section>
       <q-card-section>
-        <div class="text-h4 q-mb-md">{{ tab === "login" ? "Login" : "Add User" }}</div>
+        <div class="text-h4 q-mb-md">
+          {{ tab === "login" ? "Login" : "Add User" }}
+        </div>
         <q-input
           ref="input"
           outlined
           placeholder="Username"
           v-model="user"
           dir="ltr"
+          @keyup.enter.stop="tab === 'login' ? login() : addUser()"
           :rules="[val => !!val || 'Field is required']"
         />
       </q-card-section>

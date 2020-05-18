@@ -1,47 +1,38 @@
-import Vue from 'vue'
+import Vue from "vue";
 
-// export const removeLink = function (state, { note, link } = {}) {
-//   if (note === null || state.notes[note].id !== note) {
-//     console.log('Error state.notes[note.id].id !== note.id')
-//     console.log(note)
-//     console.log(state.notes[note])
-//     return
-//   }
-//   if (state.notes[note].links.indexOf(link) == -1) {
-//     console.log('can not find this "%s" link', link)
-//     return
-//   }
-//   state.notes[note].links.splice(state.notes[note].links.indexOf(link), 1)
-// }
+export const SOCKET_STATE = function(state, state_status) {
+  if (state_status == "init") {
+    state.notes = {};
+    state.trees = {};
+  }
+};
 
-export const newNote = function (
-  state,
-  newNote,
-) {
-
-  Vue.set(state.notes, newNote.id, newNote)
-  if (!(newNote.id <= -1 || this.state.socket.treeNotes.indexOf(newNote.id) != -1)) {
+export const newNote = function(state, newNote) {
+  Vue.set(state.notes, newNote.id, newNote);
+  if (
+    !(newNote.id <= -1 || this.state.socket.treeNotes.indexOf(newNote.id) != -1)
+  ) {
     for (const tree of Object.keys(state.trees)) {
-      const new_node = { note: newNote.id, children: [], parent: -1 }
-      Vue.set(state.trees[tree], newNote.id, new_node)
-      state.trees[tree][-1].children.push(new_node)
+      const new_node = { note: newNote.id, children: [], parent: -1 };
+      Vue.set(state.trees[tree], newNote.id, new_node);
+      state.trees[tree][-1].children.push(new_node);
     }
   }
-  return newNote.id
-}
+  return newNote.id;
+};
 
-export const deleteNote = function (state, note) {
+export const deleteNote = function(state, note) {
   if (!state.notes[note]) {
-    console.log("note '%s' not found", note)
-    return
+    console.log("note '%s' not found", note);
+    return;
   }
   for (const tree of Object.values(state.trees)) {
-    parent = tree[tree[note].parent]
-    parent.children.splice(parent.children.indexOf(tree[note]), 1)
-    Vue.delete(tree, note)
+    parent = tree[tree[note].parent];
+    parent.children.splice(parent.children.indexOf(tree[note]), 1);
+    Vue.delete(tree, note);
   }
-  Vue.delete(state.notes, note)
-}
+  Vue.delete(state.notes, note);
+};
 
 // export const newTree = function (state, title = '') {
 //   console.log(title)
@@ -64,40 +55,39 @@ export const deleteNote = function (state, note) {
 //   console.log(state.flattenTrees)
 // }
 
-export const newTree = function (state, { tree, noteId }) {
-  const newTree = {}
-  let tmp_obj = tree[noteId]
-  const queue = [tmp_obj]
+export const newTree = function(state, { tree, noteId }) {
+  const newTree = {};
+  let tmp_obj = tree[noteId];
+  const queue = [tmp_obj];
   while (queue.length) {
-    tmp_obj = queue.pop()
-    newTree[tmp_obj.note] = tmp_obj
-    let newChildren = []
+    tmp_obj = queue.pop();
+    newTree[tmp_obj.note] = tmp_obj;
+    let newChildren = [];
     for (let child of tmp_obj.children) {
-      child = tree[child]
-      newChildren.push(child)
-      queue.push(child)
+      child = tree[child];
+      newChildren.push(child);
+      queue.push(child);
     }
-    tmp_obj.children = newChildren
+    tmp_obj.children = newChildren;
   }
 
   // append all unrelated notes
-  const children = []
-  console.log(this.state.socket.treeNotes)
+  const children = [];
+  console.log(this.state.socket.treeNotes);
   for (const note of Object.values(state.notes)) {
-    if (note.id <= -1) continue
-    if (this.state.socket.treeNotes.indexOf(note.id) != -1) continue
-    if (newTree[note.id]) continue
-    tmp_obj = { note: note.id, parent: -1, children: [] }
-    children.push(tmp_obj)
-    newTree[note.id] = tmp_obj
+    if (note.id <= -1) continue;
+    if (this.state.socket.treeNotes.indexOf(note.id) != -1) continue;
+    if (newTree[note.id]) continue;
+    tmp_obj = { note: note.id, parent: -1, children: [] };
+    children.push(tmp_obj);
+    newTree[note.id] = tmp_obj;
   }
-  tmp_obj = { note: -1, parent: noteId, children: children }
-  newTree[-1] = tmp_obj
-  newTree[noteId].children.push(tmp_obj)
-  Vue.set(state.trees, noteId, newTree)
-  console.log(state.trees)
-}
-
+  tmp_obj = { note: -1, parent: noteId, children: children };
+  newTree[-1] = tmp_obj;
+  newTree[noteId].children.push(tmp_obj);
+  Vue.set(state.trees, noteId, newTree);
+  console.log(state.trees);
+};
 
 // export const createFlattenTrees = function (state) {
 //   if (Object.keys(state.flattenTrees).length) return
@@ -151,22 +141,22 @@ export const newTree = function (state, { tree, noteId }) {
 //   }
 // }
 
-export const updateTreeNode = function (state, { tree, node }) {
-  let children = []
-  tree = state.trees[tree]
-  let treeNode = tree[node.note]
+export const updateTreeNode = function(state, { tree, node }) {
+  let children = [];
+  tree = state.trees[tree];
+  let treeNode = tree[node.note];
   if (treeNode.parent == -1) {
-    tree[-1].children.splice(tree[-1].children.indexOf(treeNode), 1)
+    tree[-1].children.splice(tree[-1].children.indexOf(treeNode), 1);
   }
   for (let child of node.children) {
-    children.push(tree[child])
+    children.push(tree[child]);
   }
   if (treeNode.children.indexOf(tree[-1]) != -1) {
-    children.push(tree[-1])
+    children.push(tree[-1]);
   }
-  Vue.set(treeNode, 'children', children)
-  Vue.set(treeNode, 'parent', node.parent)
-}
+  Vue.set(treeNode, "children", children);
+  Vue.set(treeNode, "parent", node.parent);
+};
 
 // export const deleteTreeNode = function (state, { tree, noteId }) {
 //   tree = state.trees[tree]
@@ -187,52 +177,54 @@ export const updateTreeNode = function (state, { tree, node }) {
 //   }
 //   console.log(tree)
 // }
-export const removeNodeFromTree = function (state, { treeId, noteId }) {
-  let tree = state.trees[treeId]
-  if (tree[noteId] === undefined) return
-  let node = tree[noteId]
-  Vue.set(node, "parent", -1)
-  Vue.set(node, 'children', [])
-  tree[-1].children.splice(0, 0, node)
-}
+export const removeNodeFromTree = function(state, { treeId, noteId }) {
+  let tree = state.trees[treeId];
+  if (tree[noteId] === undefined) return;
+  let node = tree[noteId];
+  Vue.set(node, "parent", -1);
+  Vue.set(node, "children", []);
+  tree[-1].children.splice(0, 0, node);
+};
 
-
-
-export const moveNote = function (
+export const moveNote = function(
   state,
   { treeId, note, newParent, newIndex = 0 } = {}
 ) {
   if (!state.trees[treeId]) {
-    console.log("tree '%s' not found", treeId)
-    return
+    console.log("tree '%s' not found", treeId);
+    return;
   }
-  let tree = state.trees[treeId]
+  let tree = state.trees[treeId];
   if (!tree[note]) {
-    console.log("note '%s' not found", note)
-    return
+    console.log("note '%s' not found", note);
+    return;
   }
   if (!tree[newParent]) {
-    console.log("newParent '%s' not found", newParent)
+    console.log("newParent '%s' not found", newParent);
   }
-  let tmpParent = newParent
+  let tmpParent = newParent;
   while (tmpParent !== null) {
     if (tmpParent == note) {
-      console.log('recursion detected!!')
-      return
+      console.log("recursion detected!!");
+      return;
     }
-    tmpParent = tree[tmpParent].parent
+    tmpParent = tree[tmpParent].parent;
   }
-  this._vm.$socket.emit("move note", { noteId: note, treeId: treeId, parentId: newParent, index: newIndex })
+  this._vm.$socket.emit("move note", {
+    noteId: note,
+    treeId: treeId,
+    parentId: newParent,
+    index: newIndex
+  });
+};
 
-}
-
-export const prepareTags = function (state) {
-  if (state.tags) return
-  const tmp = new Set()
+export const prepareTags = function(state) {
+  if (state.tags) return;
+  const tmp = new Set();
   for (const note of Object.values(state.notes)) {
     for (const tag of note.tags) {
-      tmp.add(tag)
+      tmp.add(tag);
     }
   }
-  state.tags = Array.from(tmp)
-}
+  state.tags = Array.from(tmp);
+};
