@@ -21,7 +21,7 @@
         :class="$q.dark.isActive ? 'elev-08dp' : 'bg-grey-3'"
       >
         ...
-        <q-tooltip>Go To Parent (CTRL + UP)</q-tooltip>
+        <q-tooltip dir="ltr">Go To Parent (CTRL + UP)</q-tooltip>
       </q-btn>
       <note-card class="col-12" primary :note="note" />
     </div>

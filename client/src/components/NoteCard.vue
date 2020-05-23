@@ -2,7 +2,7 @@
   <q-item
     class="q-pa-none"
     :to="
-      !special && primary
+      !special && primary && !edit_mode
         ? {
             name: 'noteView',
             params: { tree: $route.params.tree, note: $route.params.note }
@@ -21,7 +21,8 @@
       v-if="notes[note]"
       @keyup.esc.stop="cancel"
       @keyup.ctrl.enter.stop="exit_edit"
-      @dblclick.stop="primary && !edit_mode ? enter_edit('title') : ''"
+      @keyup="edit_mode ? $event.stopPropagation() : ''"
+      @dblclick="primary && !edit_mode ? enter_edit('title') : ''"
       @click.self.stop="
         !special && primary
           ? $router.replace({
@@ -40,7 +41,9 @@
             <div
               v-if="!edit_mode"
               :class="{ 'text-h6': title.length < 10 || this.primary }"
-            >{{ title }}</div>
+            >
+              {{ title }}
+            </div>
             <q-input
               v-model="title"
               v-if="edit_mode"
@@ -78,11 +81,12 @@
                 text-color="on-primary"
                 v-for="(tag, idx) in tags"
                 :key="idx"
-              >{{ tag }}</q-chip>
+                >{{ tag }}</q-chip
+              >
             </template>
           </div>
 
-          <div class="col-3 row justify-end" v-if="primary">
+          <div class="col-3 row justify-start" v-if="primary" dir="ltr">
             <q-btn
               :color="$q.dark.isActive ? 'elev-2dp' : 'grey-7'"
               round
@@ -93,10 +97,24 @@
             >
               <q-tooltip>edit note (double click)</q-tooltip>
             </q-btn>
-            <q-btn color="green" round flat icon="done" @click="exit_edit" v-if="edit_mode">
+            <q-btn
+              color="green"
+              round
+              flat
+              icon="done"
+              @click="exit_edit"
+              v-if="edit_mode"
+            >
               <q-tooltip>end editing (CTRL + ENTER)</q-tooltip>
             </q-btn>
-            <q-btn color="red" round flat icon="cancel" @click="cancel" v-if="edit_mode">
+            <q-btn
+              color="red"
+              round
+              flat
+              icon="cancel"
+              @click="cancel"
+              v-if="edit_mode"
+            >
               <q-tooltip>cancel editing (Esc)</q-tooltip>
             </q-btn>
             <q-btn
@@ -167,8 +185,7 @@
           >
             <q-tooltip>
               Add note link
-              <br />To add code link choose first file from file
-              tree
+              <br />To add code link choose first file from file tree
             </q-tooltip>
           </q-btn>
           <q-select

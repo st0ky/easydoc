@@ -6,6 +6,8 @@
       flat
       bordered
       :class="$q.dark.isActive ? 'elev-8dp' : 'bg-grey-3'"
+      @keyup.insert.stop
+      @keyup="editing ? $event.stopPropagation() : ''"
     >
       <div class="fit" ref="mindtree" />
       <q-menu
@@ -15,13 +17,13 @@
         self="top left"
         :offset="nodeMenu"
       >
-        <q-list style="min-width: 100px" v-if="curNode">
+        <q-list style="min-width: 100px" v-if="curNode" dir="ltr">
           <q-item clickable>
             <q-item-section>Tags</q-item-section>
             <q-item-section side>
-              <q-icon name="keyboard_arrow_left" />
+              <q-icon name="keyboard_arrow_right" />
             </q-item-section>
-            <q-menu anchor="top left" self="top right">
+            <q-menu anchor="top right" self="top left">
               <q-list>
                 <q-item
                   v-for="tag in tags"
@@ -69,7 +71,7 @@
             v-close-popup
             dense
           >
-            Go To Note (CTRL + CLICK)
+            Go To Note (Double Click)
           </q-item>
         </q-list>
       </q-menu>
@@ -102,7 +104,7 @@ export default {
       model: new go.TreeModel([]),
       _modelCopy: {},
       _lastNew: null,
-      nodeMenu: [0, 0],
+      nodeMenu: [5, 5],
       curNode: null
     };
   },
@@ -128,6 +130,12 @@ export default {
         res[node.note] = JSON.stringify(this.notes[node.note].tags);
       }
       return res;
+    },
+    editing() {
+      console.log(this.myDiagram.toolManager.textEditingTool.state.name);
+      return (
+        this.myDiagram.toolManager.textEditingTool.state.name !== "StateNone"
+      );
     }
   },
   methods: {
@@ -146,6 +154,7 @@ export default {
       parent = parent.data.key;
 
       let types = e.clipboardData.types.slice();
+      console.log(types);
       if (types.indexOf("notes/tree") != -1) {
         console.log("notes/tree");
         e.preventDefault();
@@ -160,7 +169,7 @@ export default {
       if (types.indexOf("text/plain") != -1) {
         e.preventDefault();
         let text = e.clipboardData.getData("text/plain");
-        let lines = text.split("\r\n");
+        let lines = text.split(text.indexOf("\r\n") !== -1 ? "\r\n" : "\n");
 
         let sep = null;
         let res = {};
@@ -535,8 +544,8 @@ export default {
         // "commandHandler.deletesTree": true,
         "draggingTool.dragsTree": true,
         "draggingTool.isCopyEnabled": false,
-        "animationManager.isEnabled": false
-        // "draggingTool.isPasteEnabled": false,
+        "animationManager.isEnabled": false,
+        "textEditingTool.isEnabled": false
         // "undoManager.isEnabled": true
       });
 
@@ -566,9 +575,9 @@ export default {
         "Vertical",
         {
           selectionObjectName: "TEXT",
-          click: (e, thisObj) => {
+          doubleClick: (e, thisObj) => {
             var inp = this.myDiagram.lastInput;
-            if (inp.control || inp.meta) {
+            if (inp.control || inp.meta || true) {
               this.$router.push({
                 name: "noteView",
                 params: { tree: this.tree, note: thisObj.part.data.key }
@@ -751,9 +760,8 @@ export default {
       this.myDiagram.nodeTemplate.contextMenu = $(go.HTMLInfo, {
         show: (obj, diagram, tool) => {
           var mousePt = diagram.lastInput.viewPoint;
-          let rect = this.$refs.mindtree.getBoundingClientRect();
           this.curNode = obj;
-          this.nodeMenu = [-(mousePt.x + rect.x + 4), -(mousePt.y + 2)];
+          this.nodeMenu = [-(mousePt.x + 4), -(mousePt.y + 2)];
           this.$nextTick(this._nodeMenu.show);
         },
         hide: () => {

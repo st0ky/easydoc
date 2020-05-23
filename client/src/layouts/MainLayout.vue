@@ -22,7 +22,7 @@
         <q-toolbar-title />
         <search ref="search" hint="Type '/' to focus here..." />
         <q-btn flat dense round icon="more_vert" aria-label="Menu">
-          <q-menu>
+          <q-menu dir="ltr">
             <q-list style="min-width: 160px">
               <q-item clickable v-close-popup @click="$router.go(-1)">
                 <q-item-section>Go Back (Esc)</q-item-section>
@@ -81,7 +81,7 @@
                   $q.dark.isActive ? 'elev-16dp' : 'bg-primary text-white'
                 "
               >
-                <q-btn-dropdown auto-close flat>
+                <q-btn-dropdown auto-close flat ref="tabs">
                   <q-list>
                     <template v-for="(v, tree) in trees">
                       <q-item
@@ -117,6 +117,7 @@
                   v-if="tab === undefined || !notes[tab]"
                   :name="undefined"
                   label="Select Tab"
+                  @click="$refs.tabs.show()"
                 />
               </q-tabs>
               <q-separator />
