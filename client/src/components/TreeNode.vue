@@ -126,7 +126,7 @@ export default {
     },
 
     onDragOver(e) {
-      if (!this.isDragged) {
+      if (!this.isDragged && e.dataTransfer.types.includes("note")) {
         e.preventDefault();
       }
     },

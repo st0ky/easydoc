@@ -1,6 +1,6 @@
 <template>
-  <div class="row">
-    <div class="col-12 row q-gutter-xs">
+  <div class="column">
+    <div class="col-auto row q-gutter-xs">
       <q-input
         ref="filter"
         filled
@@ -20,26 +20,66 @@
         <q-tooltip>open in mindtree</q-tooltip>
       </q-btn>
     </div>
-    <div
-      class="col-12"
-      @keyup.n="newNote"
-      @keyup.46.exact="confirmDeleteNote"
-      @keyup.shift.46="deleteNote"
+
+    <q-splitter
+      horizontal
+      v-model="splitter"
+      before-class="noscroll row items-stretch"
+      after-class="noscroll row items-stretch"
+      class="col"
     >
-      <q-tree
-        :nodes="[trees[tree][tree]]"
-        node-key="note"
-        label-key="note"
-        :filter="filter"
-        :filter-method="myFilterMethod"
-        default-expand-all
-        @update:selected="selectedTreeNode = target"
-      >
-        <template v-slot:default-header="prop">
-          <tree-node :note="prop.node.note" :tree="prop.tree" />
-        </template>
-      </q-tree>
-    </div>
+      <template v-slot:before>
+        <div
+          class="col-12 column"
+          @keyup.n="newNote"
+          @keyup.46.exact="confirmDeleteNote"
+          @keyup.shift.46="deleteNote"
+        >
+          <q-scroll-area class="col">
+            <q-tree
+              :nodes="[trees[tree][tree]]"
+              node-key="note"
+              label-key="note"
+              :filter="filter"
+              :filter-method="myFilterMethod"
+              default-expand-all
+              @update:selected="selectedTreeNode = target"
+            >
+              <template v-slot:default-header="prop">
+                <tree-node :note="prop.node.note" :tree="prop.tree" />
+              </template>
+            </q-tree>
+          </q-scroll-area>
+        </div>
+      </template>
+      <template v-slot:after>
+        <q-list
+          class="col-12 column"
+          @dragover="
+            $event.dataTransfer.types.includes('note')
+              ? $event.preventDefault()
+              : ''
+          "
+          @drop="detachedDrop"
+        >
+          <q-scroll-area class="col">
+            <q-item-label header>Detached Notes</q-item-label>
+            <q-item
+              draggable="true"
+              v-for="note in detached"
+              :key="note"
+              :to="{
+                name: 'noteView',
+                params: { tree: tree, note: note }
+              }"
+              @dragstart="onDragStart($event, note)"
+            >
+              {{ notes[note].title }}
+            </q-item>
+          </q-scroll-area>
+        </q-list>
+      </template>
+    </q-splitter>
   </div>
 </template>
 
@@ -58,11 +98,23 @@ export default {
   data() {
     return {
       filter: "",
-      selectedTreeNode: null
+      selectedTreeNode: null,
+      splitter: 65
     };
   },
   computed: {
-    ...mapState("notes", ["notes", "trees"])
+    ...mapState("notes", ["notes", "trees"]),
+    detached() {
+      let res = [];
+      for (let note in this.notes) {
+        note = parseInt(note);
+        if (note < 0) continue;
+        if (this.trees[this.tree][parseInt(note)] === undefined) {
+          res.push(parseInt(note));
+        }
+      }
+      return res;
+    }
   },
   methods: {
     myFilterMethod(node, filter) {
@@ -111,6 +163,15 @@ export default {
         .onOk(() => {
           this.deleteNote();
         });
+    },
+    onDragStart(e, note) {
+      e.dataTransfer.setData("note", note);
+      e.dataTransfer.dropEffect = "move";
+    },
+    detachedDrop(e) {
+      let note = parseInt(e.dataTransfer.getData("note"));
+      this.$socket.emit("remove from tree", { tree: this.tree, note: note });
+      e.preventDefault();
     }
   },
   watch: {

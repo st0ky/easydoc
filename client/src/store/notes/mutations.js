@@ -12,11 +12,11 @@ export const newNote = function(state, newNote) {
   if (
     !(newNote.id <= -1 || this.state.socket.treeNotes.indexOf(newNote.id) != -1)
   ) {
-    for (const tree of Object.keys(state.trees)) {
-      const new_node = { note: newNote.id, children: [], parent: -1 };
-      Vue.set(state.trees[tree], newNote.id, new_node);
-      state.trees[tree][-1].children.push(new_node);
-    }
+    // for (const tree of Object.keys(state.trees)) {
+    //   const new_node = { note: newNote.id, children: [], parent: -1 };
+    //   Vue.set(state.trees[tree], newNote.id, new_node);
+    //   state.trees[tree][-1].children.push(new_node);
+    // }
   }
   return newNote.id;
 };
@@ -27,6 +27,7 @@ export const deleteNote = function(state, note) {
     return;
   }
   for (const tree of Object.values(state.trees)) {
+    if (tree[note] === undefined) continue;
     parent = tree[tree[note].parent];
     parent.children.splice(parent.children.indexOf(tree[note]), 1);
     Vue.delete(tree, note);
@@ -74,17 +75,17 @@ export const newTree = function(state, { tree, noteId }) {
   // append all unrelated notes
   const children = [];
   console.log(this.state.socket.treeNotes);
-  for (const note of Object.values(state.notes)) {
-    if (note.id <= -1) continue;
-    if (this.state.socket.treeNotes.indexOf(note.id) != -1) continue;
-    if (newTree[note.id]) continue;
-    tmp_obj = { note: note.id, parent: -1, children: [] };
-    children.push(tmp_obj);
-    newTree[note.id] = tmp_obj;
-  }
-  tmp_obj = { note: -1, parent: noteId, children: children };
-  newTree[-1] = tmp_obj;
-  newTree[noteId].children.push(tmp_obj);
+  // for (const note of Object.values(state.notes)) {
+  //   if (note.id <= -1) continue;
+  //   if (this.state.socket.treeNotes.indexOf(note.id) != -1) continue;
+  //   if (newTree[note.id]) continue;
+  //   tmp_obj = { note: note.id, parent: -1, children: [] };
+  //   children.push(tmp_obj);
+  //   newTree[note.id] = tmp_obj;
+  // }
+  // tmp_obj = { note: -1, parent: noteId, children: children };
+  // newTree[-1] = tmp_obj;
+  // newTree[noteId].children.push(tmp_obj);
   Vue.set(state.trees, noteId, newTree);
   console.log(state.trees);
 };
@@ -145,15 +146,19 @@ export const updateTreeNode = function(state, { tree, node }) {
   let children = [];
   tree = state.trees[tree];
   let treeNode = tree[node.note];
-  if (treeNode.parent == -1) {
-    tree[-1].children.splice(tree[-1].children.indexOf(treeNode), 1);
+  if (treeNode === undefined) {
+    treeNode = { note: node.note, parent: node.parent, children: [] };
+    Vue.set(tree, node.note, treeNode);
   }
+  // if (treeNode.parent == -1) {
+  //   tree[-1].children.splice(tree[-1].children.indexOf(treeNode), 1);
+  // }
   for (let child of node.children) {
     children.push(tree[child]);
   }
-  if (treeNode.children.indexOf(tree[-1]) != -1) {
-    children.push(tree[-1]);
-  }
+  // if (treeNode.children.indexOf(tree[-1]) != -1) {
+  //   children.push(tree[-1]);
+  // }
   Vue.set(treeNode, "children", children);
   Vue.set(treeNode, "parent", node.parent);
 };
@@ -181,9 +186,16 @@ export const removeNodeFromTree = function(state, { treeId, noteId }) {
   let tree = state.trees[treeId];
   if (tree[noteId] === undefined) return;
   let node = tree[noteId];
-  Vue.set(node, "parent", -1);
-  Vue.set(node, "children", []);
-  tree[-1].children.splice(0, 0, node);
+  // if (tree[node.parent] !== undefined) {
+  //   console.log(tree[node.parent].children.slice());
+  //   console.log(tree[node.parent]);
+  //   console.log(tree[node.parent].children.indexOf(node));
+  //   tree[node.parent].children.splice(
+  //     tree[node.parent].children.indexOf(node),
+  //     1
+  //   );
+  // }
+  Vue.delete(tree, node.note);
 };
 
 export const moveNote = function(

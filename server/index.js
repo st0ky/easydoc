@@ -113,6 +113,7 @@ db.defaults({
 db.get("notes[-1]").set("title", "detached notes").write();
 
 function removeNodeFromTree(treeId, noteId) {
+  if (parseInt(treeId) === parseInt(noteId)) return;
   let tree = db.get("trees").get(treeId);
   let tmp = tree.get(noteId).value();
   tree.get(tmp.parent).get("children").pull(noteId).write();
@@ -343,6 +344,9 @@ nsp.on("connection", function (socket) {
     }
     db.get("notes").unset(note).write();
     nsp.emit("DELETE_NOTE", note);
+  });
+  socket.on("remove from tree", function ({ tree, note }) {
+    removeNodeFromTree(tree, note);
   });
 
   socket.on("new tree", function (title = "") {

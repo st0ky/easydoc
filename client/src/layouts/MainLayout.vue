@@ -70,77 +70,63 @@
           bordered
           :width="drawerWidth"
           :breakpoint="0"
-          content-class="noscroll"
+          content-class="noscroll column"
         >
-          <div class="column" style="height: 100vh">
-            <q-scroll-area class="col">
-              <q-tabs
-                v-model="tab"
-                elevated
-                :class="
-                  $q.dark.isActive ? 'elev-16dp' : 'bg-primary text-white'
-                "
-              >
-                <q-btn-dropdown auto-close flat ref="tabs">
-                  <q-list>
-                    <template v-for="(v, tree) in trees">
-                      <q-item
-                        :key="tree"
-                        clickable
-                        @click="tab = parseInt(tree)"
-                      >
-                        <q-item-section>{{
-                          notes[parseInt(tree)].title
-                        }}</q-item-section>
-                      </q-item>
-                    </template>
-                    <template v-for="(v, tree) in fileTrees">
-                      <q-item
-                        :key="tree"
-                        clickable
-                        @click="tab = parseInt(tree)"
-                      >
-                        <q-item-section
-                          >Files:
-                          {{ notes[parseInt(tree)].title }}</q-item-section
-                        >
-                      </q-item>
-                    </template>
-                  </q-list>
-                </q-btn-dropdown>
-                <q-tab
-                  v-if="tab !== undefined && notes[tab]"
-                  :name="tab"
-                  :label="notes[tab].title"
-                />
-                <q-tab
-                  v-if="tab === undefined || !notes[tab]"
-                  :name="undefined"
-                  label="Select Tab"
-                  @click="$refs.tabs.show()"
-                />
-              </q-tabs>
-              <q-separator />
-
-              <q-tab-panels v-model="tab" keep-alive>
+          <q-tabs
+            v-model="tab"
+            elevated
+            :class="$q.dark.isActive ? 'elev-16dp' : 'bg-primary text-white'"
+            class="col-auto"
+          >
+            <q-btn-dropdown auto-close flat ref="tabs">
+              <q-list>
                 <template v-for="(v, tree) in trees">
-                  <q-tab-panel
-                    :key="tree"
-                    :name="parseInt(tree)"
-                    class="q-pa-xs"
-                  >
-                    <note-tree :tree="parseInt(tree)" />
-                  </q-tab-panel>
+                  <q-item :key="tree" clickable @click="tab = parseInt(tree)">
+                    <q-item-section>{{
+                      notes[parseInt(tree)].title
+                    }}</q-item-section>
+                  </q-item>
                 </template>
-
                 <template v-for="(v, tree) in fileTrees">
-                  <q-tab-panel :key="tree" :name="parseInt(tree)">
-                    <file-tree :tree="parseInt(tree)" />
-                  </q-tab-panel>
+                  <q-item :key="tree" clickable @click="tab = parseInt(tree)">
+                    <q-item-section
+                      >Files: {{ notes[parseInt(tree)].title }}</q-item-section
+                    >
+                  </q-item>
                 </template>
-              </q-tab-panels>
-            </q-scroll-area>
-          </div>
+              </q-list>
+            </q-btn-dropdown>
+            <q-tab
+              v-if="tab !== undefined && notes[tab]"
+              :name="tab"
+              :label="notes[tab].title"
+            />
+            <q-tab
+              v-if="tab === undefined || !notes[tab]"
+              :name="undefined"
+              label="Select Tab"
+              @click="$refs.tabs.show()"
+            />
+          </q-tabs>
+          <q-separator />
+
+          <q-tab-panels v-model="tab" keep-alive class="col row items-stretch">
+            <template v-for="(v, tree) in trees">
+              <q-tab-panel
+                :key="tree"
+                :name="parseInt(tree)"
+                class="col-12 q-pa-xs row items-stretch"
+              >
+                <note-tree class="col-12" :tree="parseInt(tree)" />
+              </q-tab-panel>
+            </template>
+
+            <template v-for="(v, tree) in fileTrees">
+              <q-tab-panel :key="tree" :name="parseInt(tree)" class="col-12">
+                <file-tree :tree="parseInt(tree)" />
+              </q-tab-panel>
+            </template>
+          </q-tab-panels>
         </q-drawer>
       </template>
 
