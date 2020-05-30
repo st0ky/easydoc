@@ -19,7 +19,7 @@
         primary && note != -1 ? 'cursor-pointer' : ''
       ]"
       v-if="notes[note]"
-      @keyup.esc.stop="cancel"
+      @keyup.esc.stop="cancel()"
       @keyup.ctrl.enter.stop="exit_edit"
       @keyup="edit_mode ? $event.stopPropagation() : ''"
       @dblclick="primary && !edit_mode ? enter_edit('title') : ''"

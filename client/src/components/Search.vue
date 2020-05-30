@@ -8,6 +8,7 @@
     hide-bottom-space
     v-model="model"
     clearable
+    @keyup.esc.stop
     @input="
       $router.push({
         name: 'noteView',
@@ -36,6 +37,7 @@
         manual-focus
         :focused="focused"
         class="q-hoverable"
+        style="max-width: 450px"
       >
         <q-item-section>
           <q-item-label> {{ notes[opt].title }}</q-item-label>
