@@ -49,7 +49,10 @@ export function SOCKET_UPDATE_TREE_NODES(state, { tree, nodes }) {
 export function SOCKET_REMOVE_NODES_FROM_TREE(state, { tree, omit }) {
   console.log("SOCKET_REMOVE_NODES_FROM_TREE", tree, omit);
   for (let node of omit) {
-    this.commit("notes/removeNodeFromTree", { treeId: tree, noteId: node });
+    this.commit("notes/removeNodeFromTree", {
+      treeId: tree,
+      noteId: parseInt(node)
+    });
   }
 }
 

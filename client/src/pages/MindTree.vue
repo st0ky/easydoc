@@ -466,9 +466,9 @@ export default {
           return;
         }
         for (let obj of deleted) {
-          this.model.removeNodeData(this.model.findNodeDataForKey(obj.note));
-          // let parent = this._modelCopy[obj.note].parent
-          delete this._modelCopy[obj.note];
+          this.model.removeNodeData(this.model.findNodeDataForKey(obj.key));
+          // let parent = this._modelCopy[obj.key].parent
+          delete this._modelCopy[obj.key];
           // this.layoutTree(this.myDiagram.findNodeForKey(parent));
         }
         for (let obj of changed) {
@@ -477,15 +477,6 @@ export default {
             obj.parent
           );
           this._modelCopy[obj.note].parent = obj.parent;
-          if (Number.isInteger(this._lastNew) && this._lastNew == obj.note) {
-            let tb = this.myDiagram
-              .findNodeForKey(this._lastNew)
-              .findObject("TITLE");
-            this.$nextTick(() => {
-              this.myDiagram.select(tb.part);
-              this.myDiagram.commandHandler.editTextBlock(tb);
-            });
-          }
 
           // this.layoutTree(this.myDiagram.findNodeForKey(obj.parent));
         }
@@ -499,6 +490,15 @@ export default {
           };
           this.model.addNodeData(obj);
           this._modelCopy[obj.key] = obj;
+          if (Number.isInteger(this._lastNew) && this._lastNew == obj.key) {
+            let tb = this.myDiagram
+              .findNodeForKey(this._lastNew)
+              .findObject("TITLE");
+            this.$nextTick(() => {
+              this.myDiagram.select(tb.part);
+              this.myDiagram.commandHandler.editTextBlock(tb);
+            });
+          }
           // this.layoutTree(this.myDiagram.findNodeForKey(obj.key));
         }
         this.layoutAll();

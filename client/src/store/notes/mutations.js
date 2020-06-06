@@ -148,7 +148,7 @@ export const updateTreeNode = function(state, { tree, node }) {
   let treeNode = tree[node.note];
   if (treeNode === undefined) {
     treeNode = { note: node.note, parent: node.parent, children: [] };
-    Vue.set(tree, node.note, treeNode);
+    Vue.set(tree, parseInt(node.note), treeNode);
   }
   // if (treeNode.parent == -1) {
   //   tree[-1].children.splice(tree[-1].children.indexOf(treeNode), 1);
