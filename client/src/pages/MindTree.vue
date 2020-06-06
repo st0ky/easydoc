@@ -540,8 +540,10 @@ export default {
         "draggingTool.dragsTree": true,
         "draggingTool.isCopyEnabled": false,
         "animationManager.isEnabled": false,
-        "textEditingTool.isEnabled": false
+        "textEditingTool.isEnabled": false,
         // "undoManager.isEnabled": true
+        hasVerticalScrollbar: false,
+        hasHorizontalScrollbar: false
       });
       var tool = this.myDiagram.toolManager.textEditingTool;
       tool.doCancel = () => {
