@@ -41,9 +41,7 @@
             <div
               v-if="!edit_mode"
               :class="{ 'text-h6': title.length < 10 || this.primary }"
-            >
-              {{ title }}
-            </div>
+            >{{ title }}</div>
             <q-input
               v-model="title"
               v-if="edit_mode"
@@ -81,8 +79,7 @@
                 text-color="on-primary"
                 v-for="(tag, idx) in tags"
                 :key="idx"
-                >{{ tag }}</q-chip
-              >
+              >{{ tag }}</q-chip>
             </template>
           </div>
 
@@ -97,24 +94,10 @@
             >
               <q-tooltip>edit note (double click)</q-tooltip>
             </q-btn>
-            <q-btn
-              color="green"
-              round
-              flat
-              icon="done"
-              @click="exit_edit"
-              v-if="edit_mode"
-            >
+            <q-btn color="green" round flat icon="done" @click="exit_edit" v-if="edit_mode">
               <q-tooltip>end editing (CTRL + ENTER)</q-tooltip>
             </q-btn>
-            <q-btn
-              color="red"
-              round
-              flat
-              icon="cancel"
-              @click="cancel"
-              v-if="edit_mode"
-            >
+            <q-btn color="red" round flat icon="cancel" @click="cancel" v-if="edit_mode">
               <q-tooltip>cancel editing (Esc)</q-tooltip>
             </q-btn>
             <q-btn

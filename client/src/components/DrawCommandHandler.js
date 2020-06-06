@@ -376,6 +376,16 @@ DrawCommandHandler._findGroupDepth = function(part) {
   }
 };
 
+// DrawCommandHandler.prototype.stopCommand = function() {
+//   console.log("stopCommand");
+//   go.CommandHandler.prototype.stopCommand.call(this);
+// };
+
+// DrawCommandHandler.prototype.doCancel = function() {
+//   console.log("doCancel");
+//   go.CommandHandler.prototype.doCancel.call(this);
+// };
+
 /**
  * This implements custom behaviors for arrow key keyboard events.
  * Set {@link #arrowKeyBehavior} to "select", "move" (the default), "scroll" (the standard behavior), or "none"

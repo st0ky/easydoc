@@ -7,7 +7,7 @@
       bordered
       :class="$q.dark.isActive ? 'elev-8dp' : 'bg-grey-3'"
       @keyup.insert.stop
-      @keyup="editing ? $event.stopPropagation() : ''"
+      @keyup="onKeyUp"
     >
       <div class="fit" ref="mindtree" />
       <q-menu
@@ -32,9 +32,7 @@
                   clickable
                   v-close-popup
                   @click="toggleTag(curNode.data.key, tag)"
-                >
-                  {{ tag }}
-                </q-item>
+                >{{ tag }}</q-item>
               </q-list>
             </q-menu>
           </q-item>
@@ -43,26 +41,15 @@
             v-close-popup
             dense
             @click="newNote(curNode.data.key)"
-          >
-            New Node (Insert \ N)
-          </q-item>
-          <q-item
-            clickable
-            v-close-popup
-            dense
-            @click="deleteNote(curNode.data.key)"
-          >
-            Delete (Del)
-          </q-item>
+          >New Node (Insert \ N)</q-item>
+          <q-item clickable v-close-popup dense @click="deleteNote(curNode.data.key)">Delete (Del)</q-item>
           <q-item
             clickable
             v-close-popup
             dense
             v-if="!curNode.isTreeLeaf"
             @click="collapseExpand(curNode)"
-          >
-            Collapse / Expand (CTRL + LEFT \ RIGHT)
-          </q-item>
+          >Collapse / Expand (CTRL + LEFT \ RIGHT)</q-item>
           <q-item
             :to="{
               name: 'noteView',
@@ -70,9 +57,7 @@
             }"
             v-close-popup
             dense
-          >
-            Go To Note (Double Click)
-          </q-item>
+          >Go To Note (Double Click)</q-item>
         </q-list>
       </q-menu>
     </q-card>
@@ -105,7 +90,8 @@ export default {
       _modelCopy: {},
       _lastNew: null,
       nodeMenu: [5, 5],
-      curNode: null
+      curNode: null,
+      _waiting: false
     };
   },
   computed: {
@@ -132,13 +118,22 @@ export default {
       return res;
     },
     editing() {
-      console.log(this.myDiagram.toolManager.textEditingTool.state.name);
       return (
+        this.myDiagram &&
+        this.myDiagram.toolManager &&
         this.myDiagram.toolManager.textEditingTool.state.name !== "StateNone"
       );
     }
   },
   methods: {
+    onKeyUp(e) {
+      console.log("editing", this._waiting);
+      if (this.editing || (this._waiting && e.key === "Escape")) {
+        e.stopPropagation();
+      }
+      this._waiting = false;
+    },
+
     toggleTag(noteId, tag) {
       let cur = this.notes[noteId].tags.slice();
       if (cur.indexOf(tag) != -1) {
@@ -548,6 +543,11 @@ export default {
         "textEditingTool.isEnabled": false
         // "undoManager.isEnabled": true
       });
+      var tool = this.myDiagram.toolManager.textEditingTool;
+      tool.doCancel = () => {
+        this._waiting = true;
+        go.TextEditingTool.prototype.doCancel.call(tool);
+      };
 
       // when the document is modified, add a "*" to the title and enable the "Save" button
       this.myDiagram.addDiagramListener("Modified", e => {
@@ -577,13 +577,12 @@ export default {
           selectionObjectName: "TEXT",
           doubleClick: (e, thisObj) => {
             var inp = this.myDiagram.lastInput;
-            if (inp.control || inp.meta || true) {
-              this.$router.push({
-                name: "noteView",
-                params: { tree: this.tree, note: thisObj.part.data.key }
-              });
-              e.handled = true;
-            }
+
+            this.$router.push({
+              name: "noteView",
+              params: { tree: this.tree, note: thisObj.part.data.key }
+            });
+            e.handled = true;
           }
         },
         {
@@ -730,12 +729,7 @@ export default {
         // make sure text "grows" in the desired direction
         new go.Binding("locationSpot", "dir", d => {
           return this.spotConverter(d, false);
-        }),
-        new go.Binding("cursor", "", o => {
-          return o.diagram.lastInput.control || o.diagram.lastInput.meta
-            ? "pointer"
-            : "auto";
-        }).ofObject()
+        })
       );
 
       // selected nodes show a button for adding children

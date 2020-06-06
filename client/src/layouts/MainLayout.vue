@@ -1,8 +1,5 @@
 <template>
-  <q-layout
-    view="Lhh Lpr lff"
-    :class="$q.dark.isActive ? 'elev-00dp text-white' : ''"
-  >
+  <q-layout view="Lhh Lpr lff" :class="$q.dark.isActive ? 'elev-00dp text-white' : ''">
     <q-header elevated :class="$q.dark.isActive ? 'elev-04dp' : ''">
       <q-toolbar>
         <q-btn
@@ -40,12 +37,7 @@
                 <q-item-section>New note (Insert)</q-item-section>
               </q-item>
               <q-item>
-                <q-toggle
-                  v-model="$q.dark.isActive"
-                  label="Dark mode"
-                  left-label
-                  v-close-popup
-                />
+                <q-toggle v-model="$q.dark.isActive" label="Dark mode" left-label v-close-popup />
               </q-item>
               <q-item clickable @click="logOut" v-close-popup>
                 <q-item-section>Log out</q-item-section>
@@ -82,25 +74,21 @@
               <q-list>
                 <template v-for="(v, tree) in trees">
                   <q-item :key="tree" clickable @click="tab = parseInt(tree)">
-                    <q-item-section>{{
+                    <q-item-section>
+                      {{
                       notes[parseInt(tree)].title
-                    }}</q-item-section>
+                      }}
+                    </q-item-section>
                   </q-item>
                 </template>
                 <template v-for="(v, tree) in fileTrees">
                   <q-item :key="tree" clickable @click="tab = parseInt(tree)">
-                    <q-item-section
-                      >Files: {{ notes[parseInt(tree)].title }}</q-item-section
-                    >
+                    <q-item-section>Files: {{ notes[parseInt(tree)].title }}</q-item-section>
                   </q-item>
                 </template>
               </q-list>
             </q-btn-dropdown>
-            <q-tab
-              v-if="tab !== undefined && notes[tab]"
-              :name="tab"
-              :label="notes[tab].title"
-            />
+            <q-tab v-if="tab !== undefined && notes[tab]" :name="tab" :label="notes[tab].title" />
             <q-tab
               v-if="tab === undefined || !notes[tab]"
               :name="undefined"

@@ -1,21 +1,14 @@
 <template>
   <div class="column">
     <div class="col-auto row q-gutter-xs">
-      <q-input
-        ref="filter"
-        filled
-        dense
-        v-model="filter"
-        label="Filter"
-        class="col-9"
-      />
+      <q-input ref="filter" filled dense v-model="filter" label="Filter" class="col-9" />
       <q-btn
         class="col"
         :color="$q.dark.isActive ? 'elev-8dp' : 'grey-7'"
         flat
         icon="eva-expand-outline"
         :to="{ name: 'mindtree', params: { tree: tree } }"
-        label=""
+        label
       >
         <q-tooltip>open in mindtree</q-tooltip>
       </q-btn>
@@ -73,9 +66,7 @@
                 params: { tree: tree, note: note }
               }"
               @dragstart="onDragStart($event, note)"
-            >
-              {{ notes[note].title }}
-            </q-item>
+            >{{ notes[note].title }}</q-item>
           </q-scroll-area>
         </q-list>
       </template>
